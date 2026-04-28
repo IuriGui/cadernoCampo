@@ -25,7 +25,7 @@ class _AtividadesListScreenState extends State<AtividadesListScreen> {
 
   void _refreshList() {
     setState(() {
-      _registrosFuture = _dao.getAllRegistrosByUser(widget.user.id!);
+      _registrosFuture = _dao.getAllRegistros();
     });
   }
 

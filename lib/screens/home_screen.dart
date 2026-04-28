@@ -57,12 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _refreshLocais() {
-    if (_propriedade != null) {
-      setState(() {
-        _locaisFuture = _localDAO.getTopThreeLocais(_propriedade!.id!);
-      });
-    }
+  Future<void> _refreshData() async {
+    await _loadInitialData();
   }
 
   @override
@@ -381,7 +377,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   context,
                   MaterialPageRoute(builder: (context) => LocalScreen(user: widget.user)),
                 );
-                _refreshLocais();
+                _refreshData();
               },
               child: const Text("Ver todos", style: TextStyle(color: Colors.green))
             ),
@@ -452,7 +448,7 @@ class _HomeScreenState extends State<HomeScreen> {
           context,
           MaterialPageRoute(builder: (context) => LocalDetailScreen(local: local, user: widget.user)),
         );
-        _refreshLocais();
+        _refreshData();
       },
       child: Column(
         children: [
@@ -504,28 +500,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     builder: (context) => LocalScreen(user: widget.user, selectionMode: true),
                   ),
                 );
-                _refreshLocais();
+                _refreshData();
               },
             ),
             _buildAcaoButton(MdiIcons.shovel, "Novo Canteiro", const Color(0xFF8D6E63)),
             _buildAcaoButton(MdiIcons.sprout, "Novo Plantio", const Color(0xFF43A047)),
             _buildAcaoButton(MdiIcons.packageVariantClosed, "Registrar Insumo", const Color(0xFF26A69A)),
           ],
-        ),
-        const SizedBox(height: 16),
-        TextButton(
-          onPressed: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => AtividadesListScreen(user: widget.user)),
-            );
-            _refreshLocais();
-          },
-          child: const Text(
-            "Ver Mais Opções",
-            style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
-          ),
-        ),
+        )
       ],
     );
   }
