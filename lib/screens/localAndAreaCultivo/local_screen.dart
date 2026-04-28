@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../core/dao/local_dao.dart';
-import '../core/dao/propriedade_dao.dart';
-import '../core/models/local.dart';
-import '../core/models/user.dart';
-import '../core/models/propriedade.dart';
+import '../../core/dao/local_dao.dart';
+import '../../core/dao/propriedade_dao.dart';
+import '../../core/models/local.dart';
+import '../../core/models/user.dart';
+import '../../core/models/propriedade.dart';
 import 'local_detail_screen.dart';
-import 'registersScreens/register_activity_screen.dart';
-import 'registersScreens/register_local_screen.dart';
+import '../activity/register_activity_screen.dart';
+import 'register_local_screen.dart';
 
 class LocalScreen extends StatefulWidget {
   final User user;

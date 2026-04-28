@@ -5,11 +5,11 @@ import '../core/models/propriedade.dart';
 import '../core/dao/local_dao.dart';
 import '../core/dao/propriedade_dao.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'insumo_screen.dart';
-import 'local_screen.dart';
-import 'atividades_list_screen.dart';
-import 'propriedade_screen.dart';
-import 'local_detail_screen.dart';
+import 'supply/insumo_screen.dart';
+import 'localAndAreaCultivo/local_screen.dart';
+import 'activity/atividades_list_screen.dart';
+import 'property/propriedade_screen.dart';
+import 'localAndAreaCultivo/local_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final User user;

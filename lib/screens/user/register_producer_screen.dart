@@ -6,7 +6,7 @@ import '../../core/models/propriedade.dart';
 import '../../core/models/produtor.dart';
 import '../../core/dao/propriedade_dao.dart';
 import '../../core/dao/produtor_dao.dart';
-import '../login_screen.dart';
+import 'login_screen.dart';
 
 class RegisterProducerScreen extends StatefulWidget {
   final Map<String, String> userData;

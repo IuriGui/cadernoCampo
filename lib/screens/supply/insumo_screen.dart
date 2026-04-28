@@ -1,8 +1,8 @@
 import 'package:caderno_de_campo/core/dao/insumo_dao.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../core/models/insumo.dart';
-import 'registersScreens/register_insumo_screen.dart';
+import '../../core/models/insumo.dart';
+import 'register_insumo_screen.dart';
 
 class InsumoScreen extends StatefulWidget {
   const InsumoScreen({super.key});

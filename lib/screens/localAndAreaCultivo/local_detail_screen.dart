@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import '../core/dao/area_cultivo_dao.dart';
-import '../core/models/local.dart';
-import '../core/models/area_cultivo.dart';
-import '../core/models/user.dart';
+import '../../core/dao/area_cultivo_dao.dart';
+import '../../core/models/local.dart';
+import '../../core/models/area_cultivo.dart';
+import '../../core/models/user.dart';
 import 'area_detail_screen.dart';
-import 'registersScreens/register_activity_screen.dart';
+import '../activity/register_activity_screen.dart';
 
 class LocalDetailScreen extends StatefulWidget {
   final Local local;
