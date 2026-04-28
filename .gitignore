@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Technical Overview (External Docs)
+TECHNICAL_OVERVIEW.md

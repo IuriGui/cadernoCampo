@@ -199,6 +199,7 @@ class AppDatabase {
       'usuarioId': 1,
       'nome': 'Fazenda Modelo',
       'municipio': 'Santa Maria',
+      'cep': '97000-000',
       'estado': 'RS',
       'areaTotal': 10.0
     });

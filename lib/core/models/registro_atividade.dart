@@ -57,17 +57,19 @@ class RegistroAtividade {
   factory RegistroAtividade.fromMap(Map<String, dynamic> map) {
     return RegistroAtividade(
       id: map['id'],
-      dataOcorrencia: DateTime.parse(map['dataOcorrencia']),
-      areaCultivoId: map['areaCultivoId'],
+      dataOcorrencia: map['dataOcorrencia'] != null 
+          ? DateTime.parse(map['dataOcorrencia']) 
+          : DateTime.now(),
+      areaCultivoId: map['areaCultivoId'] ?? 0,
       quantidade: map['quantidade'],
-      atividadeId: map['atividadeId'],
+      atividadeId: map['atividadeId'] ?? 0,
       culturaId: map['culturaId'],
       destinacaoId: map['destinacaoId'],
       tempoEstimadoMin: map['tempoEstimadoMin'],
       observacoes: map['observacoes'],
       insumoId: map['insumoId'],
       unidadeInsumo: map['unidadeInsumo'],
-      responsavelId: map['responsavelId'],
+      responsavelId: map['responsavelId'] ?? 0,
       nomeAtividade: map['nomeAtividade'],
       nomeResponsavel: map['nomeResponsavel'],
       nomeLocal: map['nomeLocal'],
