@@ -86,25 +86,27 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       drawer: _buildDrawer(context),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
-            _buildCalendar(),
-            const SizedBox(height: 32),
-            _buildWeatherHeader(context),
-            const SizedBox(height: 24),
-            _buildWeatherMainInfo(),
-            const SizedBox(height: 32),
-            _buildWeatherDetails(),
-            const SizedBox(height: 32),
-            _buildLocaisSection(context),
-            const SizedBox(height: 32),
-            _buildAcoesSection(context),
-            const SizedBox(height: 32),
-          ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              _buildCalendar(),
+              const SizedBox(height: 32),
+              _buildWeatherHeader(context),
+              const SizedBox(height: 24),
+              _buildWeatherMainInfo(),
+              const SizedBox(height: 32),
+              _buildWeatherDetails(),
+              const SizedBox(height: 32),
+              _buildLocaisSection(context),
+              const SizedBox(height: 32),
+              _buildAcoesSection(context),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );

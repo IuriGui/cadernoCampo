@@ -64,25 +64,25 @@ class _RegisterProducerScreenState extends State<RegisterProducerScreen> {
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: RadioListTile<String>(
-                      title: const Text('OCS'),
-                      value: 'OCS',
-                      groupValue: _mecanismo,
-                      onChanged: (v) => setState(() => _mecanismo = v!),
+              RadioGroup<String>(
+                groupValue: _mecanismo,
+                onChanged: (v) => setState(() => _mecanismo = v!),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: RadioListTile<String>(
+                        title: const Text('OCS'),
+                        value: 'OCS',
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: RadioListTile<String>(
-                      title: const Text('SPG'),
-                      value: 'SPG',
-                      groupValue: _mecanismo,
-                      onChanged: (v) => setState(() => _mecanismo = v!),
+                    Expanded(
+                      child: RadioListTile<String>(
+                        title: const Text('SPG'),
+                        value: 'SPG',
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 24),
               const Text(

@@ -69,7 +69,7 @@ class _RegisterLocalScreenState extends State<RegisterLocalScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _tipo,
+                initialValue: _tipo,
                 decoration: const InputDecoration(
                   labelText: 'Tipo de Local',
                   prefixIcon: Icon(Icons.category_outlined),

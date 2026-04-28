@@ -17,6 +17,9 @@ class RegistroAtividade {
   final String? nomeResponsavel;
   final String? nomeLocal;
   final String? nomeArea;
+  final String? nomeCultura;
+  final String? nomeInsumo;
+  final String? nomeDestino;
 
   RegistroAtividade({
     this.id,
@@ -35,6 +38,9 @@ class RegistroAtividade {
     this.nomeResponsavel,
     this.nomeLocal,
     this.nomeArea,
+    this.nomeCultura,
+    this.nomeInsumo,
+    this.nomeDestino,
   });
 
   Map<String, dynamic> toMap() {
@@ -74,6 +80,9 @@ class RegistroAtividade {
       nomeResponsavel: map['nomeResponsavel'],
       nomeLocal: map['nomeLocal'],
       nomeArea: map['nomeArea'],
+      nomeCultura: map['nomeCultura'],
+      nomeInsumo: map['nomeInsumo'],
+      nomeDestino: map['nomeDestino'],
     );
   }
 }

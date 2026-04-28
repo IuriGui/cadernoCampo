@@ -7,6 +7,7 @@ import '../../core/models/registro_atividade.dart';
 import '../../core/models/user.dart';
 import '../../core/models/local.dart';
 import '../activity/register_activity_screen.dart';
+import '../activity/atividades_detail_screen.dart';
 
 class AreaDetailScreen extends StatefulWidget {
   final AreaCultivo area;
@@ -46,96 +47,103 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
       appBar: AppBar(
         title: Text(widget.area.titulo),
       ),
-      body: FutureBuilder<List<RegistroAtividade>>(
-        future: _registrosFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Erro: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.history, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text('Nenhum registro nesta área.', style: TextStyle(color: Colors.grey)),
-                ],
-              ),
-            );
-          }
+      body: SafeArea(
+        child: FutureBuilder<List<RegistroAtividade>>(
+          future: _registrosFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Erro: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.history, size: 64, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text('Nenhum registro nesta área.', style: TextStyle(color: Colors.grey)),
+                  ],
+                ),
+              );
+            }
 
-          final registros = snapshot.data!;
+            final registros = snapshot.data!;
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: registros.length,
-            itemBuilder: (context, index) {
-              final registro = registros[index];
-              return Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
-                    child: Icon(MdiIcons.clipboardTextClockOutline, color: Theme.of(context).primaryColor),
-                  ),
-                  title: Text(
-                    registro.nomeAtividade ?? 'Atividade',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 4),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 4,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(MdiIcons.calendarCheck, size: 14, color: Colors.grey),
-                              const SizedBox(width: 4),
-                              Text(DateFormat('dd/MM/yyyy').format(registro.dataOcorrencia)),
-                            ],
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(MdiIcons.account, size: 14, color: Colors.grey),
-                              const SizedBox(width: 4),
-                              Flexible(
-                                child: Text(
-                                  registro.nomeResponsavel ?? 'N/A',
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                          if (registro.tempoEstimadoMin != null)
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: registros.length,
+              itemBuilder: (context, index) {
+                final registro = registros[index];
+                return Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                      child: Icon(MdiIcons.clipboardTextClockOutline, color: Theme.of(context).primaryColor),
+                    ),
+                    title: Text(
+                      registro.nomeAtividade ?? 'Atividade',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 4),
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 4,
+                          children: [
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(MdiIcons.clockOutline, size: 14, color: Colors.grey),
+                                Icon(MdiIcons.calendarCheck, size: 14, color: Colors.grey),
                                 const SizedBox(width: 4),
-                                Text('${registro.tempoEstimadoMin} min'),
+                                Text(DateFormat('dd/MM/yyyy').format(registro.dataOcorrencia)),
                               ],
                             ),
-                        ],
-                      ),
-                    ],
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(MdiIcons.account, size: 14, color: Colors.grey),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    registro.nomeResponsavel ?? 'N/A',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (registro.tempoEstimadoMin != null)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(MdiIcons.clockOutline, size: 14, color: Colors.grey),
+                                  const SizedBox(width: 4),
+                                  Text('${registro.tempoEstimadoMin} min'),
+                                ],
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AtividadesDetailScreen(registro: registro),
+                        ),
+                      );
+                    },
                   ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    // Ver detalhes do registro
-                  },
-                ),
-              );
-            },
-          );
-        },
+                );
+              },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
