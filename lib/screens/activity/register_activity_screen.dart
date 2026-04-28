@@ -96,14 +96,15 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Registrar Atividade')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildSectionTitle('Informações Básicas'),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildSectionTitle('Informações Básicas'),
               const SizedBox(height: 16),
               
               // Data da Atividade
@@ -119,7 +120,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
 
               // Dropdown Cultura
               DropdownButtonFormField<int>(
-                value: _culturaId,
+                initialValue: _culturaId,
                 decoration: InputDecoration(
                   labelText: 'Cultura',
                   prefixIcon: Icon(MdiIcons.sprout),
@@ -132,7 +133,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
 
               // Dropdown Área de Cultivo
               DropdownButtonFormField<int>(
-                value: _areaId,
+                initialValue: _areaId,
                 decoration: InputDecoration(
                   labelText: 'Área de Cultivo',
                   prefixIcon: Icon(MdiIcons.mapMarkerRadius),
@@ -145,7 +146,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
 
               // Dropdown Atividade
               DropdownButtonFormField<int>(
-                value: _atividadeId,
+                initialValue: _atividadeId,
                 decoration: InputDecoration(
                   labelText: 'Atividade',
                   prefixIcon: Icon(MdiIcons.tractor),
@@ -246,6 +247,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 

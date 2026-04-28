@@ -74,63 +74,65 @@ class _LocalScreenState extends State<LocalScreen> {
       appBar: AppBar(
         title: Text(widget.selectionMode ? 'Selecione o Local' : 'Meus Locais'),
       ),
-      body: FutureBuilder<List<Local>>(
-        future: _locaisFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Erro: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Nenhum local cadastrado.'));
-          }
+      body: SafeArea(
+        child: FutureBuilder<List<Local>>(
+          future: _locaisFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Erro: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text('Nenhum local cadastrado.'));
+            }
 
-          final locais = snapshot.data!;
+            final locais = snapshot.data!;
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: locais.length,
-            itemBuilder: (context, index) {
-              final local = locais[index];
-              return Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: Colors.green,
-                    child: Icon(Icons.location_on, color: Colors.white),
-                  ),
-                  title: Text(
-                    local.nome,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text('${local.tipo} • ${local.areaM2}m²'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    if (widget.selectionMode) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RegisterActivityScreen(
-                            local: local,
-                            user: widget.user,
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: locais.length,
+              itemBuilder: (context, index) {
+                final local = locais[index];
+                return Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: ListTile(
+                    leading: const CircleAvatar(
+                      backgroundColor: Colors.green,
+                      child: Icon(Icons.location_on, color: Colors.white),
+                    ),
+                    title: Text(
+                      local.nome,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text('${local.tipo} • ${local.areaM2}m²'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      if (widget.selectionMode) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RegisterActivityScreen(
+                              local: local,
+                              user: widget.user,
+                            ),
                           ),
-                        ),
-                      );
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LocalDetailScreen(local: local, user: widget.user),
-                        ),
-                      );
-                    }
-                  },
-                ),
-              );
-            },
-          );
-        },
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LocalDetailScreen(local: local, user: widget.user),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
       floatingActionButton: (widget.selectionMode || _propriedade == null)
           ? null 
