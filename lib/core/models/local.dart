@@ -1,6 +1,6 @@
 class Local {
   final int? id;
-  final int propriedadeId; // Vínculo com a propriedade, não diretamente com o usuário
+  final int propriedadeId;
   final String nome;
   final double areaM2;
   final String tipo;
@@ -36,9 +36,9 @@ class Local {
     return Local(
       id: map['id'],
       propriedadeId: map['propriedadeId'] ?? 0,
-      nome: map['nome'],
-      areaM2: map['areaM2'],
-      tipo: map['tipo'],
+      nome: map['nome'] ?? '',
+      areaM2: (map['areaM2'] as num?)?.toDouble() ?? 0.0,
+      tipo: map['tipo'] ?? '',
       temQuebraVento: map['quebra_vento'] == 1,
       temAreaSensivel: map['area_sensivel'] == 1,
       observacoes: map['observacoes'],

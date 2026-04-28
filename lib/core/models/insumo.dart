@@ -23,9 +23,11 @@ class Insumo {
   factory Insumo.fromMap(Map<String, dynamic> map) {
     return Insumo(
       id: map['id'],
-      produto: map['produto'],
-      fornecedor: map['fornecedor'],
-      dataAquisicao: DateTime.parse(map['dataAquisicao']),
+      produto: map['produto'] ?? '',
+      fornecedor: map['fornecedor'] ?? '',
+      dataAquisicao: map['dataAquisicao'] != null 
+          ? DateTime.parse(map['dataAquisicao']) 
+          : DateTime.now(),
     );
   }
 }
