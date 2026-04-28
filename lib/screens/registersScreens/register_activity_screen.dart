@@ -159,9 +159,8 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
               _buildSectionTitle('Insumos e Detalhes'),
               const SizedBox(height: 16),
 
-              // Dropdown Insumo (Opcional)
               DropdownButtonFormField<int>(
-                value: _insumoId,
+                initialValue: _insumoId,
                 isExpanded: true,
                 decoration: InputDecoration(
                   labelText: 'Insumo Utilizado (Opcional)',
@@ -169,7 +168,10 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
                 ),
                 items: [
                   const DropdownMenuItem<int>(value: null, child: Text('Nenhum')),
-                  ..._insumos.map((i) => DropdownMenuItem(value: i.id, child: Text(i.produto))),
+                  ..._insumos.map((i) => DropdownMenuItem(
+                    value: i.id, 
+                    child: Text("${i.produto} (${i.fornecedor} - ${DateFormat('dd/MM/yy').format(i.dataAquisicao)})")
+                  )),
                 ],
                 onChanged: (v) => setState(() => _insumoId = v),
               ),
