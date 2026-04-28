@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/widgets/primary_button.dart';
-import 'register_producer_screen.dart';
+import '../user/register_producer_screen.dart';
 
 class RegisterPropertyScreen extends StatefulWidget {
   final Map<String, String> userData;

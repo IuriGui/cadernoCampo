@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import '../core/dao/registro_atividade_dao.dart';
-import '../core/models/registro_atividade.dart';
-import '../core/models/user.dart';
+import '../../core/dao/registro_atividade_dao.dart';
+import '../../core/models/registro_atividade.dart';
+import '../../core/models/user.dart';
 
 class AtividadesListScreen extends StatefulWidget {
   final User user;
@@ -25,7 +25,7 @@ class _AtividadesListScreenState extends State<AtividadesListScreen> {
 
   void _refreshList() {
     setState(() {
-      _registrosFuture = _dao.getAllRegistrosByUser(widget.user.id!);
+      _registrosFuture = _dao.getAllRegistros();
     });
   }
 

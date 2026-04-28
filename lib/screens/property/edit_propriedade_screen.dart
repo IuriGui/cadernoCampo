@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../core/dao/propriedade_dao.dart';
-import '../core/models/propriedade.dart';
-import '../core/widgets/primary_button.dart';
+import '../../core/dao/propriedade_dao.dart';
+import '../../core/models/propriedade.dart';
+import '../../core/widgets/primary_button.dart';
 
 class EditPropriedadeScreen extends StatefulWidget {
   final Propriedade propriedade;

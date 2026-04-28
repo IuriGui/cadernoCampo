@@ -1,5 +1,5 @@
 import 'package:caderno_de_campo/core/theme/app_theme.dart';
-import 'package:caderno_de_campo/screens/login_screen.dart';
+import 'package:caderno_de_campo/screens/user/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class MyApp extends StatelessWidget {
