@@ -13,16 +13,40 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _isLoading = false;
 
   @override
   void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+    final User? user = await AuthService().login(
+      _emailController.text,
+      _passwordController.text,
+    );
+    setState(() => _isLoading = false);
+
+    if (!mounted) return;
+
+    if (user != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => HomeScreen(user: user)),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Credenciais inválidas')),
+      );
+    }
   }
 
   @override
@@ -37,45 +61,35 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 60),
-                const Icon(
-                  Icons.eco,
-                  size: 100,
-                  color: Color(0xFF2E7D32),
-                ),
+                const Icon(Icons.eco, size: 100, color: Color(0xFF2E7D32)),
                 const SizedBox(height: 24),
                 Text(
-                  "Caderno de Campo",
+                  'Caderno de Campo',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF2E7D32),
-                      ),
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF2E7D32),
+                  ),
                 ),
                 const SizedBox(height: 40),
                 TextFormField(
-                  controller: emailController,
+                  controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return '* Campo obrigatório';
-                    return null;
-                  },
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     prefixIcon: Icon(Icons.email_outlined),
                   ),
+                  validator: (v) => (v == null || v.isEmpty) ? '* Campo obrigatório' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: passwordController,
+                  controller: _passwordController,
                   obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return '* Campo obrigatório';
-                    return null;
-                  },
                   decoration: const InputDecoration(
                     labelText: 'Senha',
                     prefixIcon: Icon(Icons.lock_outline),
                   ),
+                  validator: (v) => (v == null || v.isEmpty) ? '* Campo obrigatório' : null,
                 ),
                 Align(
                   alignment: Alignment.centerRight,
@@ -88,48 +102,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 PrimaryButton(
                   label: 'Entrar',
                   isLoading: _isLoading,
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      setState(() => _isLoading = true);
-                      final User? user = await AuthService().login(
-                        emailController.text,
-                        passwordController.text,
-                      );
-                      setState(() => _isLoading = false);
-                      
-                      if (user != null) {
-                        if (mounted) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HomeScreen(user: user),
-                            ),
-                          );
-                        }
-                      } else {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Credenciais inválidas')),
-                          );
-                        }
-                      }
-                    }
-                  },
+                  onPressed: _login,
                 ),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Não tem uma conta?"),
+                    const Text('Não tem uma conta?'),
                     TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const RegisterScreen(),
-                          ),
-                        );
-                      },
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                      ),
                       child: const Text('Cadastre-se'),
                     ),
                   ],
@@ -141,4 +125,6 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
+
 }
