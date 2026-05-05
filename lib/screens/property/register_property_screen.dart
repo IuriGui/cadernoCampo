@@ -43,7 +43,7 @@ class _RegisterPropertyScreenState extends State<RegisterPropertyScreen> {
               _buildField(municipioController, "Município", isRequired: true),
               _buildField(cepController, "CEP", keyboardType: TextInputType.number),
               DropdownButtonFormField<String>(
-                value: _estado,
+                initialValue: _estado,
                 decoration: const InputDecoration(labelText: 'Estado *'),
                 items: _estados.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
                 onChanged: (v) => setState(() => _estado = v),

@@ -6,6 +6,7 @@ import '../core/dao/local_dao.dart';
 import '../core/dao/propriedade_dao.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'supply/insumo_screen.dart';
+import 'supply/register_insumo_screen.dart';
 import 'localAndAreaCultivo/local_screen.dart';
 import 'activity/atividades_list_screen.dart';
 import 'property/propriedade_screen.dart';
@@ -85,25 +86,27 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       drawer: _buildDrawer(context),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
-            _buildCalendar(),
-            const SizedBox(height: 32),
-            _buildWeatherHeader(context),
-            const SizedBox(height: 24),
-            _buildWeatherMainInfo(),
-            const SizedBox(height: 32),
-            _buildWeatherDetails(),
-            const SizedBox(height: 32),
-            _buildLocaisSection(context),
-            const SizedBox(height: 32),
-            _buildAcoesSection(context),
-            const SizedBox(height: 32),
-          ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              _buildCalendar(),
+              const SizedBox(height: 32),
+              _buildWeatherHeader(context),
+              const SizedBox(height: 24),
+              _buildWeatherMainInfo(),
+              const SizedBox(height: 32),
+              _buildWeatherDetails(),
+              const SizedBox(height: 32),
+              _buildLocaisSection(context),
+              const SizedBox(height: 32),
+              _buildAcoesSection(context),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );
@@ -505,7 +508,18 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             _buildAcaoButton(MdiIcons.shovel, "Novo Canteiro", const Color(0xFF8D6E63)),
             _buildAcaoButton(MdiIcons.sprout, "Novo Plantio", const Color(0xFF43A047)),
-            _buildAcaoButton(MdiIcons.packageVariantClosed, "Registrar Insumo", const Color(0xFF26A69A)),
+            _buildAcaoButton(
+              MdiIcons.packageVariantClosed, 
+              "Registrar Insumo", 
+              const Color(0xFF26A69A), 
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const RegisterInsumoScreen()),
+                );
+                _refreshData();
+              },
+            ),
           ],
         )
       ],

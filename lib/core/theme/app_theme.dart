@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Cores personalizadas para o Caderno de Campo
+
+  // Cores
   static const Color primaryGreen = Color(0xFF2E7D32);
   static const Color lightGreen = Color(0xFFE8F5E9);
   static const Color accentBrown = Color(0xFF795548);
@@ -17,10 +18,10 @@ class AppTheme {
         surface: Colors.white,
       ),
       
-      // Fonte Nunito definida globalmente
+      // Fonte
       textTheme: GoogleFonts.nunitoTextTheme(),
 
-      // Estilo de AppBar padronizado
+      // appbar
       appBarTheme: AppBarTheme(
         backgroundColor: primaryGreen,
         foregroundColor: Colors.white,
@@ -33,7 +34,7 @@ class AppTheme {
         ),
       ),
 
-      // Botões Padronizados
+      // Botoes
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryGreen,
@@ -50,7 +51,7 @@ class AppTheme {
         ),
       ),
 
-      // Inputs (TextFields) Padronizados
+      // Inputs
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: lightGreen.withValues(alpha: 0.3),

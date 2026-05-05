@@ -20,8 +20,8 @@ class Atividade {
 
   factory Atividade.fromMap(Map<String, dynamic> map) => Atividade(
         id: map['id'],
-        nome: map['nome'],
-        descricao: map['descricao'],
-        tipo: map['tipo'],
+        nome: map['nome'] ?? '',
+        descricao: map['descricao'] ?? '',
+        tipo: map['tipo'] ?? '',
       );
 }

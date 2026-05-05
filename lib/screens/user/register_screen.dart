@@ -47,23 +47,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 16),
               const Text("Qual seu papel na propriedade?", style: TextStyle(fontWeight: FontWeight.bold)),
-              RadioListTile<String>(
-                title: const Text('Proprietário'),
-                value: 'proprietário',
+              RadioGroup<String>(
                 groupValue: _papel,
                 onChanged: (v) => setState(() => _papel = v!),
-              ),
-              RadioListTile<String>(
-                title: const Text('Trabalhador'),
-                value: 'trabalhador',
-                groupValue: _papel,
-                onChanged: (v) => setState(() => _papel = v!),
-              ),
-              RadioListTile<String>(
-                title: const Text('Colaborador'),
-                value: 'colaborador',
-                groupValue: _papel,
-                onChanged: (v) => setState(() => _papel = v!),
+                child: Column(
+                  children: [
+                    RadioListTile<String>(
+                      title: const Text('Proprietário'),
+                      value: 'proprietário',
+                    ),
+                    RadioListTile<String>(
+                      title: const Text('Trabalhador'),
+                      value: 'trabalhador',
+                    ),
+                    RadioListTile<String>(
+                      title: const Text('Colaborador'),
+                      value: 'colaborador',
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
               TextFormField(

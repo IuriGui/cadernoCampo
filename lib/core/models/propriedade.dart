@@ -1,6 +1,6 @@
 class Propriedade {
   final int? id;
-  final int usuarioId; // Relacionamento com o proprietário
+  final int usuarioId;
   final String nome;
   final String municipio;
   final String cep;
@@ -44,15 +44,15 @@ class Propriedade {
   factory Propriedade.fromMap(Map<String, dynamic> map) {
     return Propriedade(
       id: map['id'],
-      usuarioId: map['usuarioId'],
-      nome: map['nome'],
-      municipio: map['municipio'],
-      cep: map['cep'],
-      estado: map['estado'],
-      areaTotal: map['areaTotal'],
-      areaPropria: map['areaPropria'],
-      areaArrendada: map['areaArrendada'],
-      areaProducaoVegetal: map['areaProducaoVegetal'],
+      usuarioId: map['usuarioId'] ?? 0,
+      nome: map['nome'] ?? '',
+      municipio: map['municipio'] ?? '',
+      cep: map['cep'] ?? '',
+      estado: map['estado'] ?? '',
+      areaTotal: (map['areaTotal'] as num?)?.toDouble() ?? 0.0,
+      areaPropria: (map['areaPropria'] as num?)?.toDouble(),
+      areaArrendada: (map['areaArrendada'] as num?)?.toDouble(),
+      areaProducaoVegetal: (map['areaProducaoVegetal'] as num?)?.toDouble(),
       observacoes: map['observacoes'],
     );
   }

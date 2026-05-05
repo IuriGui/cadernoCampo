@@ -13,7 +13,7 @@ class Cultura {
 
   factory Cultura.fromMap(Map<String, dynamic> map) => Cultura(
         id: map['id'],
-        nome: map['nome'],
-        categoria: map['categoria'],
+        nome: map['nome'] ?? '',
+        categoria: map['categoria'] ?? '',
       );
 }

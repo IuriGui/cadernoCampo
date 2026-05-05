@@ -23,9 +23,11 @@ class AreaCultivo {
   factory AreaCultivo.fromMap(Map<String, dynamic> map) {
     return AreaCultivo(
       id: map['id'],
-      localId: map['local_id'],
-      titulo: map['titulo'],
-      dataCriacao: DateTime.parse(map['data_criacao']),
+      localId: map['local_id'] ?? 0,
+      titulo: map['titulo'] ?? '',
+      dataCriacao: map['data_criacao'] != null 
+          ? DateTime.parse(map['data_criacao']) 
+          : DateTime.now(),
     );
   }
 }
