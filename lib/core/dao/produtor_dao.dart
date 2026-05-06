@@ -9,11 +9,35 @@ class ProdutorDAO {
     return await db.insert(table, produtor.toMap());
   }
 
-  Future<void> linkProgramaProdutor(int produtorId, int programaId) async {
+  Future<Produtor?> getProdutorByUsuario(int usuarioId) async {
     final db = await AppDatabase().database;
-    await db.insert('programa_produtor', {
+    final List<Map<String, dynamic>> maps = await db.query(
+      table,
+      where: 'usuario_id = ?',
+      whereArgs: [usuarioId],
+      limit: 1,
+    );
+    if (maps.isNotEmpty) {
+      return Produtor.fromMap(maps.first);
+    }
+    return null;
+  }
+
+  Future<void> insertProgramaComercializacao(int produtorId, String tipo, String valor) async {
+    final db = await AppDatabase().database;
+    await db.insert('programa_comercializacao', {
       'produtor_id': produtorId,
-      'programa_id': programaId,
+      'tipo': tipo,
+      'valor': valor,
+    });
+  }
+
+  Future<void> insertMecanismoControle(int produtorId, String tipo, String valor) async {
+    final db = await AppDatabase().database;
+    await db.insert('mecanismo_controle', {
+      'produtor_id': produtorId,
+      'tipo': tipo,
+      'valor': valor,
     });
   }
 }

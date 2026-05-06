@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../core/models/user.dart';
 import '../core/models/local.dart';
 import '../core/models/propriedade.dart';
+import '../core/models/produtor.dart';
 import '../core/dao/local_dao.dart';
 import '../core/dao/propriedade_dao.dart';
+import '../core/dao/produtor_dao.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'supply/insumo_screen.dart';
 import 'supply/register_insumo_screen.dart';
@@ -11,6 +13,7 @@ import 'localAndAreaCultivo/local_screen.dart';
 import 'activity/atividades_list_screen.dart';
 import 'property/propriedade_screen.dart';
 import 'localAndAreaCultivo/local_detail_screen.dart';
+import 'property/register_property_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final User user;
@@ -23,9 +26,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final LocalDAO _localDAO = LocalDAO();
   final PropriedadeDAO _propriedadeDAO = PropriedadeDAO();
+  final ProdutorDAO _produtorDAO = ProdutorDAO();
   
   late Future<List<Local>> _locaisFuture;
   Propriedade? _propriedade;
+  Produtor? _produtor;
   bool _isLoadingProp = true;
 
   @override
@@ -37,9 +42,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadInitialData() async {
     try {
       final prop = await _propriedadeDAO.getPropriedadeByUsuario(widget.user.id!);
+      final produtor = await _produtorDAO.getProdutorByUsuario(widget.user.id!);
       if (mounted) {
         setState(() {
           _propriedade = prop;
+          _produtor = produtor;
           _isLoadingProp = false;
           if (_propriedade != null) {
             _locaisFuture = _localDAO.getTopThreeLocais(_propriedade!.id!);
@@ -75,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         title: const Text(
-          "Tela - Home",
+          "Home",
           style: TextStyle(color: Colors.grey, fontSize: 16),
         ),
         actions: [
@@ -89,26 +96,94 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              _buildCalendar(),
-              const SizedBox(height: 32),
-              _buildWeatherHeader(context),
-              const SizedBox(height: 24),
-              _buildWeatherMainInfo(),
-              const SizedBox(height: 32),
-              _buildWeatherDetails(),
-              const SizedBox(height: 32),
-              _buildLocaisSection(context),
-              const SizedBox(height: 32),
-              _buildAcoesSection(context),
-              const SizedBox(height: 32),
-            ],
-          ),
+          child: _propriedade == null 
+            ? _buildNoPropertyView(context)
+            : _buildMainContent(context),
         ),
       ),
+    );
+  }
+
+  Widget _buildNoPropertyView(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 40),
+        Icon(MdiIcons.homeAlertOutline, size: 100, color: Colors.orange),
+        const SizedBox(height: 24),
+        const Text(
+          "Bem-vindo!",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          "Você ainda não possui uma propriedade vinculada. Para começar a registrar suas atividades, escolha uma das opções abaixo:",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+        const SizedBox(height: 40),
+        ElevatedButton.icon(
+          onPressed: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RegisterPropertyScreen(
+                  userData: {
+                    'userId': widget.user.id.toString(),
+                  },
+                ),
+              ),
+            );
+            if (result == true) _refreshData();
+          },
+          icon: const Icon(Icons.add_business_outlined),
+          label: const Text("Cadastrar Minha Propriedade"),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF2E7D32),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+        const SizedBox(height: 16),
+        OutlinedButton.icon(
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Funcionalidade de solicitação de acesso em breve!")),
+            );
+          },
+          icon: const Icon(Icons.person_search_outlined),
+          label: const Text("Pedir Acesso a um Proprietário"),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: const Color(0xFF2E7D32),
+            side: const BorderSide(color: Color(0xFF2E7D32)),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMainContent(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        _buildCalendar(),
+        const SizedBox(height: 32),
+        _buildWeatherHeader(context),
+        const SizedBox(height: 24),
+        _buildWeatherMainInfo(),
+        const SizedBox(height: 32),
+        _buildWeatherDetails(),
+        const SizedBox(height: 32),
+        _buildLocaisSection(context),
+        const SizedBox(height: 32),
+        _buildAcoesSection(context),
+        const SizedBox(height: 32),
+      ],
     );
   }
 
@@ -120,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
           UserAccountsDrawerHeader(
             decoration: const BoxDecoration(color: Color(0xFF2E7D32)),
             accountName: Text(
-              widget.user.name,
+              _produtor?.nome ?? widget.user.email.split('@')[0],
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             accountEmail: Text(widget.user.email),
@@ -134,46 +209,71 @@ class _HomeScreenState extends State<HomeScreen> {
             title: const Text('Início'),
             onTap: () => Navigator.pop(context),
           ),
-          ListTile(
-            leading: Icon(MdiIcons.mapMarkerRadiusOutline),
-            title: const Text('Meus Locais'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => LocalScreen(user: widget.user)));
-            },
-          ),
-          ListTile(
-            leading: Icon(MdiIcons.clipboardListOutline),
-            title: const Text('Registros de Atividades'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => AtividadesListScreen(user: widget.user)));
-            },
-          ),
-          ListTile(
-            leading: Icon(MdiIcons.sproutOutline),
-            title: const Text('Áreas de Cultivo'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => LocalScreen(user: widget.user)));
-            },
-          ),
-          ListTile(
-            leading: Icon(MdiIcons.hoopHouse),
-            title: const Text ('Propriedade'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => PropriedadeScreen(user: widget.user)));
-            },
-          ),
-          ListTile(
-            leading: Icon(MdiIcons.packageVariantClosed),
-            title: const Text ('Insumos'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => InsumoScreen()));
-            },
-          ),
+          if (_propriedade != null) ...[
+            ListTile(
+              leading: Icon(MdiIcons.mapMarkerRadiusOutline),
+              title: const Text('Meus Locais'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(
+                    builder: (context) => LocalScreen(user: widget.user, propriedade: _propriedade!)
+                  )
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(MdiIcons.clipboardListOutline),
+              title: const Text('Registros de Atividades'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(
+                    builder: (context) => AtividadesListScreen(
+                      user: widget.user, 
+                      propriedade: _propriedade!
+                    )
+                  )
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(MdiIcons.sproutOutline),
+              title: const Text('Áreas de Cultivo'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(
+                    builder: (context) => LocalScreen(user: widget.user, propriedade: _propriedade!)
+                  )
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(MdiIcons.hoopHouse),
+              title: const Text ('Propriedade'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => PropriedadeScreen(user: widget.user)));
+              },
+            ),
+            ListTile(
+              leading: Icon(MdiIcons.packageVariantClosed),
+              title: const Text ('Insumos'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(
+                    builder: (context) => InsumoScreen(propriedade: _propriedade!)
+                  )
+                );
+              },
+            ),
+          ],
           const Divider(),
           ListTile(
             leading: const Icon(Icons.settings_outlined),
@@ -378,7 +478,9 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () async {
                 await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LocalScreen(user: widget.user)),
+                  MaterialPageRoute(
+                    builder: (context) => LocalScreen(user: widget.user, propriedade: _propriedade!)
+                  ),
                 );
                 _refreshData();
               },
@@ -500,7 +602,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => LocalScreen(user: widget.user, selectionMode: true),
+                    builder: (context) => LocalScreen(user: widget.user, propriedade: _propriedade!, selectionMode: true),
                   ),
                 );
                 _refreshData();
@@ -513,11 +615,13 @@ class _HomeScreenState extends State<HomeScreen> {
               "Registrar Insumo", 
               const Color(0xFF26A69A), 
               onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const RegisterInsumoScreen()),
-                );
-                _refreshData();
+                if (_propriedade != null) {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RegisterInsumoScreen(propriedade: _propriedade!)),
+                  );
+                  _refreshData();
+                }
               },
             ),
           ],

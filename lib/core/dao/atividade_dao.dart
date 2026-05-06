@@ -2,7 +2,7 @@ import '../database/app_database.dart';
 import '../models/atividade.dart';
 
 class AtividadeDAO {
-  static const String table = 'atividades';
+  static const String table = 'atividade';
 
   Future<List<Atividade>> getAll() async {
     final db = await AppDatabase().database;

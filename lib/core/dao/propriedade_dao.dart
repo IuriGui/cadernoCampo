@@ -2,7 +2,7 @@ import '../database/app_database.dart';
 import '../models/propriedade.dart';
 
 class PropriedadeDAO {
-  static const String table = 'propriedades';
+  static const String table = 'propriedade';
 
   Future<int> insertPropriedade(Propriedade propriedade) async {
     final db = await AppDatabase().database;
@@ -26,12 +26,14 @@ class PropriedadeDAO {
 
   Future<Propriedade?> getPropriedadeByUsuario(int usuarioId) async {
     final db = await AppDatabase().database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      table,
-      where: 'usuarioId = ?',
-      whereArgs: [usuarioId],
-      limit: 1,
-    );
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT p.* FROM $table p
+      JOIN produtor_propriedade pp ON p.id = pp.propriedade_id
+      JOIN produtor pr ON pp.produtor_id = pr.id
+      WHERE pr.usuario_id = ?
+      LIMIT 1
+    ''', [usuarioId]);
+
     if (maps.isNotEmpty) {
       return Propriedade.fromMap(maps.first);
     }

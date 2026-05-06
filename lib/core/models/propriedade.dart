@@ -1,59 +1,55 @@
 class Propriedade {
   final int? id;
-  final int usuarioId;
   final String nome;
-  final String municipio;
+  final String? observacao;
   final String cep;
+  final String cidade;
   final String estado;
   final double areaTotal;
-  final double? areaPropria;
+  final double areaPropria;
   final double? areaArrendada;
   final double? areaProducaoVegetal;
-  final String? observacoes;
 
   Propriedade({
     this.id,
-    required this.usuarioId,
     required this.nome,
-    required this.municipio,
+    this.observacao,
     required this.cep,
+    required this.cidade,
     required this.estado,
     required this.areaTotal,
-    this.areaPropria,
+    required this.areaPropria,
     this.areaArrendada,
     this.areaProducaoVegetal,
-    this.observacoes,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'usuarioId': usuarioId,
       'nome': nome,
-      'municipio': municipio,
+      'observacao': observacao,
       'cep': cep,
+      'cidade': cidade,
       'estado': estado,
-      'areaTotal': areaTotal,
-      'areaPropria': areaPropria,
-      'areaArrendada': areaArrendada,
-      'areaProducaoVegetal': areaProducaoVegetal,
-      'observacoes': observacoes,
+      'area_total': areaTotal,
+      'area_propria': areaPropria,
+      'area_arrendada': areaArrendada,
+      'area_producao_vegetal': areaProducaoVegetal,
     };
   }
 
   factory Propriedade.fromMap(Map<String, dynamic> map) {
     return Propriedade(
       id: map['id'],
-      usuarioId: map['usuarioId'] ?? 0,
       nome: map['nome'] ?? '',
-      municipio: map['municipio'] ?? '',
+      observacao: map['observacao'],
       cep: map['cep'] ?? '',
+      cidade: map['cidade'] ?? '',
       estado: map['estado'] ?? '',
-      areaTotal: (map['areaTotal'] as num?)?.toDouble() ?? 0.0,
-      areaPropria: (map['areaPropria'] as num?)?.toDouble(),
-      areaArrendada: (map['areaArrendada'] as num?)?.toDouble(),
-      areaProducaoVegetal: (map['areaProducaoVegetal'] as num?)?.toDouble(),
-      observacoes: map['observacoes'],
+      areaTotal: (map['area_total'] as num?)?.toDouble() ?? 0.0,
+      areaPropria: (map['area_propria'] as num?)?.toDouble() ?? 0.0,
+      areaArrendada: (map['area_arrendada'] as num?)?.toDouble(),
+      areaProducaoVegetal: (map['area_producao_vegetal'] as num?)?.toDouble(),
     );
   }
 }

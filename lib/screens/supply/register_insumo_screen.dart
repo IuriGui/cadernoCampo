@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../core/dao/insumo_dao.dart';
 import '../../core/models/insumo.dart';
+import '../../core/models/propriedade.dart';
 import '../../core/widgets/primary_button.dart';
 
 class RegisterInsumoScreen extends StatefulWidget {
-  const RegisterInsumoScreen({super.key});
+  final Propriedade propriedade;
+  const RegisterInsumoScreen({super.key, required this.propriedade});
 
   @override
   State<RegisterInsumoScreen> createState() => _RegisterInsumoScreenState();
@@ -48,6 +50,7 @@ class _RegisterInsumoScreenState extends State<RegisterInsumoScreen> {
           produto: _produtoController.text.trim(),
           fornecedor: _fornecedorController.text.trim(),
           dataAquisicao: _dataAquisicao,
+          propriedadeId: widget.propriedade.id,
         );
 
         await InsumoDAO().insertInsumo(insumo);
@@ -77,58 +80,60 @@ class _RegisterInsumoScreenState extends State<RegisterInsumoScreen> {
         title: const Text('Cadastrar Insumo'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Informações do Insumo',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _produtoController,
-                decoration: const InputDecoration(
-                  labelText: 'Nome do Produto *',
-                  prefixIcon: Icon(Icons.inventory_2_outlined),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Informações do Insumo',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
                 ),
-                validator: (v) => v == null || v.isEmpty ? '* Obrigatório' : null,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _fornecedorController,
-                decoration: const InputDecoration(
-                  labelText: 'Fornecedor *',
-                  prefixIcon: Icon(Icons.business_outlined),
-                ),
-                validator: (v) => v == null || v.isEmpty ? '* Obrigatório' : null,
-              ),
-              const SizedBox(height: 16),
-              InkWell(
-                onTap: () => _selectDate(context),
-                child: InputDecorator(
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _produtoController,
                   decoration: const InputDecoration(
-                    labelText: 'Data de Aquisição',
-                    prefixIcon: Icon(Icons.calendar_today_outlined),
+                    labelText: 'Nome do Produto *',
+                    prefixIcon: Icon(Icons.inventory_2_outlined),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(DateFormat('dd/MM/yyyy').format(_dataAquisicao)),
-                      const Icon(Icons.arrow_drop_down),
-                    ],
+                  validator: (v) => v == null || v.isEmpty ? '* Obrigatório' : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _fornecedorController,
+                  decoration: const InputDecoration(
+                    labelText: 'Fornecedor *',
+                    prefixIcon: Icon(Icons.business_outlined),
+                  ),
+                  validator: (v) => v == null || v.isEmpty ? '* Obrigatório' : null,
+                ),
+                const SizedBox(height: 16),
+                InkWell(
+                  onTap: () => _selectDate(context),
+                  child: InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: 'Data de Aquisição',
+                      prefixIcon: Icon(Icons.calendar_today_outlined),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(DateFormat('dd/MM/yyyy').format(_dataAquisicao)),
+                        const Icon(Icons.arrow_drop_down),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 40),
-              PrimaryButton(
-                label: 'Salvar Insumo',
-                isLoading: _isSaving,
-                onPressed: _salvarInsumo,
-              ),
-            ],
+                const SizedBox(height: 40),
+                PrimaryButton(
+                  label: 'Salvar Insumo',
+                  isLoading: _isSaving,
+                  onPressed: _salvarInsumo,
+                ),
+              ],
+            ),
           ),
         ),
       ),

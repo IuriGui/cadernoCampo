@@ -2,7 +2,7 @@ import '../database/app_database.dart';
 import '../models/area_cultivo.dart';
 
 class AreaCultivoDAO {
-  static const String table = 'areas_cultivo';
+  static const String table = 'area_cultivo';
 
   Future<int> insertAreaCultivo(AreaCultivo area) async {
     final db = await AppDatabase().database;
@@ -15,7 +15,6 @@ class AreaCultivoDAO {
       table,
       where: 'local_id = ?',
       whereArgs: [localId],
-      orderBy: 'data_criacao DESC',
     );
     return maps.map((e) => AreaCultivo.fromMap(e)).toList();
   }

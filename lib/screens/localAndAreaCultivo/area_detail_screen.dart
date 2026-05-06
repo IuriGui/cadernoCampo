@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import '../../core/dao/registro_atividade_dao.dart';
+import '../../core/dao/anotacao_dao.dart';
 import '../../core/models/area_cultivo.dart';
-import '../../core/models/registro_atividade.dart';
+import '../../core/models/anotacao.dart';
 import '../../core/models/user.dart';
 import '../../core/models/local.dart';
 import '../activity/register_activity_screen.dart';
@@ -26,8 +26,8 @@ class AreaDetailScreen extends StatefulWidget {
 }
 
 class _AreaDetailScreenState extends State<AreaDetailScreen> {
-  final RegistroAtividadeDAO _registroDAO = RegistroAtividadeDAO();
-  late Future<List<RegistroAtividade>> _registrosFuture;
+  final AnotacaoDAO _anotacaoDAO = AnotacaoDAO();
+  late Future<List<Anotacao>> _registrosFuture;
 
   @override
   void initState() {
@@ -37,7 +37,7 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
 
   void _refreshRegistros() {
     setState(() {
-      _registrosFuture = _registroDAO.getRegistrosByArea(widget.area.id!);
+      _registrosFuture = _anotacaoDAO.getAnotacoesByArea(widget.area.id!);
     });
   }
 
@@ -45,10 +45,10 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.area.titulo),
+        title: Text(widget.area.nome),
       ),
       body: SafeArea(
-        child: FutureBuilder<List<RegistroAtividade>>(
+        child: FutureBuilder<List<Anotacao>>(
           future: _registrosFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -100,31 +100,9 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
                               children: [
                                 Icon(MdiIcons.calendarCheck, size: 14, color: Colors.grey),
                                 const SizedBox(width: 4),
-                                Text(DateFormat('dd/MM/yyyy').format(registro.dataOcorrencia)),
+                                Text(DateFormat('dd/MM/yyyy').format(registro.dataCriacao)),
                               ],
                             ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(MdiIcons.account, size: 14, color: Colors.grey),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: Text(
-                                    registro.nomeResponsavel ?? 'N/A',
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            if (registro.tempoEstimadoMin != null)
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(MdiIcons.clockOutline, size: 14, color: Colors.grey),
-                                  const SizedBox(width: 4),
-                                  Text('${registro.tempoEstimadoMin} min'),
-                                ],
-                              ),
                           ],
                         ),
                       ],
