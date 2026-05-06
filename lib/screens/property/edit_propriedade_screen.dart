@@ -35,13 +35,13 @@ class _EditPropriedadeScreenState extends State<EditPropriedadeScreen> {
   void initState() {
     super.initState();
     nomeController = TextEditingController(text: widget.propriedade.nome);
-    municipioController = TextEditingController(text: widget.propriedade.municipio);
+    municipioController = TextEditingController(text: widget.propriedade.cidade);
     cepController = TextEditingController(text: widget.propriedade.cep);
     areaTotalController = TextEditingController(text: widget.propriedade.areaTotal.toString());
-    areaPropriaController = TextEditingController(text: widget.propriedade.areaPropria?.toString() ?? '');
+    areaPropriaController = TextEditingController(text: widget.propriedade.areaPropria.toString());
     areaArrendadaController = TextEditingController(text: widget.propriedade.areaArrendada?.toString() ?? '');
     areaProducaoController = TextEditingController(text: widget.propriedade.areaProducaoVegetal?.toString() ?? '');
-    obsController = TextEditingController(text: widget.propriedade.observacoes ?? '');
+    obsController = TextEditingController(text: widget.propriedade.observacao ?? '');
     _estado = widget.propriedade.estado;
   }
 
@@ -70,10 +70,10 @@ class _EditPropriedadeScreenState extends State<EditPropriedadeScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _buildField(nomeController, "Nome da Propriedade", isRequired: true),
-              _buildField(municipioController, "Município", isRequired: true),
+              _buildField(municipioController, "Cidade", isRequired: true),
               _buildField(cepController, "CEP", keyboardType: TextInputType.number),
               DropdownButtonFormField<String>(
-                initialValue: _estado,
+                value: _estado,
                 decoration: const InputDecoration(labelText: 'Estado *'),
                 items: _estados.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
                 onChanged: (v) => setState(() => _estado = v),
@@ -104,16 +104,15 @@ class _EditPropriedadeScreenState extends State<EditPropriedadeScreen> {
       
       final updatedPropriedade = Propriedade(
         id: widget.propriedade.id,
-        usuarioId: widget.propriedade.usuarioId,
         nome: nomeController.text.trim(),
-        municipio: municipioController.text.trim(),
+        cidade: municipioController.text.trim(),
         cep: cepController.text.trim(),
         estado: _estado!,
         areaTotal: double.tryParse(areaTotalController.text) ?? 0.0,
-        areaPropria: double.tryParse(areaPropriaController.text),
+        areaPropria: double.tryParse(areaPropriaController.text) ?? 0.0,
         areaArrendada: double.tryParse(areaArrendadaController.text),
         areaProducaoVegetal: double.tryParse(areaProducaoController.text),
-        observacoes: obsController.text.trim(),
+        observacao: obsController.text.trim(),
       );
 
       await PropriedadeDAO().updatePropriedade(updatedPropriedade);
@@ -122,7 +121,7 @@ class _EditPropriedadeScreenState extends State<EditPropriedadeScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Propriedade atualizada com sucesso!')),
         );
-        Navigator.pop(context, true); // Retorna true para indicar que houve mudança
+        Navigator.pop(context, true);
       }
     }
   }

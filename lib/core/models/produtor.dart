@@ -1,29 +1,27 @@
-enum MecanismoControle { ocs, spg }
-
 class Produtor {
   final int? id;
+  final int usuarioId;
   final String nome;
-  final MecanismoControle mecanismoControle;
 
   Produtor({
     this.id,
+    required this.usuarioId,
     required this.nome,
-    required this.mecanismoControle,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'usuario_id': usuarioId,
       'nome': nome,
-      'mecanismo_controle': mecanismoControle.name.toUpperCase(),
     };
   }
 
   factory Produtor.fromMap(Map<String, dynamic> map) {
     return Produtor(
       id: map['id'],
-      nome: map['nome'],
-      mecanismoControle: MecanismoControle.values.byName(map['mecanismo_controle'].toString().toLowerCase()),
+      usuarioId: map['usuario_id'] ?? 0,
+      nome: map['nome'] ?? '',
     );
   }
 }

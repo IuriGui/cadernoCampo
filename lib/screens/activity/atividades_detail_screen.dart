@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import '../../core/models/registro_atividade.dart';
+import '../../core/models/anotacao.dart';
 
 class AtividadesDetailScreen extends StatelessWidget {
-  final RegistroAtividade registro;
+  final Anotacao registro;
 
   const AtividadesDetailScreen({super.key, required this.registro});
 
@@ -26,12 +26,7 @@ class AtividadesDetailScreen extends StatelessWidget {
               _buildInfoTile(
                 icon: Icons.calendar_today,
                 label: 'Data da Ocorrência',
-                value: DateFormat('dd/MM/yyyy').format(registro.dataOcorrencia),
-              ),
-              _buildInfoTile(
-                icon: Icons.person_outline,
-                label: 'Responsável',
-                value: registro.nomeResponsavel ?? 'Não informado',
+                value: DateFormat('dd/MM/yyyy').format(registro.dataCriacao),
               ),
               _buildInfoTile(
                 icon: MdiIcons.sprout,
@@ -57,35 +52,10 @@ class AtividadesDetailScreen extends StatelessWidget {
                 label: 'Insumo',
                 value: registro.nomeInsumo ?? 'Nenhum',
               ),
-              if (registro.insumoId != null)
-                _buildInfoTile(
-                  icon: MdiIcons.weight,
-                  label: 'Quantidade',
-                  value: '${registro.quantidade ?? 0} ${registro.unidadeInsumo ?? ''}',
-                ),
               _buildInfoTile(
-                icon: Icons.timer_outlined,
-                label: 'Tempo Estimado',
-                value: registro.tempoEstimadoMin != null 
-                    ? '${registro.tempoEstimadoMin} minutos' 
-                    : 'Não informado',
-              ),
-              if (registro.nomeDestino != null)
-                _buildInfoTile(
-                  icon: Icons.flag_outlined,
-                  label: 'Destinação',
-                  value: registro.nomeDestino!,
-                ),
-              const SizedBox(height: 16),
-              _buildSectionTitle('Observações'),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-                child: Text(
-                  registro.observacoes != null && registro.observacoes!.isNotEmpty
-                      ? registro.observacoes!
-                      : 'Sem observações.',
-                  style: const TextStyle(fontSize: 16, color: Colors.black87),
-                ),
+                icon: MdiIcons.weight,
+                label: 'Quantidade',
+                value: '${registro.quantidade} ${registro.unidadeMedida ?? ''}',
               ),
             ],
           ),

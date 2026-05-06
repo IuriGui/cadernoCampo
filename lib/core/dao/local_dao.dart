@@ -2,24 +2,18 @@ import '../database/app_database.dart';
 import '../models/local.dart';
 
 class LocalDAO {
-  static const String table = 'locais';
+  static const String table = 'local';
 
   Future<int> insertLocal(Local local) async {
     final db = await AppDatabase().database;
     return await db.insert(table, local.toMap());
   }
 
-  Future<List<Local>> getAllLocais() async {
-    final db = await AppDatabase().database;
-    final List<Map<String, dynamic>> maps = await db.query(table);
-    return maps.map((e) => Local.fromMap(e)).toList();
-  }
-
   Future<List<Local>> getLocaisByPropriedade(int propriedadeId) async {
     final db = await AppDatabase().database;
     final List<Map<String, dynamic>> maps = await db.query(
       table,
-      where: 'propriedadeId = ?',
+      where: 'propriedade_id = ?',
       whereArgs: [propriedadeId],
     );
     return maps.map((e) => Local.fromMap(e)).toList();
@@ -29,7 +23,7 @@ class LocalDAO {
     final db = await AppDatabase().database;
     final List<Map<String, dynamic>> maps = await db.query(
       table,
-      where: 'propriedadeId = ?',
+      where: 'propriedade_id = ?',
       whereArgs: [propriedadeId],
       limit: 3,
     );

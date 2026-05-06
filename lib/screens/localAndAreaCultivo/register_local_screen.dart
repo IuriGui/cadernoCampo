@@ -69,7 +69,7 @@ class _RegisterLocalScreenState extends State<RegisterLocalScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                initialValue: _tipo,
+                value: _tipo,
                 decoration: const InputDecoration(
                   labelText: 'Tipo de Local',
                   prefixIcon: Icon(Icons.category_outlined),
@@ -145,10 +145,10 @@ class _RegisterLocalScreenState extends State<RegisterLocalScreen> {
       try {
         final local = Local(
           nome: _nomeController.text.trim(),
-          areaM2: double.parse(_areaController.text),
+          areaEmMetros: double.parse(_areaController.text),
           tipo: _tipo,
-          temQuebraVento: _temQuebraVento,
-          temAreaSensivel: _temAreaSensivel,
+          quebraVento: _temQuebraVento,
+          areaSensivel: _temAreaSensivel,
           observacoes: _obsController.text.trim(),
           propriedadeId: widget.propriedade.id!,
         );

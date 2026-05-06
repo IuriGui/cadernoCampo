@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../core/dao/area_cultivo_dao.dart';
 import '../../core/models/local.dart';
@@ -92,18 +91,18 @@ class _LocalDetailScreenState extends State<LocalDetailScreen> {
           children: [
             _buildInfoRow(MdiIcons.tagOutline, 'Tipo', widget.local.tipo),
             const Divider(),
-            _buildInfoRow(MdiIcons.rulerSquare, 'Área', '${widget.local.areaM2} m²'),
+            _buildInfoRow(MdiIcons.rulerSquare, 'Área', '${widget.local.areaEmMetros} m²'),
             const Divider(),
             _buildInfoRow(
               MdiIcons.windPowerOutline, 
               'Quebra-vento', 
-              widget.local.temQuebraVento ? 'Presente' : 'Ausente'
+              widget.local.quebraVento ? 'Presente' : 'Ausente'
             ),
             const Divider(),
             _buildInfoRow(
               MdiIcons.alertOutline, 
               'Área Sensível', 
-              widget.local.temAreaSensivel ? 'Sim' : 'Não'
+              widget.local.areaSensivel ? 'Sim' : 'Não'
             ),
             if (widget.local.observacoes != null && widget.local.observacoes!.isNotEmpty) ...[
               const Divider(),
@@ -170,8 +169,7 @@ class _LocalDetailScreenState extends State<LocalDetailScreen> {
                 backgroundColor: Colors.lightGreen,
                 child: Icon(MdiIcons.sprout, color: Colors.white, size: 20),
               ),
-              title: Text(area.titulo),
-              subtitle: Text(DateFormat('dd/MM/yyyy HH:mm').format(area.dataCriacao)),
+              title: Text(area.nome),
               trailing: const Icon(Icons.chevron_right, color: Colors.grey),
               onTap: () {
                 Navigator.push(
@@ -200,7 +198,7 @@ class _LocalDetailScreenState extends State<LocalDetailScreen> {
         title: const Text('Nova Área de Cultivo'),
         content: TextField(
           controller: titleController,
-          decoration: const InputDecoration(labelText: 'Título da Área'),
+          decoration: const InputDecoration(labelText: 'Nome da Área'),
           autofocus: true,
         ),
         actions: [
@@ -214,8 +212,7 @@ class _LocalDetailScreenState extends State<LocalDetailScreen> {
                 final scaffoldContext = Navigator.of(context);
                 final novaArea = AreaCultivo(
                   localId: widget.local.id!,
-                  titulo: titleController.text,
-                  dataCriacao: DateTime.now(),
+                  nome: titleController.text,
                 );
                 await _areaDAO.insertAreaCultivo(novaArea);
                 scaffoldContext.pop();
@@ -228,28 +225,4 @@ class _LocalDetailScreenState extends State<LocalDetailScreen> {
       ),
     );
   }
-
-  // void _confirmDeleteArea(AreaCultivo area) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) => AlertDialog(
-  //       title: const Text('Excluir Área'),
-  //       content: Text('Deseja excluir a área "${area.titulo}"?'),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context),
-  //           child: const Text('Não'),
-  //         ),
-  //         TextButton(
-  //           onPressed: () async {
-  //             await _areaDAO.deleteAreaCultivo(area.id!);
-  //             if (mounted) Navigator.pop(context);
-  //             _refreshAreas();
-  //           },
-  //           child: const Text('Sim', style: TextStyle(color: Colors.red)),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 }

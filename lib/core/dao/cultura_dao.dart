@@ -2,7 +2,7 @@ import '../database/app_database.dart';
 import '../models/cultura.dart';
 
 class CulturaDAO {
-  static const String table = 'culturas';
+  static const String table = 'cultura';
 
   Future<List<Cultura>> getAll() async {
     final db = await AppDatabase().database;
