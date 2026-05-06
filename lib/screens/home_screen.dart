@@ -278,7 +278,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ListTile(
             leading: const Icon(Icons.settings_outlined),
             title: const Text('Configurações'),
-            onTap: () => Navigator.pop(context),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Funcionalidade de configuração em breve!")),
+              );
+            },
           ),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),

@@ -4,8 +4,17 @@ class Destino {
 
   Destino({this.id, required this.nome});
 
-  Map<String, dynamic> toMap() => {'id': id, 'nome': nome};
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'nome': nome,
+    };
+  }
 
-  factory Destino.fromMap(Map<String, dynamic> map) =>
-      Destino(id: map['id'], nome: map['nome'] ?? '');
+  factory Destino.fromMap(Map<String, dynamic> map) {
+    return Destino(
+      id: map['id'],
+      nome: map['nome'] ?? '',
+    );
+  }
 }

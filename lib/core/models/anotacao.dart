@@ -14,6 +14,7 @@ class Anotacao {
   final String? nomeArea;
   final String? nomeCultura;
   final String? nomeInsumo;
+  final String? nomeDestino;
 
   Anotacao({
     this.id,
@@ -29,6 +30,7 @@ class Anotacao {
     this.nomeArea,
     this.nomeCultura,
     this.nomeInsumo,
+    this.nomeDestino,
   });
 
   Map<String, dynamic> toMap() {
@@ -59,6 +61,7 @@ class Anotacao {
       nomeArea: map['nomeArea'],
       nomeCultura: map['nomeCultura'],
       nomeInsumo: map['nomeInsumo'],
+      nomeDestino: map['nomeDestino'],
     );
   }
 }
