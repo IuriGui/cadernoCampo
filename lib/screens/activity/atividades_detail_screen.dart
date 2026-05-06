@@ -46,17 +46,32 @@ class AtividadesDetailScreen extends StatelessWidget {
                 value: registro.nomeArea ?? 'Não informado',
               ),
               const SizedBox(height: 16),
+              if (registro.nomeDestino != null) ...[
+                _buildSectionTitle('Informações de Colheita'),
+                _buildInfoTile(
+                  icon: Icons.place_outlined,
+                  label: 'Destino',
+                  value: registro.nomeDestino!,
+                ),
+                _buildInfoTile(
+                  icon: MdiIcons.weight,
+                  label: 'Quantidade Colhida',
+                  value: '${registro.quantidade} ${registro.unidadeMedida ?? ''}',
+                ),
+                const SizedBox(height: 16),
+              ],
               _buildSectionTitle('Insumos e Detalhes'),
               _buildInfoTile(
                 icon: MdiIcons.packageVariantClosed,
                 label: 'Insumo',
                 value: registro.nomeInsumo ?? 'Nenhum',
               ),
-              _buildInfoTile(
-                icon: MdiIcons.weight,
-                label: 'Quantidade',
-                value: '${registro.quantidade} ${registro.unidadeMedida ?? ''}',
-              ),
+              if (registro.nomeDestino == null)
+                _buildInfoTile(
+                  icon: MdiIcons.weight,
+                  label: 'Quantidade',
+                  value: '${registro.quantidade} ${registro.unidadeMedida ?? ''}',
+                ),
             ],
           ),
         ),

@@ -6,6 +6,7 @@ import '../../core/dao/area_cultivo_dao.dart';
 import '../../core/dao/cultura_dao.dart';
 import '../../core/dao/insumo_dao.dart';
 import '../../core/dao/anotacao_dao.dart';
+import '../../core/dao/destino_dao.dart';
 import '../../core/models/atividade.dart';
 import '../../core/models/area_cultivo.dart';
 import '../../core/models/cultura.dart';
@@ -13,6 +14,7 @@ import '../../core/models/insumo.dart';
 import '../../core/models/local.dart';
 import '../../core/models/user.dart';
 import '../../core/models/anotacao.dart';
+import '../../core/models/destino.dart';
 import '../../core/widgets/primary_button.dart';
 
 class RegisterActivityScreen extends StatefulWidget {
@@ -40,6 +42,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
   
   final _quantidadeColheitaController = TextEditingController();
   final _unidadeColheitaController = TextEditingController();
+  final _destinoController = TextEditingController();
 
   DateTime _dataSelecionada = DateTime.now();
   
@@ -52,6 +55,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
   List<AreaCultivo> _areas = [];
   List<Atividade> _atividades = [];
   List<Insumo> _insumos = [];
+  List<Destino> _destinos = [];
   
   bool _isLoading = true;
   bool _isSaving = false;
@@ -77,6 +81,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
     _unidadeInsumoController.dispose();
     _quantidadeColheitaController.dispose();
     _unidadeColheitaController.dispose();
+    _destinoController.dispose();
     super.dispose();
   }
 
@@ -86,12 +91,14 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
       final areas = await AreaCultivoDAO().getAreasByLocal(widget.local.id!);
       final atividades = await AtividadeDAO().getAll();
       final insumos = await InsumoDAO().getInsumosByPropriedade(widget.local.propriedadeId);
+      final destinos = await DestinoDAO().getAllDestinos();
 
       setState(() {
         _culturas = culturas;
         _areas = areas;
         _atividades = atividades;
         _insumos = insumos;
+        _destinos = destinos;
         _isLoading = false;
       });
     } catch (e) {
@@ -175,12 +182,53 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
                     if (!_isColheita) {
                       _quantidadeColheitaController.clear();
                       _unidadeColheitaController.clear();
+                      _destinoController.clear();
                     }
                   }),
                   validator: (v) => v == null ? '* Obrigatório' : null,
                 ),
 
                 if (_isColheita) ...[
+                  const SizedBox(height: 24),
+                  _buildSectionTitle('Destino'),
+                  const SizedBox(height: 16),
+                  Autocomplete<String>(
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      if (textEditingValue.text == '') {
+                        return _destinos.map((d) => d.nome);
+                      }
+                      return _destinos
+                          .map((d) => d.nome)
+                          .where((String option) {
+                        return option
+                            .toLowerCase()
+                            .contains(textEditingValue.text.toLowerCase());
+                      });
+                    },
+                    onSelected: (String selection) {
+                      _destinoController.text = selection;
+                    },
+                    fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                      // Sincroniza o controller do Autocomplete com o nosso _destinoController
+                      if (controller.text.isEmpty && _destinoController.text.isNotEmpty) {
+                        controller.text = _destinoController.text;
+                      }
+                      controller.addListener(() {
+                        _destinoController.text = controller.text;
+                      });
+                      
+                      return TextFormField(
+                        controller: controller,
+                        focusNode: focusNode,
+                        decoration: const InputDecoration(
+                          labelText: 'Título do Destino',
+                          prefixIcon: Icon(Icons.place_outlined),
+                          hintText: 'Ex: Mercado Central, Feira Local...',
+                        ),
+                        validator: (v) => v == null || v.isEmpty ? '* Obrigatório' : null,
+                      );
+                    },
+                  ),
                   const SizedBox(height: 16),
                   _buildQuantityUnitFields(
                     'Quantidade Colhida',
@@ -332,7 +380,19 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
           unidadeMedida: finalUnidade,
         );
 
-        await _anotacaoDAO.insertAnotacao(anotacao);
+        int? destinoId;
+        if (_isColheita) {
+          final destinoNome = _destinoController.text.trim();
+          final destinoDAO = DestinoDAO();
+          var destino = await destinoDAO.getDestinoByNome(destinoNome);
+          if (destino == null) {
+            destinoId = await destinoDAO.insertDestino(Destino(nome: destinoNome));
+          } else {
+            destinoId = destino.id;
+          }
+        }
+
+        await _anotacaoDAO.insertAnotacao(anotacao, destinoId: destinoId);
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

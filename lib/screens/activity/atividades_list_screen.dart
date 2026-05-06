@@ -104,6 +104,15 @@ class _AtividadesListScreenState extends State<AtividadesListScreen> {
                                 Text('${registro.nomeLocal ?? ''} - ${registro.nomeArea ?? ''}'),
                               ],
                             ),
+                            if (registro.nomeDestino != null)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.place_outlined, size: 14, color: Colors.green),
+                                  const SizedBox(width: 4),
+                                  Text(registro.nomeDestino!, style: const TextStyle(color: Colors.green)),
+                                ],
+                              ),
                           ],
                         ),
                       ],
