@@ -21,34 +21,36 @@ class _RegisterProducerScreenState extends State<RegisterProducerScreen> {
   
   String _mecanismo = 'OCS';
   final _mecanismoNomeController = TextEditingController();
-  final _feiraNomeController = TextEditingController();
-  final _cestasQuantidadeController = TextEditingController();
   
   bool _isLoading = false;
 
-  final List<String> _programas = [
-    'Feira',
-    'CSA',
-    'Cestas',
-    'PNAE',
-    'Cooperativa',
-    'Associação'
-  ];
+  final Map<String, String> _programas = {
+    'Feira': 'Nome',
+    'Cestas': 'Quantidade',
+    'CSA': 'Nome',
+    'PNAE': 'Nome do recebedor',
+    'Cooperativa': 'Nome',
+    'Associação': 'Nome'
+  };
+
   final Map<String, bool> _selecionados = {};
+  final Map<String, TextEditingController> _programControllers = {};
 
   @override
   void initState() {
     super.initState();
-    for (var p in _programas) {
-      _selecionados[p] = false;
-    }
+    _programas.forEach((key, value) {
+      _selecionados[key] = false;
+      _programControllers[key] = TextEditingController();
+    });
   }
 
   @override
   void dispose() {
     _mecanismoNomeController.dispose();
-    _feiraNomeController.dispose();
-    _cestasQuantidadeController.dispose();
+    for (var controller in _programControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -117,7 +119,7 @@ class _RegisterProducerScreenState extends State<RegisterProducerScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          const Divider(color: Colors.grey, thickness: 0.5),
+          _buildDashedDivider(),
           const SizedBox(height: 16),
           const Padding(
             padding: EdgeInsets.only(bottom: 8.0),
@@ -132,6 +134,20 @@ class _RegisterProducerScreenState extends State<RegisterProducerScreen> {
             icon: Icons.edit_outlined,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDashedDivider() {
+    return Row(
+      children: List.generate(
+        150 ~/ 5,
+        (index) => Expanded(
+          child: Container(
+            color: index % 2 == 0 ? Colors.transparent : Colors.grey.shade300,
+            height: 1,
+          ),
+        ),
       ),
     );
   }
@@ -167,13 +183,15 @@ class _RegisterProducerScreenState extends State<RegisterProducerScreen> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         const SizedBox(height: 16),
-        ..._programas.map((p) => _buildProgramItem(p)),
+        ..._programas.keys.map((p) => _buildProgramItem(p)),
       ],
     );
   }
 
   Widget _buildProgramItem(String program) {
     bool isSelected = _selecionados[program] ?? false;
+    String fieldHint = _programas[program]!;
+
     return Column(
       children: [
         CheckboxListTile(
@@ -183,22 +201,13 @@ class _RegisterProducerScreenState extends State<RegisterProducerScreen> {
           controlAffinity: ListTileControlAffinity.leading,
           contentPadding: EdgeInsets.zero,
           activeColor: const Color(0xFF1B5E20),
-          dense: true,
         ),
-        if (isSelected && program == 'Feira')
+        if (isSelected)
           Padding(
             padding: const EdgeInsets.only(bottom: 16.0),
             child: _buildTextField(
-              controller: _feiraNomeController,
-              hint: "Nome",
-            ),
-          ),
-        if (isSelected && program == 'Cestas')
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: _buildTextField(
-              controller: _cestasQuantidadeController,
-              hint: "Quantidade",
+              controller: _programControllers[program]!,
+              hint: fieldHint,
             ),
           ),
       ],
@@ -242,10 +251,10 @@ class _RegisterProducerScreenState extends State<RegisterProducerScreen> {
       final selectedPrograms = _selecionados.entries
           .where((e) => e.value)
           .map((e) {
-            Map<String, dynamic> data = {'nome': e.key};
-            if (e.key == 'Feira') data['detalhe'] = _feiraNomeController.text;
-            if (e.key == 'Cestas') data['detalhe'] = _cestasQuantidadeController.text;
-            return data;
+            return {
+              'nome': e.key,
+              'detalhe': _programControllers[e.key]!.text,
+            };
           })
           .toList();
 
