@@ -119,7 +119,7 @@ class _RegisterProducerScreenState extends State<RegisterProducerScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          _buildDashedDivider(),
+          // _buildDashedDivider(),
           const SizedBox(height: 16),
           const Padding(
             padding: EdgeInsets.only(bottom: 8.0),
