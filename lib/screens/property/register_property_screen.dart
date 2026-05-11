@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/widgets/primary_button.dart';
 import '../user/register_producer_screen.dart';
-import '../../core/dao/propriedade_dao.dart';
 import '../../core/dao/produtor_dao.dart';
 import '../../core/database/app_database.dart';
 
@@ -49,7 +48,7 @@ class _RegisterPropertyScreenState extends State<RegisterPropertyScreen> {
               _buildField(municipioController, "Cidade", isRequired: true),
               _buildField(cepController, "CEP", keyboardType: TextInputType.number),
               DropdownButtonFormField<String>(
-                value: _estado,
+                initialValue: _estado,
                 decoration: const InputDecoration(labelText: 'Estado *'),
                 items: _estados.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
                 onChanged: (v) => setState(() => _estado = v),
