@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../core/dao/local_dao.dart';
-import '../../core/dao/propriedade_dao.dart';
 import '../../core/models/local.dart';
 import '../../core/models/user.dart';
 import '../../core/models/propriedade.dart';
@@ -10,8 +9,15 @@ import 'register_local_screen.dart';
 
 class LocalScreen extends StatefulWidget {
   final User user;
+  final Propriedade propriedade;
   final bool selectionMode;
-  const LocalScreen({super.key, required this.user, this.selectionMode = false});
+  
+  const LocalScreen({
+    super.key, 
+    required this.user, 
+    required this.propriedade,
+    this.selectionMode = false
+  });
 
   @override
   State<LocalScreen> createState() => _LocalScreenState();
@@ -19,57 +25,22 @@ class LocalScreen extends StatefulWidget {
 
 class _LocalScreenState extends State<LocalScreen> {
   final LocalDAO _localDAO = LocalDAO();
-  final PropriedadeDAO _propriedadeDAO = PropriedadeDAO();
-  
   late Future<List<Local>> _locaisFuture;
-  Propriedade? _propriedade;
-  bool _isLoadingProp = true;
 
   @override
   void initState() {
     super.initState();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    try {
-      final prop = await _propriedadeDAO.getPropriedadeByUsuario(widget.user.id!);
-      if (mounted) {
-        setState(() {
-          _propriedade = prop;
-          _isLoadingProp = false;
-          _refreshLocais();
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoadingProp = false;
-          _locaisFuture = Future.error(e);
-        });
-      }
-    }
+    _refreshLocais();
   }
 
   void _refreshLocais() {
-    if (_propriedade != null) {
-      setState(() {
-        _locaisFuture = _localDAO.getLocaisByPropriedade(_propriedade!.id!);
-      });
-    } else {
-      _locaisFuture = Future.value([]);
-    }
+    setState(() {
+      _locaisFuture = _localDAO.getLocaisByPropriedade(widget.propriedade.id!);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoadingProp) {
-      return Scaffold(
-        appBar: AppBar(title: Text(widget.selectionMode ? 'Selecione o Local' : 'Meus Locais')),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.selectionMode ? 'Selecione o Local' : 'Meus Locais'),
@@ -83,7 +54,7 @@ class _LocalScreenState extends State<LocalScreen> {
             } else if (snapshot.hasError) {
               return Center(child: Text('Erro: ${snapshot.error}'));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(child: Text('Nenhum local cadastrado.'));
+              return const Center(child: Text('Nenhum local cadastrado nesta propriedade.'));
             }
 
             final locais = snapshot.data!;
@@ -105,7 +76,7 @@ class _LocalScreenState extends State<LocalScreen> {
                       local.nome,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    subtitle: Text('${local.tipo} • ${local.areaM2}m²'),
+                    subtitle: Text('${local.tipo} • ${local.areaEmMetros}m²'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       if (widget.selectionMode) {
@@ -134,13 +105,13 @@ class _LocalScreenState extends State<LocalScreen> {
           },
         ),
       ),
-      floatingActionButton: (widget.selectionMode || _propriedade == null)
+      floatingActionButton: widget.selectionMode
           ? null 
           : FloatingActionButton(
               onPressed: () async {
                 final result = await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RegisterLocalScreen(propriedade: _propriedade!)),
+                  MaterialPageRoute(builder: (context) => RegisterLocalScreen(propriedade: widget.propriedade)),
                 );
                 if (result == true) {
                   _refreshLocais();

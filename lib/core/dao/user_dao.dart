@@ -2,7 +2,7 @@ import '../database/app_database.dart';
 import '../models/user.dart';
 
 class UserDAO {
-  static const String table = 'users';
+  static const String table = 'usuario';
 
   Future<int> insertUser(User user) async {
     final db = await AppDatabase().database;

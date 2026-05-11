@@ -1,10 +1,10 @@
-class ProgramaComercializacao {
+class MecanismoControle {
   final int? id;
   final int produtorId;
   final String tipo;
   final String valor;
 
-  ProgramaComercializacao({
+  MecanismoControle({
     this.id,
     required this.produtorId,
     required this.tipo,
@@ -18,8 +18,8 @@ class ProgramaComercializacao {
         'valor': valor,
       };
 
-  factory ProgramaComercializacao.fromMap(Map<String, dynamic> map) =>
-      ProgramaComercializacao(
+  factory MecanismoControle.fromMap(Map<String, dynamic> map) =>
+      MecanismoControle(
         id: map['id'],
         produtorId: map['produtor_id'] ?? 0,
         tipo: map['tipo'] ?? '',

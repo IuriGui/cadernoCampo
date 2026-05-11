@@ -31,7 +31,9 @@ class _PropriedadeScreenState extends State<PropriedadeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isProprietario = widget.user.papel == 'proprietário';
+    // No novo esquema, o papel está em produtor_propriedade. 
+    // Por enquanto, permitiremos edição para todos os usuários logados.
+    const bool isProprietario = true; 
 
     return Scaffold(
       appBar: AppBar(
@@ -81,7 +83,7 @@ class _PropriedadeScreenState extends State<PropriedadeScreen> {
                         ),
                       ),
                       Text(
-                        '${propriedade.municipio} - ${propriedade.estado}',
+                        '${propriedade.cidade} - ${propriedade.estado}',
                         style: const TextStyle(fontSize: 16, color: Colors.grey),
                       ),
                     ],
@@ -90,7 +92,7 @@ class _PropriedadeScreenState extends State<PropriedadeScreen> {
                 const SizedBox(height: 32),
                 _buildSectionTitle('Informações de Localização'),
                 _buildInfoCard([
-                  _buildInfoRow(MdiIcons.mapMarkerOutline, 'Município', propriedade.municipio),
+                  _buildInfoRow(MdiIcons.mapMarkerOutline, 'Cidade', propriedade.cidade),
                   _buildInfoRow(MdiIcons.mapOutline, 'Estado', propriedade.estado),
                   _buildInfoRow(MdiIcons.mailboxOutline, 'CEP', propriedade.cep),
                 ]),
@@ -98,21 +100,20 @@ class _PropriedadeScreenState extends State<PropriedadeScreen> {
                 _buildSectionTitle('Áreas e Dimensões'),
                 _buildInfoCard([
                   _buildInfoRow(MdiIcons.rulerSquare, 'Área Total', '${propriedade.areaTotal} ha'),
-                  if (propriedade.areaPropria != null)
-                    _buildInfoRow(MdiIcons.checkCircleOutline, 'Área Própria', '${propriedade.areaPropria} ha'),
+                  _buildInfoRow(MdiIcons.checkCircleOutline, 'Área Própria', '${propriedade.areaPropria} ha'),
                   if (propriedade.areaArrendada != null)
                     _buildInfoRow(MdiIcons.handshakeOutline, 'Área Arrendada', '${propriedade.areaArrendada} ha'),
                   if (propriedade.areaProducaoVegetal != null)
                     _buildInfoRow(MdiIcons.sproutOutline, 'Produção Vegetal', '${propriedade.areaProducaoVegetal} ha'),
                 ]),
-                if (propriedade.observacoes != null && propriedade.observacoes!.isNotEmpty) ...[
+                if (propriedade.observacao != null && propriedade.observacao!.isNotEmpty) ...[
                   const SizedBox(height: 24),
                   _buildSectionTitle('Observações'),
                   _buildInfoCard([
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Text(
-                        propriedade.observacoes!,
+                        propriedade.observacao!,
                         style: const TextStyle(fontSize: 16),
                       ),
                     ),

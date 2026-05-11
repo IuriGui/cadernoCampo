@@ -2,10 +2,12 @@ import 'package:caderno_de_campo/core/dao/insumo_dao.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../core/models/insumo.dart';
+import '../../core/models/propriedade.dart';
 import 'register_insumo_screen.dart';
 
 class InsumoScreen extends StatefulWidget {
-  const InsumoScreen({super.key});
+  final Propriedade propriedade;
+  const InsumoScreen({super.key, required this.propriedade});
 
   @override
   State<InsumoScreen> createState() => _InsumoScreenState();
@@ -23,7 +25,7 @@ class _InsumoScreenState extends State<InsumoScreen> {
 
   void _refreshList() {
     setState(() {
-      _insumosFuture = _dao.getAll();
+      _insumosFuture = _dao.getInsumosByPropriedade(widget.propriedade.id!);
     });
   }
 
@@ -48,7 +50,7 @@ class _InsumoScreenState extends State<InsumoScreen> {
                   children: [
                     Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey),
                     SizedBox(height: 16),
-                    Text('Nenhum insumo encontrado.', style: TextStyle(color: Colors.grey)),
+                    Text('Nenhum insumo nesta propriedade.', style: TextStyle(color: Colors.grey)),
                   ],
                 ),
               );
@@ -100,7 +102,9 @@ class _InsumoScreenState extends State<InsumoScreen> {
         onPressed: () async {
           final result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const RegisterInsumoScreen()),
+            MaterialPageRoute(
+              builder: (context) => RegisterInsumoScreen(propriedade: widget.propriedade)
+            ),
           );
           if (result == true) {
             _refreshList();

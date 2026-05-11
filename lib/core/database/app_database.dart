@@ -19,220 +19,223 @@ class AppDatabase {
     final path = join(await getDatabasesPath(), 'caderno_de_campo.db');
     return openDatabase(
       path,
-      version: 5, // Versão 5: Remove usuarioId de locais e adiciona propriedadeId
+      version: 1,
       onCreate: (db, version) async {
         await _createTables(db);
         await _seedDatabase(db);
-      },
-      onUpgrade: (db, oldVersion, newVersion) async {
-        if (oldVersion < 2) {
-          await db.execute('ALTER TABLE propriedades ADD COLUMN usuarioId INTEGER REFERENCES users(id)');
-        }
-        if (oldVersion < 3) {
-          await db.execute('ALTER TABLE registros_atividades ADD COLUMN unidadeInsumo TEXT');
-        }
-        if (oldVersion < 4) {
-          // Versão 4 antiga adicionava usuarioId. Vamos ignorar ou remover depois.
-          try {
-            await db.execute('ALTER TABLE locais ADD COLUMN usuarioId INTEGER REFERENCES users(id)');
-          } catch (_) {}
-        }
-        if (oldVersion < 5) {
-          await db.execute('ALTER TABLE locais ADD COLUMN propriedadeId INTEGER REFERENCES propriedades(id)');
-          // SQLite não suporta remover colunas facilmente (DROP COLUMN), 
-          // então usuarioId continuará existindo mas será ignorada pelo modelo.
-        }
       },
     );
   }
 
   Future<void> _createTables(Database db) async {
+    // Tabela usuario
     await db.execute('''
-      CREATE TABLE users(
+      CREATE TABLE usuario (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        email TEXT,
-        password TEXT,
-        papel TEXT
+        email TEXT NOT NULL,
+        password TEXT NOT NULL
       )
     ''');
 
+    // Tabela propriedade
     await db.execute('''
-      CREATE TABLE propriedades(
+      CREATE TABLE propriedade (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        usuarioId INTEGER,
-        nome TEXT,
-        municipio TEXT,
-        cep TEXT,
-        estado TEXT,
-        areaTotal REAL,
-        areaPropria REAL,
-        areaArrendada REAL,
-        areaProducaoVegetal REAL,
+        nome TEXT NOT NULL,
+        observacao TEXT,
+        cep TEXT NOT NULL,
+        cidade TEXT NOT NULL,
+        estado TEXT NOT NULL,
+        area_total REAL NOT NULL,
+        area_propria REAL NOT NULL,
+        area_arrendada REAL,
+        area_producao_vegetal REAL
+      )
+    ''');
+
+    // Tabela local
+    await db.execute('''
+      CREATE TABLE local (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        tipo TEXT NOT NULL,
+        area_em_metros REAL NOT NULL,
+        quebra_vento INTEGER NOT NULL,
+        area_sensivel INTEGER NOT NULL,
         observacoes TEXT,
-        FOREIGN KEY (usuarioId) REFERENCES users (id)
+        propriedade_id INTEGER NOT NULL,
+        FOREIGN KEY (propriedade_id) REFERENCES propriedade (id)
       )
     ''');
 
+    // Tabela area_cultivo
     await db.execute('''
-      CREATE TABLE locais(
+      CREATE TABLE area_cultivo (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        propriedadeId INTEGER,
-        nome TEXT,
-        areaM2 REAL,
-        tipo TEXT,
-        quebra_vento INTEGER,
-        area_sensivel INTEGER,
-        observacoes TEXT,
-        FOREIGN KEY (propriedadeId) REFERENCES propriedades (id)
-      )
-    ''');
-
-    await db.execute('''
-      CREATE TABLE areas_cultivo(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
         local_id INTEGER,
-        titulo TEXT,
-        data_criacao TEXT,
-        FOREIGN KEY (local_id) REFERENCES locais (id) ON DELETE CASCADE
+        FOREIGN KEY (local_id) REFERENCES local (id)
       )
     ''');
 
+    // Tabela atividade
     await db.execute('''
-      CREATE TABLE insumos(
+      CREATE TABLE atividade (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        produto TEXT,
-        fornecedor TEXT,
-        dataAquisicao TEXT
+        nome TEXT NOT NULL,
+        descricao TEXT NOT NULL,
+        tipo TEXT NOT NULL
       )
     ''');
 
+    // Tabela cultura
     await db.execute('''
-      CREATE TABLE destinos(
+      CREATE TABLE cultura (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        titulo TEXT
+        nome TEXT NOT NULL,
+        categoria TEXT NOT NULL
       )
     ''');
 
+    // Tabela destino
     await db.execute('''
-      CREATE TABLE culturas(
+      CREATE TABLE destino (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT,
-        categoria TEXT
+        nome TEXT NOT NULL
       )
     ''');
 
+    // Tabela insumo
     await db.execute('''
-      CREATE TABLE atividades(
+      CREATE TABLE insumo (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT,
-        descricao TEXT,
-        tipo TEXT
+        produto TEXT NOT NULL,
+        fornecedor TEXT NOT NULL,
+        data_aquisicao TEXT NOT NULL,
+        propriedade_id INTEGER,
+        FOREIGN KEY (propriedade_id) REFERENCES propriedade (id)
       )
     ''');
 
+    // Tabela anotacao
     await db.execute('''
-      CREATE TABLE registros_atividades(
+      CREATE TABLE anotacao (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        dataOcorrencia TEXT NOT NULL,
-        areaCultivoId INTEGER,
-        quantidade INTEGER,
-        atividadeId INTEGER NOT NULL,
-        culturaId INTEGER,
-        destinacaoId INTEGER,
-        tempoEstimadoMin INTEGER,
-        observacoes TEXT,
-        insumoId INTEGER,
-        unidadeInsumo TEXT,
-        responsavelId INTEGER,
-        FOREIGN KEY (areaCultivoId) REFERENCES areas_cultivo (id),
-        FOREIGN KEY (atividadeId) REFERENCES atividades (id),
-        FOREIGN KEY (culturaId) REFERENCES culturas (id),
-        FOREIGN KEY (destinacaoId) REFERENCES destinos (id),
-        FOREIGN KEY (insumoId) REFERENCES insumos (id),
-        FOREIGN KEY (responsavelId) REFERENCES users (id)
+        area_cultivo_id INTEGER,
+        data_criacao TEXT NOT NULL,
+        unidade_medida TEXT,
+        quantidade REAL NOT NULL,
+        atividade_id INTEGER NOT NULL,
+        insumo_id INTEGER,
+        cultura_id INTEGER,
+        FOREIGN KEY (area_cultivo_id) REFERENCES area_cultivo (id),
+        FOREIGN KEY (atividade_id) REFERENCES atividade (id),
+        FOREIGN KEY (insumo_id) REFERENCES insumo (id),
+        FOREIGN KEY (cultura_id) REFERENCES cultura (id)
       )
     ''');
 
+    // Tabela colheita
     await db.execute('''
-      CREATE TABLE colheitas(
+      CREATE TABLE colheita (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        registroAtividadeId INTEGER,
-        medida TEXT,
-        quantidade INTEGER,
-        destinoId INTEGER,
-        FOREIGN KEY (registroAtividadeId) REFERENCES registros_atividades (id),
-        FOREIGN KEY (destinoId) REFERENCES destinos (id)
+        anotacao_id INTEGER NOT NULL UNIQUE,
+        unidade_medida TEXT NOT NULL,
+        quantidade REAL NOT NULL,
+        destino_id INTEGER NOT NULL,
+        FOREIGN KEY (anotacao_id) REFERENCES anotacao (id),
+        FOREIGN KEY (destino_id) REFERENCES destino (id)
       )
     ''');
 
+    // Tabela produtor
     await db.execute('''
-      CREATE TABLE programa_comercializacao(
+      CREATE TABLE produtor (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT
+        usuario_id INTEGER NOT NULL UNIQUE,
+        nome TEXT NOT NULL,
+        FOREIGN KEY (usuario_id) REFERENCES usuario (id)
       )
     ''');
 
+    // Tabela mecanismo_controle
     await db.execute('''
-      CREATE TABLE produtor(
+      CREATE TABLE mecanismo_controle (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT,
-        mecanismo_controle TEXT
+        produtor_id INTEGER NOT NULL UNIQUE,
+        tipo TEXT NOT NULL,
+        valor TEXT NOT NULL,
+        FOREIGN KEY (produtor_id) REFERENCES produtor (id)
       )
     ''');
 
+    // Tabela programa_comercializacao
     await db.execute('''
-      CREATE TABLE programa_produtor(
+      CREATE TABLE programa_comercializacao (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        produtor_id INTEGER,
-        programa_id INTEGER,
-        FOREIGN KEY (produtor_id) REFERENCES produtor (id) ON DELETE CASCADE,
-        FOREIGN KEY (programa_id) REFERENCES programa_comercializacao (id) ON DELETE CASCADE
+        produtor_id INTEGER NOT NULL,
+        tipo TEXT NOT NULL,
+        valor TEXT NOT NULL,
+        FOREIGN KEY (produtor_id) REFERENCES produtor (id)
+      )
+    ''');
+
+    // Tabela produtor_propriedade
+    await db.execute('''
+      CREATE TABLE produtor_propriedade (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        propriedade_id INTEGER NOT NULL,
+        produtor_id INTEGER NOT NULL,
+        papel TEXT NOT NULL,
+        FOREIGN KEY (propriedade_id) REFERENCES propriedade (id),
+        FOREIGN KEY (produtor_id) REFERENCES produtor (id)
       )
     ''');
   }
 
   Future<void> _seedDatabase(Database db) async {
-    // Nota: Em um app real, o id deve existir para os seeds funcionarem.
-    // Propriedade 1 vinculada ao Usuário 1 (se existir)
-    await db.insert('propriedades', {
-      'usuarioId': 1,
-      'nome': 'Fazenda Modelo',
-      'municipio': 'Santa Maria',
-      'cep': '97000-000',
-      'estado': 'RS',
-      'areaTotal': 10.0
+    // Seed básico para manter o app funcional para testes iniciais
+    await db.insert('usuario', {
+      'email': 'admin@campo.com',
+      'password': 'password123'
     });
 
-    await db.insert('locais', {
-      'propriedadeId': 1,
-      'nome': 'Roça do Fundo',
-      'areaM2': 2500.0,
+    await db.insert('produtor', {
+      'usuario_id': 1,
+      'nome': 'Produtor Modelo'
+    });
+
+    await db.insert('propriedade', {
+      'nome': 'Fazenda Modelo',
+      'cep': '97000-000',
+      'cidade': 'Santa Maria',
+      'estado': 'RS',
+      'area_total': 100.0,
+      'area_propria': 80.0
+    });
+
+    await db.insert('produtor_propriedade', {
+      'produtor_id': 1,
+      'propriedade_id': 1,
+      'papel': 'proprietário'
+    });
+
+    await db.insert('local', {
+      'nome': 'Canteiro Norte',
       'tipo': 'Campo Aberto',
+      'area_em_metros': 500.0,
       'quebra_vento': 1,
       'area_sensivel': 0,
-      'observacoes': 'Área principal de plantio'
-    });
-    
-    await db.insert('areas_cultivo', {
-      'local_id': 1,
-      'titulo': 'Canteiro A1',
-      'data_criacao': DateTime.now().toIso8601String()
+      'propriedade_id': 1
     });
 
-    await db.insert('atividades', {'nome': 'Plantio', 'descricao': '...', 'tipo': 'Manual'});
-    await db.insert('atividades', {'nome': 'Irrigação', 'descricao': '...', 'tipo': 'Automática'});
-    await db.insert('atividades', {'nome': 'Adubação', 'descricao': '...', 'tipo': 'Manual'});
-    await db.insert('atividades', {'nome': 'Colheita', 'descricao': '...', 'tipo': 'Manual'});
+    await db.insert('atividade', {'nome': 'Plantio', 'descricao': 'Semeadura manual', 'tipo': 'Manual'});
+    await db.insert('atividade', {'nome': 'Colheita', 'descricao': 'Retirada dos frutos', 'tipo': 'Manual'});
 
-    await db.insert('culturas', {'nome': 'Alface', 'categoria': 'Hortaliça'});
-    await db.insert('culturas', {'nome': 'Tomate', 'categoria': 'Fruto'});
-    await db.insert('culturas', {'nome': 'Cenoura', 'categoria': 'Raiz'});
+    await db.insert('cultura', {'nome': 'Alface', 'categoria': 'Hortaliça'});
+    await db.insert('cultura', {'nome': 'Tomate', 'categoria': 'Fruto'});
 
-    await db.insert('insumos', {'produto': 'Adubo Orgânico', 'fornecedor': 'BioFertil', 'dataAquisicao': '2023-10-01'});
-
-    await db.insert('programa_comercializacao', {'nome': 'PNAE'});
-    await db.insert('programa_comercializacao', {'nome': 'PAA'});
-    await db.insert('programa_comercializacao', {'nome': 'Feira Local'});
+    await db.insert('destino', {'nome': 'Mercado Local'});
+    await db.insert('destino', {'nome': 'Consumo Próprio'});
   }
 }
