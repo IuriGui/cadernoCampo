@@ -1,6 +1,6 @@
-import 'package:caderno_de_campo/core/theme/app_theme.dart';
-import 'package:caderno_de_campo/screens/user/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'core/theme/app_theme.dart';
+import 'screens/user/login_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Caderno de Campo',
       theme: AppTheme.lightTheme,
-      home: LoginScreen(),
+      home: const LoginScreen(),
       debugShowCheckedModeBanner: false,
     );
   }

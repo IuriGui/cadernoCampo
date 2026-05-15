@@ -229,8 +229,35 @@ class AppDatabase {
       'propriedade_id': 1
     });
 
-    await db.insert('atividade', {'nome': 'Plantio', 'descricao': 'Semeadura manual', 'tipo': 'Manual'});
-    await db.insert('atividade', {'nome': 'Colheita', 'descricao': 'Retirada dos frutos', 'tipo': 'Manual'});
+    await db.insert('atividade', {
+      'nome': 'Preparo do solo',
+      'descricao': 'Correção e preparo do terreno para cultivo',
+      'tipo': 'Manejo'
+    });
+
+    await db.insert('atividade', {
+      'nome': 'Plantio',
+      'descricao': 'Semeadura ou transplante de mudas',
+      'tipo': 'Plantio'
+    });
+
+    await db.insert('atividade', {
+      'nome': 'Adubação',
+      'descricao': 'Aplicação de fertilizantes e nutrientes',
+      'tipo': 'Nutrição'
+    });
+
+    await db.insert('atividade', {
+      'nome': 'Irrigação',
+      'descricao': 'Fornecimento de água para a cultura',
+      'tipo': 'Irrigação'
+    });
+
+    await db.insert('atividade', {
+      'nome': 'Colheita',
+      'descricao': 'Coleta e armazenamento da cultura',
+      'tipo': 'Colheita'
+    });
 
     await db.insert('cultura', {'nome': 'Alface', 'categoria': 'Hortaliça'});
     await db.insert('cultura', {'nome': 'Tomate', 'categoria': 'Fruto'});
