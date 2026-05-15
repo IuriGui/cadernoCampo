@@ -6,6 +6,7 @@ import '../../core/models/area_cultivo.dart';
 import '../../core/models/anotacao.dart';
 import '../../core/models/user.dart';
 import '../../core/models/local.dart';
+import '../../core/widgets/async_list_view.dart';
 import '../activity/register_activity_screen.dart';
 import '../activity/atividades_detail_screen.dart';
 
@@ -15,7 +16,7 @@ class AreaDetailScreen extends StatefulWidget {
   final User user;
 
   const AreaDetailScreen({
-    super.key, 
+    super.key,
     required this.area,
     required this.local,
     required this.user,
@@ -44,83 +45,44 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.area.nome),
-      ),
+      appBar: AppBar(title: Text(widget.area.nome)),
       body: SafeArea(
-        child: FutureBuilder<List<Anotacao>>(
+        child: AsyncListView<Anotacao>(
           future: _registrosFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Erro: ${snapshot.error}'));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+          emptyMessage: 'Nenhum registro nesta área.',
+          emptyIcon: Icons.history,
+          itemBuilder: (context, registro) => Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                child: Icon(MdiIcons.clipboardTextClockOutline, color: Theme.of(context).primaryColor),
+              ),
+              title: Text(
+                registro.nomeAtividade ?? 'Atividade',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.history, size: 64, color: Colors.grey),
-                    SizedBox(height: 16),
-                    Text('Nenhum registro nesta área.', style: TextStyle(color: Colors.grey)),
+                    Icon(MdiIcons.calendarCheck, size: 14, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text(DateFormat('dd/MM/yyyy').format(registro.dataCriacao)),
                   ],
                 ),
-              );
-            }
-
-            final registros = snapshot.data!;
-
-            return ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: registros.length,
-              itemBuilder: (context, index) {
-                final registro = registros[index];
-                return Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
-                      child: Icon(MdiIcons.clipboardTextClockOutline, color: Theme.of(context).primaryColor),
-                    ),
-                    title: Text(
-                      registro.nomeAtividade ?? 'Atividade',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 4),
-                        Wrap(
-                          spacing: 12,
-                          runSpacing: 4,
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(MdiIcons.calendarCheck, size: 14, color: Colors.grey),
-                                const SizedBox(width: 4),
-                                Text(DateFormat('dd/MM/yyyy').format(registro.dataCriacao)),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AtividadesDetailScreen(registro: registro),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-            );
-          },
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AtividadesDetailScreen(registro: registro),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -135,9 +97,7 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
               ),
             ),
           );
-          if (result == true) {
-            _refreshRegistros();
-          }
+          if (result == true) _refreshRegistros();
         },
         child: const Icon(Icons.add),
       ),
