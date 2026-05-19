@@ -1,14 +1,10 @@
-import 'package:caderno_de_campo/core/services/localizacao_service.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import '../core/models/user.dart';
-import '../core/models/local.dart';
-import '../core/models/propriedade.dart';
-import '../core/models/produtor.dart';
-import '../core/dao/local_dao.dart';
-import '../core/dao/propriedade_dao.dart';
-import '../core/dao/produtor_dao.dart';
+import 'package:provider/provider.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import '../core/models/local.dart';
+import '../core/models/user.dart';
+import '../core/provider/home_provider.dart';
+import '../core/widgets/home/weather_card.dart';
 import 'supply/insumo_screen.dart';
 import 'supply/register_insumo_screen.dart';
 import 'localAndAreaCultivo/local_screen.dart';
@@ -17,78 +13,31 @@ import 'property/propriedade_screen.dart';
 import 'localAndAreaCultivo/local_detail_screen.dart';
 import 'property/register_property_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   final User user;
   const HomeScreen({super.key, required this.user});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => HomeProvider(user: user)..carregar(),
+      child: const _HomeView(),
+    );
+  }
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  final LocalDAO _localDAO = LocalDAO();
-  final PropriedadeDAO _propriedadeDAO = PropriedadeDAO();
-  final ProdutorDAO _produtorDAO = ProdutorDAO();
-  
-  late Future<List<Local>> _locaisFuture;
-  Propriedade? _propriedade;
-  Produtor? _produtor;
-  bool _isLoadingProp = true;
+// ---------------------------------------------------------------------------
+// View principal
+// ---------------------------------------------------------------------------
 
-  @override
-  void initState() {
-    super.initState();
-    _loadInitialData();
-  }
-
-  Future<void> _loadInitialData() async {
-    try {
-      final prop = await _propriedadeDAO.getPropriedadeByUsuario(widget.user.id!);
-      final produtor = await _produtorDAO.getProdutorByUsuario(widget.user.id!);
-      if (mounted) {
-        setState(() {
-          _propriedade = prop;
-          _produtor = produtor;
-          _isLoadingProp = false;
-          if (_propriedade != null) {
-            _locaisFuture = _localDAO.getTopThreeLocais(_propriedade!.id!);
-
-            carregarClima();
-          } else {
-            _locaisFuture = Future.value([]);
-          }
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoadingProp = false;
-          _locaisFuture = Future.error(e);
-        });
-      }
-    }
-  }
-
-  Future<void> _refreshData() async {
-    await _loadInitialData();
-  }
-
-  void carregarClima() async {
-    try {
-      Position posicao = await LocalizacaoService.determinarPosicao();
-
-      print("Carregando loc");
-      print('Latitude obtida: ${posicao.latitude}');
-      print('Longitude obtida: ${posicao.longitude}');
-
-    } catch (erro) {
-      print('Erro ao obter coordenadas: $erro');
-    }
-  }
+class _HomeView extends StatelessWidget {
+  const _HomeView();
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoadingProp) {
+    final provider = context.watch<HomeProvider>();
+
+    if (provider.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -98,10 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
-        title: const Text(
-          "Home",
-          style: TextStyle(color: Colors.grey, fontSize: 16),
-        ),
+        title: const Text('Home', style: TextStyle(color: Colors.grey, fontSize: 16)),
         actions: [
           IconButton(
             onPressed: () => Navigator.pushReplacementNamed(context, '/'),
@@ -109,102 +55,33 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      drawer: _buildDrawer(context),
+      drawer: const _HomeDrawer(),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: _propriedade == null 
-            ? _buildNoPropertyView(context)
-            : _buildMainContent(context),
+          child: provider.propriedade == null
+              ? const _NoPropertyView()
+              : const _MainContent(),
         ),
       ),
     );
   }
+}
 
-  Widget _buildNoPropertyView(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SizedBox(height: 40),
-        Icon(MdiIcons.homeAlertOutline, size: 100, color: Colors.orange),
-        const SizedBox(height: 24),
-        const Text(
-          "Bem-vindo!",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        const Text(
-          "Você ainda não possui uma propriedade vinculada. Para começar a registrar suas atividades, escolha uma das opções abaixo:",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16, color: Colors.grey),
-        ),
-        const SizedBox(height: 40),
-        ElevatedButton.icon(
-          onPressed: () async {
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RegisterPropertyScreen(
-                  userData: {
-                    'userId': widget.user.id.toString(),
-                  },
-                ),
-              ),
-            );
-            if (result == true) _refreshData();
-          },
-          icon: const Icon(Icons.add_business_outlined),
-          label: const Text("Cadastrar Minha Propriedade"),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF2E7D32),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        ),
-        const SizedBox(height: 16),
-        OutlinedButton.icon(
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Funcionalidade de solicitação de acesso em breve!")),
-            );
-          },
-          icon: const Icon(Icons.person_search_outlined),
-          label: const Text("Pedir Acesso a um Proprietário"),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: const Color(0xFF2E7D32),
-            side: const BorderSide(color: Color(0xFF2E7D32)),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        ),
-      ],
-    );
-  }
+// ---------------------------------------------------------------------------
+// Drawer
+// ---------------------------------------------------------------------------
 
-  Widget _buildMainContent(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 16),
-        _buildCalendar(),
-        const SizedBox(height: 32),
-        _buildWeatherHeader(context),
-        const SizedBox(height: 24),
-        _buildWeatherMainInfo(),
-        const SizedBox(height: 32),
-        _buildWeatherDetails(),
-        const SizedBox(height: 32),
-        _buildLocaisSection(context),
-        const SizedBox(height: 32),
-        _buildAcoesSection(context),
-        const SizedBox(height: 32),
-      ],
-    );
-  }
+class _HomeDrawer extends StatelessWidget {
+  const _HomeDrawer();
 
-  Widget _buildDrawer(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<HomeProvider>();
+    final user = provider.user;
+    final produtor = provider.produtor;
+    final propriedade = provider.propriedade;
+
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -212,10 +89,10 @@ class _HomeScreenState extends State<HomeScreen> {
           UserAccountsDrawerHeader(
             decoration: const BoxDecoration(color: Color(0xFF2E7D32)),
             accountName: Text(
-              _produtor?.nome ?? widget.user.email.split('@')[0],
+              produtor?.nome ?? user.email.split('@')[0],
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            accountEmail: Text(widget.user.email),
+            accountEmail: Text(user.email),
             currentAccountPicture: const CircleAvatar(
               backgroundColor: Colors.white,
               child: Icon(Icons.person, size: 40, color: Color(0xFF2E7D32)),
@@ -223,21 +100,18 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           ListTile(
             leading: Icon(MdiIcons.homeOutline),
-            title: const Text('Início'),
+            title: const Text('Inicio'),
             onTap: () => Navigator.pop(context),
           ),
-          if (_propriedade != null) ...[
+          if (propriedade != null) ...[
             ListTile(
               leading: Icon(MdiIcons.mapMarkerRadiusOutline),
               title: const Text('Meus Locais'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(
-                  context, 
-                  MaterialPageRoute(
-                    builder: (context) => LocalScreen(user: widget.user, propriedade: _propriedade!)
-                  )
-                );
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (_) => LocalScreen(user: user, propriedade: propriedade),
+                ));
               },
             ),
             ListTile(
@@ -245,61 +119,49 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text('Registros de Atividades'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(
-                  context, 
-                  MaterialPageRoute(
-                    builder: (context) => AtividadesListScreen(
-                      user: widget.user, 
-                      propriedade: _propriedade!
-                    )
-                  )
-                );
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (_) => AtividadesListScreen(user: user, propriedade: propriedade),
+                ));
               },
             ),
             ListTile(
               leading: Icon(MdiIcons.sproutOutline),
-              title: const Text('Áreas de Cultivo'),
+              title: const Text('Areas de Cultivo'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(
-                  context, 
-                  MaterialPageRoute(
-                    builder: (context) => LocalScreen(user: widget.user, propriedade: _propriedade!)
-                  )
-                );
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (_) => LocalScreen(user: user, propriedade: propriedade),
+                ));
               },
             ),
             ListTile(
               leading: Icon(MdiIcons.hoopHouse),
-              title: const Text ('Propriedade'),
+              title: const Text('Propriedade'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => PropriedadeScreen(user: widget.user)));
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (_) => PropriedadeScreen(user: user),
+                ));
               },
             ),
             ListTile(
               leading: Icon(MdiIcons.packageVariantClosed),
-              title: const Text ('Insumos'),
+              title: const Text('Insumos'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(
-                  context, 
-                  MaterialPageRoute(
-                    builder: (context) => InsumoScreen(propriedade: _propriedade!)
-                  )
-                );
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (_) => InsumoScreen(propriedade: propriedade),
+                ));
               },
             ),
           ],
           const Divider(),
           ListTile(
             leading: const Icon(Icons.settings_outlined),
-            title: const Text('Configurações'),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Funcionalidade de configuração em breve!")),
-              );
-            },
+            title: const Text('Configuracoes'),
+            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Funcionalidade de configuracao em breve!')),
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
@@ -310,302 +172,255 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
 
-  Widget _buildCalendar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+// ---------------------------------------------------------------------------
+// Sem propriedade
+// ---------------------------------------------------------------------------
+
+class _NoPropertyView extends StatelessWidget {
+  const _NoPropertyView();
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.read<HomeProvider>();
+    final user = provider.user;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildCalendarDay("Seg", "12"),
-        _buildCalendarDay("Ter", "13"),
-        _buildCalendarDay("Qua", "14", isSelected: true),
-        _buildCalendarDay("Qui", "15"),
-        _buildCalendarDay("Sex", "16"),
+        const SizedBox(height: 40),
+        Icon(MdiIcons.homeAlertOutline, size: 100, color: Colors.orange),
+        const SizedBox(height: 24),
+        const Text(
+          'Bem-vindo!',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Voce ainda nao possui uma propriedade vinculada. Para comecar a registrar suas atividades, escolha uma das opcoes abaixo:',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+        const SizedBox(height: 40),
+        ElevatedButton.icon(
+          onPressed: () async {
+            final result = await Navigator.push(context, MaterialPageRoute(
+              builder: (_) => RegisterPropertyScreen(
+                userData: {'userId': user.id.toString()},
+              ),
+            ));
+            if (result == true) provider.refresh();
+          },
+          icon: const Icon(Icons.add_business_outlined),
+          label: const Text('Cadastrar Minha Propriedade'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF2E7D32),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+        const SizedBox(height: 16),
+        OutlinedButton.icon(
+          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Funcionalidade de solicitacao de acesso em breve!')),
+          ),
+          icon: const Icon(Icons.person_search_outlined),
+          label: const Text('Pedir Acesso a um Proprietario'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: const Color(0xFF2E7D32),
+            side: const BorderSide(color: Color(0xFF2E7D32)),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
       ],
     );
   }
+}
 
-  Widget _buildCalendarDay(String day, String date, {bool isSelected = false}) {
+// ---------------------------------------------------------------------------
+// Conteudo principal
+// ---------------------------------------------------------------------------
+
+class _MainContent extends StatelessWidget {
+  const _MainContent();
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<HomeProvider>();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        const _CalendarStrip(),
+        const SizedBox(height: 32),
+        const WeatherCard(),
+        const SizedBox(height: 32),
+        _LocaisSection(user: provider.user, locais: provider.locais),
+        const SizedBox(height: 32),
+        _AcoesSection(user: provider.user),
+        const SizedBox(height: 32),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Calendario
+// ---------------------------------------------------------------------------
+
+class _CalendarStrip extends StatelessWidget {
+  const _CalendarStrip();
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final monday = now.subtract(Duration(days: now.weekday - 1));
+    const labels = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: List.generate(5, (i) {
+        final day = monday.add(Duration(days: i));
+        final isToday = day.day == now.day && day.month == now.month && day.year == now.year;
+        return _CalendarDay(label: labels[i], date: day.day.toString(), isSelected: isToday);
+      }),
+    );
+  }
+}
+
+class _CalendarDay extends StatelessWidget {
+  final String label;
+  final String date;
+  final bool isSelected;
+
+  const _CalendarDay({required this.label, required this.date, this.isSelected = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isSelected ? Colors.green : Colors.grey;
+    final weight = isSelected ? FontWeight.bold : FontWeight.normal;
+
     return Column(
       children: [
-        Text(
-          day,
-          style: TextStyle(
-            color: isSelected ? Colors.green : Colors.grey,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
+        Text(label, style: TextStyle(color: color, fontWeight: weight)),
         const SizedBox(height: 4),
         Container(
           padding: const EdgeInsets.only(bottom: 4),
           decoration: isSelected
-              ? const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Colors.green, width: 2),
-                  ),
-                )
+              ? const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.green, width: 2)))
               : null,
-          child: Text(
-            date,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? Colors.green : Colors.grey,
-            ),
-          ),
+          child: Text(date, style: TextStyle(fontSize: 18, fontWeight: weight, color: color)),
         ),
       ],
     );
   }
+}
 
-  Widget _buildWeatherHeader(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          "Previsão do tempo",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        Row(
-          children: const [
-            Icon(Icons.location_on_outlined, color: Colors.green, size: 18),
-            SizedBox(width: 4),
-            Text(
-              "Santa maria, RS",
-              style: TextStyle(color: Colors.green, fontSize: 12),
-            ),
-          ],
-        ),
-      ],
-    );
+// ---------------------------------------------------------------------------
+// Locais
+// ---------------------------------------------------------------------------
+
+class _LocaisSection extends StatelessWidget {
+  final User user;
+  final List<Local> locais;
+
+  const _LocaisSection({required this.user, required this.locais});
+
+  IconData _iconByTipo(String tipo) {
+    switch (tipo.toLowerCase()) {
+      case 'estufa':       return MdiIcons.hoopHouse;
+      case 'campo aberto': return MdiIcons.sprout;
+      case 'pomar':        return MdiIcons.treeOutline;
+      case 'hidroponia':   return MdiIcons.water;
+      default:             return MdiIcons.mapMarker;
+    }
   }
 
-  Widget _buildWeatherMainInfo() {
-    return Row(
-      children: [
-        Image.asset(
-          'lib/assets/imgs/nubladoChanceChuva.png',
-          width: 152,
-          height: 152,
-          fit: BoxFit.contain,
-        ),
-        const SizedBox(width: 32),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "19°",
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text("/", style: TextStyle(fontSize: 32, color: Colors.grey)),
-                  ),
-                  const Text(
-                    "29°",
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.orange,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: const [
-                  Text("mín.", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                  SizedBox(width: 40),
-                  Text("máx.", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                "Parcialmente nublado\ncom chance de chuva",
-                style: TextStyle(color: Colors.grey, fontSize: 12),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.read<HomeProvider>();
+    final propriedade = provider.propriedade!;
+    final colors = [Colors.redAccent.shade100, Colors.greenAccent.shade400, Colors.yellow];
 
-  Widget _buildWeatherDetails() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            const Icon(Icons.cloud_queue, size: 40, color: Colors.blue),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text("Chuva", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text("30%", style: TextStyle(fontSize: 16)),
-                Text("(5 mm)", style: TextStyle(color: Colors.grey, fontSize: 12)),
-              ],
-            ),
-            const Spacer(),
-            const Icon(Icons.water_drop_outlined, size: 40, color: Colors.blue),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text("Umidade", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text("30%", style: TextStyle(fontSize: 16)),
-                Text("do ar", style: TextStyle(color: Colors.grey, fontSize: 12)),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        Row(
-          children: [
-            const Icon(Icons.air, size: 40, color: Colors.green),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text("Vento", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text("12 km/h", style: TextStyle(fontSize: 16, color: Colors.green)),
-                Text("NE", style: TextStyle(color: Colors.grey, fontSize: 12)),
-              ],
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLocaisSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              "Locais",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            const Text('Locais', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             TextButton(
               onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LocalScreen(user: widget.user, propriedade: _propriedade!)
-                  ),
-                );
-                _refreshData();
+                await Navigator.push(context, MaterialPageRoute(
+                  builder: (_) => LocalScreen(user: user, propriedade: propriedade),
+                ));
+                provider.refresh();
               },
-              child: const Text("Ver todos", style: TextStyle(color: Colors.green))
+              child: const Text('Ver todos', style: TextStyle(color: Colors.green)),
             ),
           ],
         ),
         const SizedBox(height: 16),
-        FutureBuilder<List<Local>>(
-          future: _locaisFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return Text('Erro ao carregar locais: ${snapshot.error}');
-            }
-            final locais = snapshot.data ?? [];
-            if (locais.isEmpty) {
-              return const Text('Nenhum local cadastrado.');
-            }
-
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: locais.asMap().entries.map((entry) {
-                int idx = entry.key;
-                Local local = entry.value;
-                Color color;
-                switch (idx) {
-                  case 0:
-                    color = Colors.redAccent.shade100;
-                    break;
-                  case 1:
-                    color = Colors.greenAccent.shade400;
-                    break;
-                  case 2:
-                    color = Colors.yellow;
-                    break;
-                  default:
-                    color = Colors.grey;
-                }
-                return _buildLocalItem(local, color);
-              }).toList(),
-            );
-          },
-        ),
+        if (locais.isEmpty)
+          const Text('Nenhum local cadastrado.')
+        else
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: locais.asMap().entries.map((e) {
+              final local = e.value;
+              final color = colors[e.key % colors.length];
+              return GestureDetector(
+                onTap: () async {
+                  await Navigator.push(context, MaterialPageRoute(
+                    builder: (_) => LocalDetailScreen(local: local, user: user),
+                  ));
+                  provider.refresh();
+                },
+                child: Column(
+                  children: [
+                    Container(
+                      width: 80, height: 80,
+                      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                      child: Icon(_iconByTipo(local.tipo), color: Colors.white, size: 32),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(local.nome,
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
       ],
     );
   }
+}
 
-  IconData _getIconByTipo(String tipo) {
-    switch (tipo.toLowerCase()) {
-      case 'estufa':
-        return MdiIcons.hoopHouse;
-      case 'campo aberto':
-        return MdiIcons.sprout;
-      case 'pomar':
-        return MdiIcons.treeOutline;
-      case 'hidroponia':
-        return MdiIcons.water;
-      default:
-        return MdiIcons.mapMarker;
-    }
-  }
+// ---------------------------------------------------------------------------
+// Acoes
+// ---------------------------------------------------------------------------
 
-  Widget _buildLocalItem(Local local, Color color) {
-    return GestureDetector(
-      onTap: () async {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => LocalDetailScreen(local: local, user: widget.user)),
-        );
-        _refreshData();
-      },
-      child: Column(
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(_getIconByTipo(local.tipo), color: Colors.white, size: 32),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            local.nome, 
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
+class _AcoesSection extends StatelessWidget {
+  final User user;
 
-  Widget _buildAcoesSection(BuildContext context) {
+  const _AcoesSection({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.read<HomeProvider>();
+    final propriedade = provider.propriedade!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Ações",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+        const Text('Acoes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
         GridView.count(
           shrinkWrap: true,
@@ -615,58 +430,58 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisSpacing: 16,
           childAspectRatio: 2.5,
           children: [
-            _buildAcaoButton(
-              MdiIcons.tractorVariant, 
-              "Nova Atividade", 
-              const Color(0xFF5C6BC0),
+            _AcaoButton(
+              icon: MdiIcons.tractorVariant,
+              label: 'Nova Atividade',
+              color: const Color(0xFF5C6BC0),
               onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LocalScreen(user: widget.user, propriedade: _propriedade!, selectionMode: true),
-                  ),
-                );
-                _refreshData();
+                await Navigator.push(context, MaterialPageRoute(
+                  builder: (_) => LocalScreen(user: user, propriedade: propriedade, selectionMode: true),
+                ));
+                provider.refresh();
               },
             ),
-            _buildAcaoButton(MdiIcons.shovel, "Novo Canteiro", const Color(0xFF8D6E63)),
-            _buildAcaoButton(MdiIcons.sprout, "Novo Plantio", const Color(0xFF43A047)),
-            _buildAcaoButton(
-              MdiIcons.packageVariantClosed, 
-              "Registrar Insumo", 
-              const Color(0xFF26A69A), 
+            _AcaoButton(icon: MdiIcons.shovel, label: 'Novo Canteiro', color: const Color(0xFF8D6E63)),
+            _AcaoButton(icon: MdiIcons.sprout, label: 'Novo Plantio', color: const Color(0xFF43A047)),
+            _AcaoButton(
+              icon: MdiIcons.packageVariantClosed,
+              label: 'Registrar Insumo',
+              color: const Color(0xFF26A69A),
               onPressed: () async {
-                if (_propriedade != null) {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => RegisterInsumoScreen(propriedade: _propriedade!)),
-                  );
-                  _refreshData();
-                }
+                await Navigator.push(context, MaterialPageRoute(
+                  builder: (_) => RegisterInsumoScreen(propriedade: propriedade),
+                ));
+                provider.refresh();
               },
             ),
           ],
-        )
+        ),
       ],
     );
   }
+}
 
-  Widget _buildAcaoButton(IconData icon, String label, Color color, {VoidCallback? onPressed}) {
+class _AcaoButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback? onPressed;
+
+  const _AcaoButton({required this.icon, required this.label, required this.color, this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
-        ),
+        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: Colors.white, size: 20),
             const SizedBox(width: 8),
             Flexible(
-              child: Text(
-                label,
+              child: Text(label,
                 style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
               ),
