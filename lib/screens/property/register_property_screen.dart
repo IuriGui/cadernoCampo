@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../core/constants/estados.dart';
 import '../../core/widgets/primary_button.dart';
+import '../../core/constants/estados.dart';
 import '../user/register_producer_screen.dart';
 import '../../core/dao/produtor_dao.dart';
 import '../../core/database/app_database.dart';
@@ -14,22 +16,30 @@ class RegisterPropertyScreen extends StatefulWidget {
 
 class _RegisterPropertyScreenState extends State<RegisterPropertyScreen> {
   final _formKey = GlobalKey<FormState>();
-  final nomeController = TextEditingController();
-  final municipioController = TextEditingController();
-  final cepController = TextEditingController();
-  final areaTotalController = TextEditingController();
-  final areaPropriaController = TextEditingController();
-  final areaArrendadaController = TextEditingController();
-  final areaProducaoController = TextEditingController();
-  final obsController = TextEditingController();
-  
+  final _nomeController = TextEditingController();
+  final _municipioController = TextEditingController();
+  final _cepController = TextEditingController();
+  final _areaTotalController = TextEditingController();
+  final _areaPropriaController = TextEditingController();
+  final _areaArrendadaController = TextEditingController();
+  final _areaProducaoController = TextEditingController();
+  final _obsController = TextEditingController();
+
   bool _isLoading = false;
   String? _estado;
-  final List<String> _estados = [
-    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA',
-    'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN',
-    'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
-  ];
+
+  @override
+  void dispose() {
+    _nomeController.dispose();
+    _municipioController.dispose();
+    _cepController.dispose();
+    _areaTotalController.dispose();
+    _areaPropriaController.dispose();
+    _areaArrendadaController.dispose();
+    _areaProducaoController.dispose();
+    _obsController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,51 +54,71 @@ class _RegisterPropertyScreenState extends State<RegisterPropertyScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildField(nomeController, "Nome da Propriedade", isRequired: true),
-              _buildField(municipioController, "Cidade", isRequired: true),
-              _buildField(cepController, "CEP", keyboardType: TextInputType.number),
+              TextFormField(
+                controller: _nomeController,
+                decoration: const InputDecoration(labelText: 'Nome da Propriedade *'),
+                validator: (v) => v == null || v.isEmpty ? '* Obrigatório' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _municipioController,
+                decoration: const InputDecoration(labelText: 'Cidade *'),
+                validator: (v) => v == null || v.isEmpty ? '* Obrigatório' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _cepController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'CEP'),
+              ),
+              const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                initialValue: _estado,
+                value: _estado,
                 decoration: const InputDecoration(labelText: 'Estado *'),
-                items: _estados.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                items: brazilStates
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
                 onChanged: (v) => setState(() => _estado = v),
                 validator: (v) => v == null ? '* Obrigatório' : null,
               ),
               const SizedBox(height: 16),
-              _buildField(areaTotalController, "Área total (ha)", isRequired: true, keyboardType: TextInputType.number),
-              _buildField(areaPropriaController, "Área própria (ha)", keyboardType: TextInputType.number),
-              _buildField(areaArrendadaController, "Área arrendada (ha)", keyboardType: TextInputType.number),
-              _buildField(areaProducaoController, "Área de produção vegetal (ha)", keyboardType: TextInputType.number),
-              _buildField(obsController, "Observações", maxLines: 3),
+              TextFormField(
+                controller: _areaTotalController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Área total (ha) *'),
+                validator: (v) => v == null || v.isEmpty ? '* Obrigatório' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _areaPropriaController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Área própria (ha)'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _areaArrendadaController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Área arrendada (ha)'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _areaProducaoController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Área de produção vegetal (ha)'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _obsController,
+                maxLines: 3,
+                decoration: const InputDecoration(labelText: 'Observações'),
+              ),
               const SizedBox(height: 32),
               PrimaryButton(
                 label: isStandalone ? 'Salvar e Finalizar' : 'Próximo',
                 isLoading: _isLoading,
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    if (isStandalone) {
-                      _handleStandaloneSave();
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RegisterProducerScreen(
-                            userData: {
-                              ...widget.userData,
-                              'nomePropriedade': nomeController.text,
-                              'cidade': municipioController.text,
-                              'cep': cepController.text,
-                              'estado': _estado ?? '',
-                              'areaTotal': areaTotalController.text,
-                              'areaPropria': areaPropriaController.text,
-                              'areaArrendada': areaArrendadaController.text,
-                              'areaProducao': areaProducaoController.text,
-                              'observacao': obsController.text,
-                            }
-                          ),
-                        ),
-                      );
-                    }
+                    isStandalone ? _handleStandaloneSave() : _goToNextStep();
                   }
                 },
               ),
@@ -99,26 +129,48 @@ class _RegisterPropertyScreenState extends State<RegisterPropertyScreen> {
     );
   }
 
+  void _goToNextStep() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RegisterProducerScreen(
+          userData: {
+            ...widget.userData,
+            'nomePropriedade': _nomeController.text,
+            'cidade': _municipioController.text,
+            'cep': _cepController.text,
+            'estado': _estado ?? '',
+            'areaTotal': _areaTotalController.text,
+            'areaPropria': _areaPropriaController.text,
+            'areaArrendada': _areaArrendadaController.text,
+            'areaProducao': _areaProducaoController.text,
+            'observacao': _obsController.text,
+          },
+        ),
+      ),
+    );
+  }
+
   Future<void> _handleStandaloneSave() async {
     setState(() => _isLoading = true);
     try {
       final userId = int.parse(widget.userData['userId']!);
       final produtor = await ProdutorDAO().getProdutorByUsuario(userId);
-      
+
       if (produtor == null) throw Exception("Produtor não encontrado");
 
       final db = await AppDatabase().database;
       await db.transaction((txn) async {
         final propriedadeId = await txn.insert('propriedade', {
-          'nome': nomeController.text,
-          'cidade': municipioController.text,
-          'cep': cepController.text,
+          'nome': _nomeController.text,
+          'cidade': _municipioController.text,
+          'cep': _cepController.text,
           'estado': _estado,
-          'area_total': double.tryParse(areaTotalController.text) ?? 0.0,
-          'area_propria': double.tryParse(areaPropriaController.text) ?? 0.0,
-          'area_arrendada': double.tryParse(areaArrendadaController.text),
-          'area_producao_vegetal': double.tryParse(areaProducaoController.text),
-          'observacao': obsController.text,
+          'area_total': double.tryParse(_areaTotalController.text) ?? 0.0,
+          'area_propria': double.tryParse(_areaPropriaController.text) ?? 0.0,
+          'area_arrendada': double.tryParse(_areaArrendadaController.text),
+          'area_producao_vegetal': double.tryParse(_areaProducaoController.text),
+          'observacao': _obsController.text,
         });
 
         await txn.insert('produtor_propriedade', {
@@ -130,7 +182,10 @@ class _RegisterPropertyScreenState extends State<RegisterPropertyScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Propriedade cadastrada com sucesso!'), backgroundColor: Colors.green),
+          const SnackBar(
+            content: Text('Propriedade cadastrada com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
         );
         Navigator.pop(context, true);
       }
@@ -143,18 +198,5 @@ class _RegisterPropertyScreenState extends State<RegisterPropertyScreen> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
-  }
-
-  Widget _buildField(TextEditingController controller, String label, {bool isRequired = false, TextInputType? keyboardType, int maxLines = 1}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        maxLines: maxLines,
-        decoration: InputDecoration(labelText: isRequired ? "$label *" : label),
-        validator: (v) => isRequired && (v == null || v.isEmpty) ? '* Obrigatório' : null,
-      ),
-    );
   }
 }

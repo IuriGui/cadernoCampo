@@ -17,6 +17,10 @@ import '../../core/models/anotacao.dart';
 import '../../core/models/destino.dart';
 import '../../core/widgets/primary_button.dart';
 
+const _requerCultura = {'Plantio', 'Adubação', 'Colheita'};
+const _requerInsumo  = {'Plantio', 'Adubação'};
+const _requerDestino = {'Colheita'};
+
 class RegisterActivityScreen extends StatefulWidget {
   final Local local;
   final User user;
@@ -39,7 +43,6 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
 
   final _quantidadeInsumoController = TextEditingController();
   final _unidadeInsumoController = TextEditingController();
-
   final _quantidadeColheitaController = TextEditingController();
   final _unidadeColheitaController = TextEditingController();
   final _destinoController = TextEditingController();
@@ -60,19 +63,14 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
   bool _isLoading = true;
   bool _isSaving = false;
 
-  bool get _isColheita {
-    if (_atividadeId == null) return false;
-    final atividade = _atividades.firstWhere((a) => a.id == _atividadeId);
-    return atividade.nome.toLowerCase().contains('colheita');
-  }
+  // Regras de negócio
+  String? get _nomeAtividade => _atividadeId == null
+      ? null
+      : _atividades.firstWhere((a) => a.id == _atividadeId).nome;
 
-  bool get _isPlantio {
-    if (_atividadeId == null) return false;
-    final atividade = _atividades.firstWhere((a) => a.id == _atividadeId);
-    return atividade.nome.toLowerCase().contains('plantio');
-  }
-
-  bool get _hasInsumo => _insumoId != null;
+  bool get _exibeCultura => _nomeAtividade != null && _requerCultura.contains(_nomeAtividade);
+  bool get _exibeInsumo  => _nomeAtividade != null && _requerInsumo.contains(_nomeAtividade);
+  bool get _exibeDestino => _nomeAtividade != null && _requerDestino.contains(_nomeAtividade);
 
   @override
   void initState() {
@@ -102,11 +100,11 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
       ]);
 
       setState(() {
-        _culturas = data[0] as List<Cultura>;
-        _areas = data[1] as List<AreaCultivo>;
+        _culturas  = data[0] as List<Cultura>;
+        _areas     = data[1] as List<AreaCultivo>;
         _atividades = data[2] as List<Atividade>;
-        _insumos = data[3] as List<Insumo>;
-        _destinos = data[4] as List<Destino>;
+        _insumos   = data[3] as List<Insumo>;
+        _destinos  = data[4] as List<Destino>;
         _isLoading = false;
       });
     } catch (e) {
@@ -134,13 +132,15 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildBasicInfoSection(),
-                if (_isColheita || _isPlantio) ...[
+                if (_exibeCultura) ...[
                   const SizedBox(height: 16),
-                  _buildCultura(),
+                  _buildCulturaField(),
                 ],
-                if (_isColheita) _buildColheitaSection(),
-                const SizedBox(height: 24),
-                _buildInsumosSection(),
+                if (_exibeDestino) _buildColheitaSection(),
+                if (_exibeInsumo) ...[
+                  const SizedBox(height: 24),
+                  _buildInsumosSection(),
+                ],
                 const SizedBox(height: 32),
                 PrimaryButton(
                   label: 'Salvar Registro',
@@ -153,21 +153,6 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildCultura() {
-    return DropdownButtonFormField<int>(
-      value: _culturaId,
-      decoration: InputDecoration(
-        labelText: 'Cultura',
-        prefixIcon: Icon(MdiIcons.sprout),
-      ),
-      items: _culturas
-          .map((c) => DropdownMenuItem(value: c.id, child: Text(c.nome)))
-          .toList(),
-      onChanged: (v) => setState(() => _culturaId = v),
-      validator: (v) => v == null ? '* Obrigatório' : null,
     );
   }
 
@@ -187,7 +172,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<int>(
-          value: _areaId,
+          initialValue: _areaId,
           decoration: InputDecoration(
             labelText: 'Área de Cultivo',
             prefixIcon: Icon(MdiIcons.mapMarkerRadius),
@@ -200,7 +185,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<int>(
-          value: _atividadeId,
+          initialValue: _atividadeId,
           decoration: InputDecoration(
             labelText: 'Atividade',
             prefixIcon: Icon(MdiIcons.tractor),
@@ -211,16 +196,33 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
           onChanged: (v) {
             setState(() {
               _atividadeId = v;
-              if (!_isColheita) {
-                _quantidadeColheitaController.clear();
-                _unidadeColheitaController.clear();
-                _destinoController.clear();
-              }
+              _culturaId = null;
+              _insumoId = null;
+              _quantidadeColheitaController.clear();
+              _unidadeColheitaController.clear();
+              _quantidadeInsumoController.clear();
+              _unidadeInsumoController.clear();
+              _destinoController.clear();
             });
           },
           validator: (v) => v == null ? '* Obrigatório' : null,
         ),
       ],
+    );
+  }
+
+  Widget _buildCulturaField() {
+    return DropdownButtonFormField<int>(
+      initialValue: _culturaId,
+      decoration: InputDecoration(
+        labelText: 'Cultura',
+        prefixIcon: Icon(MdiIcons.sprout),
+      ),
+      items: _culturas
+          .map((c) => DropdownMenuItem(value: c.id, child: Text(c.nome)))
+          .toList(),
+      onChanged: (v) => setState(() => _culturaId = v),
+      validator: (v) => v == null ? '* Obrigatório' : null,
     );
   }
 
@@ -232,27 +234,18 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
         _buildSectionTitle('Destino'),
         const SizedBox(height: 16),
         Autocomplete<String>(
-          optionsBuilder: (TextEditingValue textEditingValue) {
-            if (textEditingValue.text == '') {
-              return _destinos.map((d) => d.nome);
-            }
-            return _destinos.map((d) => d.nome).where((String option) {
-              return option
-                  .toLowerCase()
-                  .contains(textEditingValue.text.toLowerCase());
-            });
+          optionsBuilder: (textEditingValue) {
+            if (textEditingValue.text.isEmpty) return _destinos.map((d) => d.nome);
+            return _destinos
+                .map((d) => d.nome)
+                .where((o) => o.toLowerCase().contains(textEditingValue.text.toLowerCase()));
           },
-          onSelected: (String selection) {
-            _destinoController.text = selection;
-          },
+          onSelected: (selection) => _destinoController.text = selection,
           fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
             if (controller.text.isEmpty && _destinoController.text.isNotEmpty) {
               controller.text = _destinoController.text;
             }
-            controller.addListener(() {
-              _destinoController.text = controller.text;
-            });
-
+            controller.addListener(() => _destinoController.text = controller.text);
             return TextFormField(
               controller: controller,
               focusNode: focusNode,
@@ -271,7 +264,6 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
           'Unidade (ex: kg, un)',
           _quantidadeColheitaController,
           _unidadeColheitaController,
-          true,
         ),
       ],
     );
@@ -284,19 +276,20 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
         _buildSectionTitle('Insumos e Detalhes'),
         const SizedBox(height: 16),
         DropdownButtonFormField<int>(
-          value: _insumoId,
+          initialValue: _insumoId,
           isExpanded: true,
           decoration: InputDecoration(
-            labelText: 'Insumo Utilizado (Opcional)',
+            labelText: 'Insumo Utilizado',
             prefixIcon: Icon(MdiIcons.packageVariantClosed),
           ),
-          items: [
-            const DropdownMenuItem<int>(value: null, child: Text('Nenhum')),
-            ..._insumos.map((i) => DropdownMenuItem(
-                value: i.id,
-                child: Text(
-                    "${i.produto} (${i.fornecedor} - ${DateFormat('dd/MM/yy').format(i.dataAquisicao)})"))),
-          ],
+          items: _insumos
+              .map((i) => DropdownMenuItem(
+            value: i.id,
+            child: Text(
+              '${i.produto} (${i.fornecedor} - ${DateFormat('dd/MM/yy').format(i.dataAquisicao)})',
+            ),
+          ))
+              .toList(),
           onChanged: (v) => setState(() {
             _insumoId = v;
             if (v == null) {
@@ -304,15 +297,15 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
               _unidadeInsumoController.clear();
             }
           }),
+          validator: (v) => v == null ? '* Obrigatório' : null,
         ),
-        if (_hasInsumo) ...[
+        if (_insumoId != null) ...[
           const SizedBox(height: 16),
           _buildQuantityUnitFields(
             'Quantidade do Insumo',
             'Unidade (ex: L, kg)',
             _quantidadeInsumoController,
             _unidadeInsumoController,
-            true,
           ),
         ],
       ],
@@ -320,12 +313,11 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
   }
 
   Widget _buildQuantityUnitFields(
-    String qLabel,
-    String uLabel,
-    TextEditingController qController,
-    TextEditingController uController,
-    bool isRequired,
-  ) {
+      String qLabel,
+      String uLabel,
+      TextEditingController qController,
+      TextEditingController uController,
+      ) {
     return Row(
       children: [
         Expanded(
@@ -334,8 +326,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
             controller: qController,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(labelText: qLabel),
-            validator: (v) =>
-                isRequired && (v == null || v.isEmpty) ? '*' : null,
+            validator: (v) => v == null || v.isEmpty ? '*' : null,
           ),
         ),
         const SizedBox(width: 16),
@@ -344,8 +335,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
           child: TextFormField(
             controller: uController,
             decoration: InputDecoration(labelText: uLabel),
-            validator: (v) =>
-                isRequired && (v == null || v.isEmpty) ? '*' : null,
+            validator: (v) => v == null || v.isEmpty ? '*' : null,
           ),
         ),
       ],
@@ -365,7 +355,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
   }
 
   Future<void> _selecionarData() async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: _dataSelecionada,
       firstDate: DateTime(2020),
@@ -373,37 +363,29 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
       locale: const Locale('pt', 'BR'),
     );
     if (picked != null && picked != _dataSelecionada) {
-      setState(() {
-        _dataSelecionada = picked;
-      });
+      setState(() => _dataSelecionada = picked);
     }
   }
 
   Future<int?> _obterOuCriarDestinoId() async {
-    if (!_isColheita) return null;
-
-    final destinoNome = _destinoController.text.trim();
-    if (destinoNome.isEmpty) return null;
-
-    final destinoDAO = DestinoDAO();
-    final destino = await destinoDAO.getDestinoByNome(destinoNome);
-
-    if (destino == null) {
-      return await destinoDAO.insertDestino(Destino(nome: destinoNome));
-    }
-    return destino.id;
+    if (!_exibeDestino) return null;
+    final nome = _destinoController.text.trim();
+    if (nome.isEmpty) return null;
+    final dao = DestinoDAO();
+    final destino = await dao.getDestinoByNome(nome);
+    return destino?.id ?? await dao.insertDestino(Destino(nome: nome));
   }
 
   (double, String) _obterQuantidadeEUnidade() {
-    if (_isColheita) {
+    if (_exibeDestino) {
       return (
-        double.tryParse(_quantidadeColheitaController.text) ?? 0.0,
-        _unidadeColheitaController.text,
+      double.tryParse(_quantidadeColheitaController.text) ?? 0.0,
+      _unidadeColheitaController.text,
       );
-    } else if (_hasInsumo) {
+    } else if (_insumoId != null) {
       return (
-        double.tryParse(_quantidadeInsumoController.text) ?? 0.0,
-        _unidadeInsumoController.text,
+      double.tryParse(_quantidadeInsumoController.text) ?? 0.0,
+      _unidadeInsumoController.text,
       );
     }
     return (0.0, '');
@@ -411,13 +393,11 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
 
   void _showSnackBar(String message) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
     }
   }
 
-  void _salvarRegistro() async {
+  Future<void> _salvarRegistro() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSaving = true);
@@ -436,7 +416,6 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
       );
 
       final destinoId = await _obterOuCriarDestinoId();
-
       await _anotacaoDAO.insertAnotacao(anotacao, destinoId: destinoId);
 
       _showSnackBar('Atividade registrada com sucesso!');

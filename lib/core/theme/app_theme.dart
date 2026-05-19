@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-
   // Cores
   static const Color primaryGreen = Color(0xFF2E7D32);
   static const Color lightGreen = Color(0xFFE8F5E9);
@@ -17,7 +16,7 @@ class AppTheme {
         secondary: accentBrown,
         surface: Colors.white,
       ),
-      
+
       // Fonte
       textTheme: GoogleFonts.nunitoTextTheme(),
 
@@ -55,7 +54,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: lightGreen.withValues(alpha: 0.3),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 18,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
@@ -72,7 +74,24 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: Colors.redAccent),
         ),
+        focusedErrorBorder: OutlineInputBorder(
+          // ← aqui dentro
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Colors.redAccent, width: 2),
+        ),
         labelStyle: TextStyle(color: Colors.green.shade800),
+      ),
+
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: primaryGreen,
+        foregroundColor: Colors.white,
+      ),
+
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith(
+          (states) =>
+              states.contains(WidgetState.selected) ? primaryGreen : null,
+        ),
       ),
     );
   }

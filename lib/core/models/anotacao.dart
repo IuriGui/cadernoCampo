@@ -8,7 +8,6 @@ class Anotacao {
   final int? insumoId;
   final int? culturaId;
 
-  // Campos para exibição (joins)
   final String? nomeAtividade;
   final String? nomeLocal;
   final String? nomeArea;

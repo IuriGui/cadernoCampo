@@ -86,10 +86,24 @@ class _LocalScreenState extends State<LocalScreen> {
                 },
               ),
             ),
+
           ),
 
       ),
-
+      floatingActionButton: widget.selectionMode
+          ? null
+          : FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RegisterLocalScreen(propriedade: widget.propriedade),
+            ),
+          );
+          if (result == true) _refreshLocais();
+        },
+        child: const Icon(Icons.add),
+      ),
     );
 
   }

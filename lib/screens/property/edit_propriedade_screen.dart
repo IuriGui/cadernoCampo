@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/dao/propriedade_dao.dart';
 import '../../core/models/propriedade.dart';
 import '../../core/widgets/primary_button.dart';
+import '../../core/constants/estados.dart';
 
 class EditPropriedadeScreen extends StatefulWidget {
   final Propriedade propriedade;
@@ -13,48 +14,44 @@ class EditPropriedadeScreen extends StatefulWidget {
 
 class _EditPropriedadeScreenState extends State<EditPropriedadeScreen> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController nomeController;
-  late TextEditingController municipioController;
-  late TextEditingController cepController;
-  late TextEditingController areaTotalController;
-  late TextEditingController areaPropriaController;
-  late TextEditingController areaArrendadaController;
-  late TextEditingController areaProducaoController;
-  late TextEditingController obsController;
-  
-  String? _estado;
-  final List<String> _estados = [
-    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA',
-    'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN',
-    'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
-  ];
 
+  late final _nomeController;
+  late final _municipioController;
+  late final _cepController;
+  late final _areaTotalController;
+  late final _areaPropriaController;
+  late final _areaArrendadaController;
+  late final _areaProducaoController;
+  late final _obsController;
+
+  String? _estado;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    nomeController = TextEditingController(text: widget.propriedade.nome);
-    municipioController = TextEditingController(text: widget.propriedade.cidade);
-    cepController = TextEditingController(text: widget.propriedade.cep);
-    areaTotalController = TextEditingController(text: widget.propriedade.areaTotal.toString());
-    areaPropriaController = TextEditingController(text: widget.propriedade.areaPropria.toString());
-    areaArrendadaController = TextEditingController(text: widget.propriedade.areaArrendada?.toString() ?? '');
-    areaProducaoController = TextEditingController(text: widget.propriedade.areaProducaoVegetal?.toString() ?? '');
-    obsController = TextEditingController(text: widget.propriedade.observacao ?? '');
-    _estado = widget.propriedade.estado;
+    final p = widget.propriedade;
+    _nomeController = TextEditingController(text: p.nome);
+    _municipioController = TextEditingController(text: p.cidade);
+    _cepController = TextEditingController(text: p.cep);
+    _areaTotalController = TextEditingController(text: p.areaTotal.toString());
+    _areaPropriaController = TextEditingController(text: p.areaPropria.toString());
+    _areaArrendadaController = TextEditingController(text: p.areaArrendada?.toString() ?? '');
+    _areaProducaoController = TextEditingController(text: p.areaProducaoVegetal?.toString() ?? '');
+    _obsController = TextEditingController(text: p.observacao ?? '');
+    _estado = p.estado;
   }
 
   @override
   void dispose() {
-    nomeController.dispose();
-    municipioController.dispose();
-    cepController.dispose();
-    areaTotalController.dispose();
-    areaPropriaController.dispose();
-    areaArrendadaController.dispose();
-    areaProducaoController.dispose();
-    obsController.dispose();
+    _nomeController.dispose();
+    _municipioController.dispose();
+    _cepController.dispose();
+    _areaTotalController.dispose();
+    _areaPropriaController.dispose();
+    _areaArrendadaController.dispose();
+    _areaProducaoController.dispose();
+    _obsController.dispose();
     super.dispose();
   }
 
@@ -69,22 +66,64 @@ class _EditPropriedadeScreenState extends State<EditPropriedadeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildField(nomeController, "Nome da Propriedade", isRequired: true),
-              _buildField(municipioController, "Cidade", isRequired: true),
-              _buildField(cepController, "CEP", keyboardType: TextInputType.number),
+              TextFormField(
+                controller: _nomeController,
+                decoration: const InputDecoration(labelText: 'Nome da Propriedade *'),
+                validator: (v) => v == null || v.isEmpty ? '* Obrigatório' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _municipioController,
+                decoration: const InputDecoration(labelText: 'Cidade *'),
+                validator: (v) => v == null || v.isEmpty ? '* Obrigatório' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _cepController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'CEP'),
+              ),
+              const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                initialValue: _estado,
+                value: _estado,
                 decoration: const InputDecoration(labelText: 'Estado *'),
-                items: _estados.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                items: brazilStates
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
                 onChanged: (v) => setState(() => _estado = v),
                 validator: (v) => v == null ? '* Obrigatório' : null,
               ),
               const SizedBox(height: 16),
-              _buildField(areaTotalController, "Área total (ha)", isRequired: true, keyboardType: TextInputType.number),
-              _buildField(areaPropriaController, "Área própria (ha)", keyboardType: TextInputType.number),
-              _buildField(areaArrendadaController, "Área arrendada (ha)", keyboardType: TextInputType.number),
-              _buildField(areaProducaoController, "Área de produção vegetal (ha)", keyboardType: TextInputType.number),
-              _buildField(obsController, "Observações", maxLines: 3),
+              TextFormField(
+                controller: _areaTotalController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Área total (ha) *'),
+                validator: (v) => v == null || v.isEmpty ? '* Obrigatório' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _areaPropriaController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Área própria (ha)'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _areaArrendadaController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Área arrendada (ha)'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _areaProducaoController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Área de produção vegetal (ha)'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _obsController,
+                maxLines: 3,
+                decoration: const InputDecoration(labelText: 'Observações'),
+              ),
               const SizedBox(height: 32),
               PrimaryButton(
                 label: 'Salvar Alterações',
@@ -98,44 +137,32 @@ class _EditPropriedadeScreenState extends State<EditPropriedadeScreen> {
     );
   }
 
-  void _saveChanges() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-      
-      final updatedPropriedade = Propriedade(
-        id: widget.propriedade.id,
-        nome: nomeController.text.trim(),
-        cidade: municipioController.text.trim(),
-        cep: cepController.text.trim(),
-        estado: _estado!,
-        areaTotal: double.tryParse(areaTotalController.text) ?? 0.0,
-        areaPropria: double.tryParse(areaPropriaController.text) ?? 0.0,
-        areaArrendada: double.tryParse(areaArrendadaController.text),
-        areaProducaoVegetal: double.tryParse(areaProducaoController.text),
-        observacao: obsController.text.trim(),
-      );
+  Future<void> _saveChanges() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      await PropriedadeDAO().updatePropriedade(updatedPropriedade);
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Propriedade atualizada com sucesso!')),
-        );
-        Navigator.pop(context, true);
-      }
-    }
-  }
+    setState(() => _isLoading = true);
 
-  Widget _buildField(TextEditingController controller, String label, {bool isRequired = false, TextInputType? keyboardType, int maxLines = 1}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        maxLines: maxLines,
-        decoration: InputDecoration(labelText: isRequired ? "$label *" : label),
-        validator: (v) => isRequired && (v == null || v.isEmpty) ? '* Obrigatório' : null,
-      ),
+    final updated = Propriedade(
+      id: widget.propriedade.id,
+      nome: _nomeController.text.trim(),
+      cidade: _municipioController.text.trim(),
+      cep: _cepController.text.trim(),
+      estado: _estado!,
+      areaTotal: double.tryParse(_areaTotalController.text) ?? 0.0,
+      areaPropria: double.tryParse(_areaPropriaController.text) ?? 0.0,
+      areaArrendada: double.tryParse(_areaArrendadaController.text),
+      areaProducaoVegetal: double.tryParse(_areaProducaoController.text),
+      observacao: _obsController.text.trim(),
     );
+
+    await PropriedadeDAO().updatePropriedade(updated);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Propriedade atualizada com sucesso!')),
+      );
+      Navigator.pop(context, true);
+      setState(() => _isLoading = false);
+    }
   }
 }

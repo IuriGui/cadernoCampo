@@ -1,4 +1,6 @@
+import 'package:caderno_de_campo/core/services/localizacao_service.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import '../core/models/user.dart';
 import '../core/models/local.dart';
 import '../core/models/propriedade.dart';
@@ -50,6 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
           _isLoadingProp = false;
           if (_propriedade != null) {
             _locaisFuture = _localDAO.getTopThreeLocais(_propriedade!.id!);
+
+            carregarClima();
           } else {
             _locaisFuture = Future.value([]);
           }
@@ -67,6 +71,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _refreshData() async {
     await _loadInitialData();
+  }
+
+  void carregarClima() async {
+    try {
+      Position posicao = await LocalizacaoService.determinarPosicao();
+
+      print("Carregando loc");
+      print('Latitude obtida: ${posicao.latitude}');
+      print('Longitude obtida: ${posicao.longitude}');
+
+    } catch (erro) {
+      print('Erro ao obter coordenadas: $erro');
+    }
   }
 
   @override
