@@ -5,7 +5,7 @@ import '../../core/models/local.dart';
 import '../../core/models/area_cultivo.dart';
 import '../../core/models/user.dart';
 import 'area_detail_screen.dart';
-import '../activity/register_activity_screen.dart';
+import '../activity/register_anotacao_screen.dart';
 
 class LocalDetailScreen extends StatefulWidget {
   final Local local;
@@ -41,12 +41,12 @@ class _LocalDetailScreenState extends State<LocalDetailScreen> {
         actions: [
           IconButton(
             icon: Icon(MdiIcons.clipboardEditOutline),
-            tooltip: 'Registrar Atividade',
+            tooltip: 'Registrar Anotação',
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => RegisterActivityScreen(
+                  builder: (context) => RegisterAnotacaoScreen(
                     local: widget.local,
                     user: widget.user,
                   ),

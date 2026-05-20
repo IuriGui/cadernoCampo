@@ -8,7 +8,7 @@ import '../core/widgets/home/weather_card.dart';
 import 'supply/insumo_screen.dart';
 import 'supply/register_insumo_screen.dart';
 import 'localAndAreaCultivo/local_screen.dart';
-import 'activity/atividades_list_screen.dart';
+import 'activity/anotacoes_list_screen.dart';
 import 'property/propriedade_screen.dart';
 import 'localAndAreaCultivo/local_detail_screen.dart';
 import 'property/register_property_screen.dart';
@@ -116,11 +116,11 @@ class _HomeDrawer extends StatelessWidget {
             ),
             ListTile(
               leading: Icon(MdiIcons.clipboardListOutline),
-              title: const Text('Registros de Atividades'),
+              title: const Text('Anotações do Campo'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(
-                  builder: (_) => AtividadesListScreen(user: user, propriedade: propriedade),
+                  builder: (_) => AnotacoesListScreen(user: user, propriedade: propriedade),
                 ));
               },
             ),
@@ -432,7 +432,7 @@ class _AcoesSection extends StatelessWidget {
           children: [
             _AcaoButton(
               icon: MdiIcons.tractorVariant,
-              label: 'Nova Atividade',
+              label: 'Nova Anotação',
               color: const Color(0xFF5C6BC0),
               onPressed: () async {
                 await Navigator.push(context, MaterialPageRoute(

@@ -18,7 +18,7 @@ class ClimaInfo {
   });
 
   static String _grausParaDirecao(double graus) {
-    const direcoes = ['N', 'NE', 'L', 'SE', 'S', 'SO', 'O', 'NO'];
+    const direcoes = ['Norte', 'Nordeste', 'Leste', 'Sudeste', 'Sul', 'Sudoeste', 'Oeste', 'Noroeste'];
     final index = ((graus + 22.5) / 45).floor() % 8;
     return direcoes[index];
   }

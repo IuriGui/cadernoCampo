@@ -14,6 +14,7 @@ class Anotacao {
   final String? nomeCultura;
   final String? nomeInsumo;
   final String? nomeDestino;
+  final String? observacao;
 
   Anotacao({
     this.id,
@@ -30,6 +31,7 @@ class Anotacao {
     this.nomeCultura,
     this.nomeInsumo,
     this.nomeDestino,
+    this.observacao,
   });
 
   Map<String, dynamic> toMap() {
@@ -42,6 +44,7 @@ class Anotacao {
       'atividade_id': atividadeId,
       'insumo_id': insumoId,
       'cultura_id': culturaId,
+      'observacao': observacao,
     };
   }
 
@@ -61,6 +64,7 @@ class Anotacao {
       nomeCultura: map['nomeCultura'],
       nomeInsumo: map['nomeInsumo'],
       nomeDestino: map['nomeDestino'],
+      observacao: map['observacao']
     );
   }
 }

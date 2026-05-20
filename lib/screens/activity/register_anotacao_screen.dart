@@ -16,17 +16,18 @@ import '../../core/models/user.dart';
 import '../../core/models/anotacao.dart';
 import '../../core/models/destino.dart';
 import '../../core/widgets/primary_button.dart';
+import '../../core/theme/app_theme.dart';
 
 const _requerCultura = {'Plantio', 'Adubação', 'Colheita'};
-const _requerInsumo  = {'Plantio', 'Adubação'};
+const _requerInsumo  = {'Adubação'};
 const _requerDestino = {'Colheita'};
 
-class RegisterActivityScreen extends StatefulWidget {
+class RegisterAnotacaoScreen extends StatefulWidget {
   final Local local;
   final User user;
   final AreaCultivo? preSelectedArea;
 
-  const RegisterActivityScreen({
+  const RegisterAnotacaoScreen({
     super.key,
     required this.local,
     required this.user,
@@ -34,10 +35,10 @@ class RegisterActivityScreen extends StatefulWidget {
   });
 
   @override
-  State<RegisterActivityScreen> createState() => _RegisterActivityScreenState();
+  State<RegisterAnotacaoScreen> createState() => _RegisterAnotacaoScreenState();
 }
 
-class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
+class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
   final _formKey = GlobalKey<FormState>();
   final _anotacaoDAO = AnotacaoDAO();
 
@@ -46,6 +47,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
   final _quantidadeColheitaController = TextEditingController();
   final _unidadeColheitaController = TextEditingController();
   final _destinoController = TextEditingController();
+  final _observacoesController = TextEditingController();
 
   DateTime _dataSelecionada = DateTime.now();
 
@@ -63,7 +65,6 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
   bool _isLoading = true;
   bool _isSaving = false;
 
-  // Regras de negócio
   String? get _nomeAtividade => _atividadeId == null
       ? null
       : _atividades.firstWhere((a) => a.id == _atividadeId).nome;
@@ -86,6 +87,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
     _quantidadeColheitaController.dispose();
     _unidadeColheitaController.dispose();
     _destinoController.dispose();
+    _observacoesController.dispose();
     super.dispose();
   }
 
@@ -116,13 +118,13 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Registrar Atividade')),
+        appBar: AppBar(title: const Text('Registrar Anotação')),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Registrar Atividade')),
+      appBar: AppBar(title: const Text('Registrar Anotação')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -141,9 +143,19 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
                   const SizedBox(height: 24),
                   _buildInsumosSection(),
                 ],
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _observacoesController,
+                  decoration: const InputDecoration(
+                    labelText: 'Observações',
+                    prefixIcon: Icon(Icons.notes),
+                    hintText: 'Detalhes adicionais sobre a anotação...',
+                  ),
+                  maxLines: 3,
+                ),
                 const SizedBox(height: 32),
                 PrimaryButton(
-                  label: 'Salvar Registro',
+                  label: 'Salvar Anotação',
                   isLoading: _isSaving,
                   onPressed: _salvarRegistro,
                 ),
@@ -162,17 +174,36 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
       children: [
         _buildSectionTitle('Informações Básicas'),
         const SizedBox(height: 16),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.calendar_today, color: Colors.green),
-          title: const Text('Data da Ocorrência'),
-          subtitle: Text(DateFormat('dd/MM/yyyy').format(_dataSelecionada)),
+        InkWell(
           onTap: _selecionarData,
-          trailing: const Icon(Icons.edit, size: 20),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.calendar_today, color: AppTheme.primaryGreen, size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Data da Ocorrência', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                      Text(DateFormat('dd/MM/yyyy').format(_dataSelecionada), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.edit, size: 18, color: Colors.grey),
+              ],
+            ),
+          ),
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<int>(
-          initialValue: _areaId,
+          value: _areaId,
           decoration: InputDecoration(
             labelText: 'Área de Cultivo',
             prefixIcon: Icon(MdiIcons.mapMarkerRadius),
@@ -185,9 +216,9 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<int>(
-          initialValue: _atividadeId,
+          value: _atividadeId,
           decoration: InputDecoration(
-            labelText: 'Atividade',
+            labelText: 'Tipo de Atividade',
             prefixIcon: Icon(MdiIcons.tractor),
           ),
           items: _atividades
@@ -213,7 +244,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
 
   Widget _buildCulturaField() {
     return DropdownButtonFormField<int>(
-      initialValue: _culturaId,
+      value: _culturaId,
       decoration: InputDecoration(
         labelText: 'Cultura',
         prefixIcon: Icon(MdiIcons.sprout),
@@ -231,7 +262,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 24),
-        _buildSectionTitle('Destino'),
+        _buildSectionTitle('Destino da Produção'),
         const SizedBox(height: 16),
         Autocomplete<String>(
           optionsBuilder: (textEditingValue) {
@@ -261,7 +292,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
         const SizedBox(height: 16),
         _buildQuantityUnitFields(
           'Quantidade Colhida',
-          'Unidade (ex: kg, un)',
+          'Unid. (ex: kg)',
           _quantidadeColheitaController,
           _unidadeColheitaController,
         ),
@@ -273,20 +304,21 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildSectionTitle('Insumos e Detalhes'),
+        _buildSectionTitle('Insumo Utilizado'),
         const SizedBox(height: 16),
         DropdownButtonFormField<int>(
-          initialValue: _insumoId,
+          value: _insumoId,
           isExpanded: true,
           decoration: InputDecoration(
-            labelText: 'Insumo Utilizado',
+            labelText: 'Selecione o Insumo',
             prefixIcon: Icon(MdiIcons.packageVariantClosed),
           ),
           items: _insumos
               .map((i) => DropdownMenuItem(
             value: i.id,
             child: Text(
-              '${i.produto} (${i.fornecedor} - ${DateFormat('dd/MM/yy').format(i.dataAquisicao)})',
+              '${i.produto} (${i.fornecedor})',
+              overflow: TextOverflow.ellipsis,
             ),
           ))
               .toList(),
@@ -302,8 +334,8 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
         if (_insumoId != null) ...[
           const SizedBox(height: 16),
           _buildQuantityUnitFields(
-            'Quantidade do Insumo',
-            'Unidade (ex: L, kg)',
+            'Qtd. Utilizada',
+            'Unid. (ex: L, kg)',
             _quantidadeInsumoController,
             _unidadeInsumoController,
           ),
@@ -331,7 +363,7 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
         ),
         const SizedBox(width: 16),
         Expanded(
-          flex: 3,
+          flex: 2,
           child: TextFormField(
             controller: uController,
             decoration: InputDecoration(labelText: uLabel),
@@ -342,14 +374,16 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
     );
   }
 
+
+
   Widget _buildSectionTitle(String title) {
     return Text(
       title.toUpperCase(),
-      style: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.bold,
-        color: Colors.grey,
-        letterSpacing: 1.1,
+      style: TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w900,
+        color: Colors.grey.shade500,
+        letterSpacing: 1.2,
       ),
     );
   }
@@ -413,12 +447,13 @@ class _RegisterActivityScreenState extends State<RegisterActivityScreen> {
         insumoId: _insumoId,
         quantidade: quantidade,
         unidadeMedida: unidade,
+        observacao: _observacoesController.text.trim().isEmpty ? null : _observacoesController.text,
       );
 
       final destinoId = await _obterOuCriarDestinoId();
       await _anotacaoDAO.insertAnotacao(anotacao, destinoId: destinoId);
 
-      _showSnackBar('Atividade registrada com sucesso!');
+      _showSnackBar('Anotação registrada com sucesso!');
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       _showSnackBar('Erro ao salvar: $e');

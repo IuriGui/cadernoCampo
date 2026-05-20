@@ -7,8 +7,8 @@ import '../../core/models/anotacao.dart';
 import '../../core/models/user.dart';
 import '../../core/models/local.dart';
 import '../../core/widgets/async_list_view.dart';
-import '../activity/register_activity_screen.dart';
-import '../activity/atividades_detail_screen.dart';
+import '../activity/register_anotacao_screen.dart';
+import '../activity/anotacoes_detail_screen.dart';
 
 class AreaDetailScreen extends StatefulWidget {
   final AreaCultivo area;
@@ -78,7 +78,7 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AtividadesDetailScreen(registro: registro),
+                  builder: (context) => AnotacoesDetailScreen(registro: registro),
                 ),
               ),
             ),
@@ -90,7 +90,7 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
           final result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => RegisterActivityScreen(
+              builder: (context) => RegisterAnotacaoScreen(
                 local: widget.local,
                 user: widget.user,
                 preSelectedArea: widget.area,

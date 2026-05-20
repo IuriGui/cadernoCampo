@@ -42,7 +42,7 @@ class HomeProvider extends ChangeNotifier {
 
     await Future.wait([
       _carregarDadosLocais(),
-      _carregarClima(),
+      //_carregarClima(),
     ]);
 
     _isLoading = false;

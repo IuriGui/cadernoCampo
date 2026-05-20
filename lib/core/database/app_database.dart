@@ -128,6 +128,7 @@ class AppDatabase {
         atividade_id INTEGER NOT NULL,
         insumo_id INTEGER,
         cultura_id INTEGER,
+        observacao TEXT,
         FOREIGN KEY (area_cultivo_id) REFERENCES area_cultivo (id),
         FOREIGN KEY (atividade_id) REFERENCES atividade (id),
         FOREIGN KEY (insumo_id) REFERENCES insumo (id),

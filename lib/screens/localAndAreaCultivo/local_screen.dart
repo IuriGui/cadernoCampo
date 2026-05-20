@@ -5,7 +5,7 @@ import '../../core/models/user.dart';
 import '../../core/models/propriedade.dart';
 import '../../core/widgets/async_list_view.dart';
 import 'local_detail_screen.dart';
-import '../activity/register_activity_screen.dart';
+import '../activity/register_anotacao_screen.dart';
 import 'register_local_screen.dart';
 
 class LocalScreen extends StatefulWidget {
@@ -69,7 +69,7 @@ class _LocalScreenState extends State<LocalScreen> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => RegisterActivityScreen(
+                        builder: (context) => RegisterAnotacaoScreen(
                           local: local,
                           user: widget.user,
                         ),
