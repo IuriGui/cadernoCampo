@@ -40,4 +40,13 @@ class ProdutorDAO {
       'valor': valor,
     });
   }
+
+  Future<List<Map<String, dynamic>>> getProgramasComercializacao(int produtorId) async {
+    final db = await AppDatabase().database;
+    return await db.query(
+      'programa_comercializacao',
+      where: 'produtor_id = ?',
+      whereArgs: [produtorId],
+    );
+  }
 }

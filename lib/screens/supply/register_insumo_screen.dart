@@ -53,13 +53,20 @@ class _RegisterInsumoScreenState extends State<RegisterInsumoScreen> {
           propriedadeId: widget.propriedade.id,
         );
 
-        await InsumoDAO().insertInsumo(insumo);
+        final id = await InsumoDAO().insertInsumo(insumo);
+        final insumoComId = Insumo(
+          id: id,
+          produto: insumo.produto,
+          fornecedor: insumo.fornecedor,
+          dataAquisicao: insumo.dataAquisicao,
+          propriedadeId: insumo.propriedadeId,
+        );
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Insumo cadastrado com sucesso!')),
           );
-          Navigator.pop(context, true);
+          Navigator.pop(context, insumoComId);
         }
       } catch (e) {
         if (mounted) {

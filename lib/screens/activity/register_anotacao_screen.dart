@@ -7,6 +7,7 @@ import '../../core/dao/cultura_dao.dart';
 import '../../core/dao/insumo_dao.dart';
 import '../../core/dao/anotacao_dao.dart';
 import '../../core/dao/destino_dao.dart';
+import '../../core/dao/propriedade_dao.dart';
 import '../../core/models/atividade.dart';
 import '../../core/models/area_cultivo.dart';
 import '../../core/models/cultura.dart';
@@ -15,11 +16,13 @@ import '../../core/models/local.dart';
 import '../../core/models/user.dart';
 import '../../core/models/anotacao.dart';
 import '../../core/models/destino.dart';
+import '../../core/models/propriedade.dart';
 import '../../core/widgets/primary_button.dart';
+import '../supply/register_insumo_screen.dart';
 import '../../core/theme/app_theme.dart';
 
 const _requerCultura = {'Plantio', 'Adubação', 'Colheita'};
-const _requerInsumo  = {'Adubação'};
+const _requerInsumo  = {'Adubação', 'Preparo do solo'};
 const _requerDestino = {'Colheita'};
 
 class RegisterAnotacaoScreen extends StatefulWidget {
@@ -46,6 +49,8 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
   final _unidadeInsumoController = TextEditingController();
   final _quantidadeColheitaController = TextEditingController();
   final _unidadeColheitaController = TextEditingController();
+  final _quantidadePlantioController = TextEditingController();
+  final _unidadePlantioController = TextEditingController();
   final _destinoController = TextEditingController();
   final _observacoesController = TextEditingController();
 
@@ -61,6 +66,7 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
   List<Atividade> _atividades = [];
   List<Insumo> _insumos = [];
   List<Destino> _destinos = [];
+  Propriedade? _propriedade;
 
   bool _isLoading = true;
   bool _isSaving = false;
@@ -86,6 +92,8 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
     _unidadeInsumoController.dispose();
     _quantidadeColheitaController.dispose();
     _unidadeColheitaController.dispose();
+    _quantidadePlantioController.dispose();
+    _unidadePlantioController.dispose();
     _destinoController.dispose();
     _observacoesController.dispose();
     super.dispose();
@@ -99,6 +107,7 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
         AtividadeDAO().getAll(),
         InsumoDAO().getInsumosByPropriedade(widget.local.propriedadeId),
         DestinoDAO().getAllDestinos(),
+        PropriedadeDAO().getPropriedadeById(widget.local.propriedadeId),
       ]);
 
       setState(() {
@@ -107,6 +116,7 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
         _atividades = data[2] as List<Atividade>;
         _insumos   = data[3] as List<Insumo>;
         _destinos  = data[4] as List<Destino>;
+        _propriedade = data[5] as Propriedade?;
         _isLoading = false;
       });
     } catch (e) {
@@ -137,6 +147,7 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
                 if (_exibeCultura) ...[
                   const SizedBox(height: 16),
                   _buildCulturaField(),
+                  _buildPlantioSection(),
                 ],
                 if (_exibeDestino) _buildColheitaSection(),
                 if (_exibeInsumo) ...[
@@ -233,6 +244,8 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
               _unidadeColheitaController.clear();
               _quantidadeInsumoController.clear();
               _unidadeInsumoController.clear();
+              _quantidadePlantioController.clear();
+              _unidadePlantioController.clear();
               _destinoController.clear();
             });
           },
@@ -252,8 +265,28 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
       items: _culturas
           .map((c) => DropdownMenuItem(value: c.id, child: Text(c.nome)))
           .toList(),
-      onChanged: (v) => setState(() => _culturaId = v),
+      onChanged: (v) => setState(() {
+        _culturaId = v;
+        _quantidadePlantioController.clear();
+        _unidadePlantioController.clear();
+      }),
       validator: (v) => v == null ? '* Obrigatório' : null,
+    );
+  }
+
+  Widget _buildPlantioSection() {
+    if (_nomeAtividade != 'Plantio' || _culturaId == null) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 16),
+        _buildQuantityUnitFields(
+          'Quantidade Plantada',
+          'Unid. (ex: mudas, kg)',
+          _quantidadePlantioController,
+          _unidadePlantioController,
+        ),
+      ],
     );
   }
 
@@ -281,7 +314,7 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
               controller: controller,
               focusNode: focusNode,
               decoration: const InputDecoration(
-                labelText: 'Título do Destino',
+                labelText: 'Destino',
                 prefixIcon: Icon(Icons.place_outlined),
                 hintText: 'Ex: Mercado Central, Feira Local...',
               ),
@@ -290,6 +323,7 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
           },
         ),
         const SizedBox(height: 16),
+        // TODO implementar dropdown/busca rápida
         _buildQuantityUnitFields(
           'Quantidade Colhida',
           'Unid. (ex: kg)',
@@ -313,23 +347,38 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
             labelText: 'Selecione o Insumo',
             prefixIcon: Icon(MdiIcons.packageVariantClosed),
           ),
-          items: _insumos
-              .map((i) => DropdownMenuItem(
-            value: i.id,
-            child: Text(
-              '${i.produto} (${i.fornecedor})',
-              overflow: TextOverflow.ellipsis,
+          items: [
+            ..._insumos.map((i) => DropdownMenuItem(
+                  value: i.id,
+                  child: Text(
+                    '${i.produto} (${i.fornecedor})',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                )),
+            const DropdownMenuItem<int>(
+              value: -1,
+              child: Row(
+                children: [
+                  Icon(Icons.add_circle_outline, color: AppTheme.primaryGreen, size: 20),
+                  SizedBox(width: 8),
+                  Text('Cadastrar Novo...', style: TextStyle(color: AppTheme.primaryGreen, fontWeight: FontWeight.bold)),
+                ],
+              ),
             ),
-          ))
-              .toList(),
-          onChanged: (v) => setState(() {
-            _insumoId = v;
-            if (v == null) {
-              _quantidadeInsumoController.clear();
-              _unidadeInsumoController.clear();
+          ],
+          onChanged: (v) {
+            if (v == -1) {
+              _navToRegisterInsumo();
+            } else {
+              setState(() {
+                _insumoId = v;
+                if (v == null) {
+                  _quantidadeInsumoController.clear();
+                  _unidadeInsumoController.clear();
+                }
+              });
             }
-          }),
-          validator: (v) => v == null ? '* Obrigatório' : null,
+          },
         ),
         if (_insumoId != null) ...[
           const SizedBox(height: 16),
@@ -401,6 +450,23 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
     }
   }
 
+  Future<void> _navToRegisterInsumo() async {
+    if (_propriedade == null) return;
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RegisterInsumoScreen(propriedade: _propriedade!),
+      ),
+    );
+
+    if (result is Insumo) {
+      setState(() {
+        _insumos.add(result);
+        _insumoId = result.id;
+      });
+    }
+  }
+
   Future<int?> _obterOuCriarDestinoId() async {
     if (!_exibeDestino) return null;
     final nome = _destinoController.text.trim();
@@ -413,13 +479,18 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
   (double, String) _obterQuantidadeEUnidade() {
     if (_exibeDestino) {
       return (
-      double.tryParse(_quantidadeColheitaController.text) ?? 0.0,
-      _unidadeColheitaController.text,
+        double.tryParse(_quantidadeColheitaController.text) ?? 0.0,
+        _unidadeColheitaController.text,
+      );
+    } else if (_nomeAtividade == 'Plantio' && _culturaId != null) {
+      return (
+        double.tryParse(_quantidadePlantioController.text) ?? 0.0,
+        _unidadePlantioController.text,
       );
     } else if (_insumoId != null) {
       return (
-      double.tryParse(_quantidadeInsumoController.text) ?? 0.0,
-      _unidadeInsumoController.text,
+        double.tryParse(_quantidadeInsumoController.text) ?? 0.0,
+        _unidadeInsumoController.text,
       );
     }
     return (0.0, '');

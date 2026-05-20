@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../constants/estados.dart';
+import '../dao/anotacao_dao.dart';
 import '../dao/local_dao.dart';
 import '../dao/produtor_dao.dart';
 import '../dao/propriedade_dao.dart';
+import '../models/anotacao.dart';
 import '../models/clima_info.dart';
 import '../models/local.dart';
 import '../models/produtor.dart';
@@ -30,6 +32,8 @@ class HomeProvider extends ChangeNotifier {
   List<Local> _locais = [];
   List<Local> get locais => _locais;
 
+  List<Anotacao> _anotacoesDoDia = [];
+  List<Anotacao> get anotacoesDoDia => _anotacoesDoDia;
 
   String _cidadeEstado = "Localização desconhecida";
   String get cidadeEstado => _cidadeEstado;
@@ -42,7 +46,7 @@ class HomeProvider extends ChangeNotifier {
 
     await Future.wait([
       _carregarDadosLocais(),
-      //_carregarClima(),
+      // _carregarClima(),
     ]);
 
     _isLoading = false;
@@ -62,20 +66,25 @@ class HomeProvider extends ChangeNotifier {
       _produtor = results[1] as Produtor?;
 
       if (_propriedade != null) {
-        _locais = await LocalDAO().getTopThreeLocais(_propriedade!.id!);
+        final dataResults = await Future.wait([
+          LocalDAO().getTopThreeLocais(_propriedade!.id!),
+          AnotacaoDAO().getAnotacoesDoDia(_propriedade!.id!),
+        ]);
+        _locais = dataResults[0] as List<Local>;
+        _anotacoesDoDia = dataResults[1] as List<Anotacao>;
       } else {
         _locais = [];
+        _anotacoesDoDia = [];
       }
     } catch (_) {
       // falha silenciosa, app continua com valores nulos
     }
   }
-  Future<void> _carregarClima() async {
 
+  Future<void> _carregarClima() async {
     try {
       final posicao = await LocalizacaoService.determinarPosicao();
 
-      //
       try {
         List<Placemark> placemarks = await placemarkFromCoordinates(
             posicao.latitude,
@@ -83,24 +92,14 @@ class HomeProvider extends ChangeNotifier {
         );
         if (placemarks.isNotEmpty) {
           final Placemark lugar = placemarks.first;
-          // lugar.subAdministrativeArea costuma ser a cidade, ou lugar.locality
           final cidade = lugar.subAdministrativeArea ?? lugar.locality ?? "Cidade";
-
-
-
           String estadoBruto = (lugar.administrativeArea ?? "").trim().toUpperCase();
-
-
-          // TODO arrumar o map nos estados pq aqulilo ali foi de uma preguiça extremamente feia
-
           final estadoSigla = brazilStatesMap[estadoBruto.toLowerCase()] ?? estadoBruto;
-
           _cidadeEstado = "$cidade, $estadoSigla";
         }
       } catch (e) {
         _cidadeEstado = "Localização atual";
       }
-
 
       final uri = Uri.https('api.open-meteo.com', '/v1/forecast', {
         'latitude': posicao.latitude.toString(),
@@ -125,7 +124,6 @@ class HomeProvider extends ChangeNotifier {
         _clima = ClimaInfo.fromJson(json);
       }
     } catch (_) {
-      //  sem clima, sem problema
       _clima = null;
     }
   }

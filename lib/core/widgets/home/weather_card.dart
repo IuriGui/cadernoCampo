@@ -22,7 +22,7 @@ class WeatherCard extends StatelessWidget {
 
   Widget _buildHeader(String? cidadeEstado) {
     final localizacao = (cidadeEstado != null )
-        ? '$cidadeEstado'
+        ? cidadeEstado
         : 'Localização desconhecida';
 
     return Row(

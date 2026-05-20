@@ -44,3 +44,7 @@ const Map<String, String> brazilStatesMap = {
   'sergipe': 'SE',
   'tocantins': 'TO',
 };
+
+const List<String> unidadesDeMedida = [
+
+];

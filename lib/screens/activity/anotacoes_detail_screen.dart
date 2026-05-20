@@ -52,7 +52,7 @@ class AnotacoesDetailScreen extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [color, color.withOpacity(0.8)],
+                    colors: [color, color.withValues(alpha: 0.8)],
                   ),
                 ),
                 child: SafeArea(
@@ -118,7 +118,7 @@ class AnotacoesDetailScreen extends StatelessWidget {
                 color: color,
                 child: Column(
                   children: [
-                    _buildInfoTile('Propriedade/Local', registro.nomeLocal ?? '—'),
+                    _buildInfoTile('Local', registro.nomeLocal ?? '—'),
                     _buildDivider(),
                     _buildInfoTile('Área de Cultivo', registro.nomeArea ?? '—'),
                   ],
@@ -126,7 +126,7 @@ class AnotacoesDetailScreen extends StatelessWidget {
               ),
               
               _buildSection(
-                title: 'Detalhes Técnicos',
+                title: 'Detalhes',
                 icon: MdiIcons.informationOutline,
                 color: color,
                 child: Column(
@@ -145,7 +145,7 @@ class AnotacoesDetailScreen extends StatelessWidget {
 
               if (registro.nomeInsumo != null)
                 _buildSection(
-                  title: 'Insumo Utilizado',
+                  title: 'Insumo',
                   icon: MdiIcons.packageVariantClosed,
                   color: Colors.brown,
                   child: _buildInfoTile('Produto', registro.nomeInsumo!),
@@ -161,7 +161,7 @@ class AnotacoesDetailScreen extends StatelessWidget {
 
               if (registro.observacao != null && registro.observacao!.isNotEmpty)
                 _buildSection(
-                  title: 'Observações Complementares',
+                  title: 'Observações',
                   icon: MdiIcons.noteTextOutline,
                   color: Colors.blueGrey,
                   child: Container(

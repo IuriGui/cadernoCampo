@@ -79,7 +79,7 @@ class _InsumoScreenState extends State<InsumoScreen> {
               builder: (context) => RegisterInsumoScreen(propriedade: widget.propriedade),
             ),
           );
-          if (result == true) _refreshList();
+          if (result != null) _refreshList();
         },
         child: const Icon(Icons.add),
       ),

@@ -3,8 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../core/models/local.dart';
 import '../core/models/user.dart';
-import '../core/provider/home_provider.dart';
+import 'package:caderno_de_campo/core/provider/home_provider.dart';
 import '../core/widgets/home/weather_card.dart';
+import '../core/widgets/anotacao_card.dart';
 import 'supply/insumo_screen.dart';
 import 'supply/register_insumo_screen.dart';
 import 'localAndAreaCultivo/local_screen.dart';
@@ -12,6 +13,7 @@ import 'activity/anotacoes_list_screen.dart';
 import 'property/propriedade_screen.dart';
 import 'localAndAreaCultivo/local_detail_screen.dart';
 import 'property/register_property_screen.dart';
+import 'destiny/destino_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final User user;
@@ -26,9 +28,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// View principal
-// ---------------------------------------------------------------------------
 
 class _HomeView extends StatelessWidget {
   const _HomeView();
@@ -68,9 +67,6 @@ class _HomeView extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Drawer
-// ---------------------------------------------------------------------------
 
 class _HomeDrawer extends StatelessWidget {
   const _HomeDrawer();
@@ -153,12 +149,23 @@ class _HomeDrawer extends StatelessWidget {
                   builder: (_) => InsumoScreen(propriedade: propriedade),
                 ));
               },
+            ),            ListTile(
+              leading: Icon(MdiIcons.truckDeliveryOutline),
+              title: const Text('Destinos'),
+              onTap: () {
+                Navigator.pop(context);
+                if (produtor != null) {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (_) => DestinoScreen(produtor: produtor),
+                  ));
+                }
+              },
             ),
           ],
           const Divider(),
           ListTile(
             leading: const Icon(Icons.settings_outlined),
-            title: const Text('Configuracoes'),
+            title: const Text('Configurações'),
             onTap: () => ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Funcionalidade de configuracao em breve!')),
             ),
@@ -260,10 +267,62 @@ class _MainContent extends StatelessWidget {
         const SizedBox(height: 32),
         const WeatherCard(),
         const SizedBox(height: 32),
+        const _AnotacoesDoDiaSection(),
+        const SizedBox(height: 32),
         _LocaisSection(user: provider.user, locais: provider.locais),
         const SizedBox(height: 32),
         _AcoesSection(user: provider.user),
         const SizedBox(height: 32),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Anotacoes do dia
+// ---------------------------------------------------------------------------
+
+class _AnotacoesDoDiaSection extends StatelessWidget {
+  const _AnotacoesDoDiaSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<HomeProvider>();
+    final anotacoes = provider.anotacoesDoDia;
+
+    if (anotacoes.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Anotações do Dia', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            TextButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (_) => AnotacoesListScreen(user: provider.user, propriedade: provider.propriedade!),
+                ));
+              },
+              child: const Text('Ver todas', style: TextStyle(color: Colors.green)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: anotacoes.length,
+          itemBuilder: (context, index) {
+            return AnotacaoCard(
+              registro: anotacoes[index],
+              onTap: () {
+                // TODO Navegar para detalhes da anotacao se existir
+              },
+            );
+          },
+        ),
       ],
     );
   }

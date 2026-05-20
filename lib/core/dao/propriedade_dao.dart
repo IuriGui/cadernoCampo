@@ -40,6 +40,20 @@ class PropriedadeDAO {
     return null;
   }
 
+  Future<Propriedade?> getPropriedadeById(int id) async {
+    final db = await AppDatabase().database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      table,
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (maps.isNotEmpty) {
+      return Propriedade.fromMap(maps.first);
+    }
+    return null;
+  }
+
   Future<int> updatePropriedade(Propriedade propriedade) async {
     final db = await AppDatabase().database;
     return await db.update(
