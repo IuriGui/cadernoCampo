@@ -24,6 +24,9 @@ class AppDatabase {
         await _createTables(db);
         await _seedDatabase(db);
       },
+      onOpen: (db) async {
+        await db.execute("PRAGMA foreign_keys = ON");
+      }
     );
   }
 

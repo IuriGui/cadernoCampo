@@ -75,8 +75,8 @@ class _RegisterPropertyScreenState extends State<RegisterPropertyScreen> {
               DropdownButtonFormField<String>(
                 value: _estado,
                 decoration: const InputDecoration(labelText: 'Estado *'),
-                items: brazilStates
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                items: brazilStates.entries
+                    .map((e) => DropdownMenuItem(value: e.value, child: Text(e.key)))
                     .toList(),
                 onChanged: (v) => setState(() => _estado = v),
                 validator: (v) => v == null ? '* Obrigatório' : null,

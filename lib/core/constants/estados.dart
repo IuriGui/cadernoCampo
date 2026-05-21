@@ -1,50 +1,29 @@
-const List<String> brazilStates = [
-  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA',
-  'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN',
-  'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
-];
-
-const Map<String, String> brazilStatesMap = {
+const Map<String, String> brazilStates = {
   'acre': 'AC',
   'alagoas': 'AL',
-  'amapa': 'AP',
   'amapá': 'AP',
   'amazonas': 'AM',
   'bahia': 'BA',
-  'ceara': 'CE',
   'ceará': 'CE',
   'distrito federal': 'DF',
-  'espirito santo': 'ES',
   'espírito santo': 'ES',
-  'goias': 'GO',
   'goiás': 'GO',
-  'maranhao': 'MA',
   'maranhão': 'MA',
   'mato grosso': 'MT',
   'mato grosso do sul': 'MS',
   'minas gerais': 'MG',
-  'para': 'PA',
   'pará': 'PA',
-  'paraiba': 'PB',
   'paraíba': 'PB',
-  'parana': 'PR',
   'paraná': 'PR',
   'pernambuco': 'PE',
-  'piaui': 'PI',
   'piauí': 'PI',
   'rio de janeiro': 'RJ',
   'rio grande do norte': 'RN',
   'rio grande do sul': 'RS',
-  'rondonia': 'RO',
   'rondônia': 'RO',
   'roraima': 'RR',
   'santa catarina': 'SC',
-  'sao paulo': 'SP',
   'são paulo': 'SP',
   'sergipe': 'SE',
   'tocantins': 'TO',
 };
-
-const List<String> unidadesDeMedida = [
-
-];

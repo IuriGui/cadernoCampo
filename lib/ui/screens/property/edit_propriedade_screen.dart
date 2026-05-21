@@ -87,9 +87,13 @@ class _EditPropriedadeScreenState extends State<EditPropriedadeScreen> {
               DropdownButtonFormField<String>(
                 value: _estado,
                 decoration: const InputDecoration(labelText: 'Estado *'),
-                items: brazilStates
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                    .toList(),
+                items: brazilStates.entries.map(
+                    (e) => DropdownMenuItem<String>(
+                      value: e.value,
+                      child: Text(e.value),
+                    )
+                ).toList()
+                ,
                 onChanged: (v) => setState(() => _estado = v),
                 validator: (v) => v == null ? '* Obrigatório' : null,
               ),

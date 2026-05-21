@@ -9,7 +9,7 @@ import '../../data/models/clima_info.dart';
 
 class ClimaProvider extends ChangeNotifier{
   ClimaInfo? _clima;
-  String _cidadeEstado = 'Localização desconhecida';
+  String _cidadeEstado = 'Não foi possível determinar a localização';
   bool _isLoading = true;
 
   ClimaInfo? get clima => _clima;
@@ -29,9 +29,9 @@ class ClimaProvider extends ChangeNotifier{
         );
         if (placemarks.isNotEmpty) {
           final Placemark lugar = placemarks.first;
-          final cidade = lugar.subAdministrativeArea ?? lugar.locality ?? "Cidade";
+          final cidade = lugar.subAdministrativeArea ?? lugar.locality ?? "Cidade não encontrada";
           String estadoBruto = (lugar.administrativeArea ?? "").trim().toUpperCase();
-          final estadoSigla = brazilStatesMap[estadoBruto.toLowerCase()] ?? estadoBruto;
+          final estadoSigla = brazilStates[estadoBruto.toLowerCase()] ?? estadoBruto;
           _cidadeEstado = "$cidade, $estadoSigla";
         }
       } catch (e) {
