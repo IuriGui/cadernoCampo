@@ -85,7 +85,7 @@ class _EditPropriedadeScreenState extends State<EditPropriedadeScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _estado,
+                initialValue: _estado,
                 decoration: const InputDecoration(labelText: 'Estado *'),
                 items: brazilStates.entries.map(
                     (e) => DropdownMenuItem<String>(

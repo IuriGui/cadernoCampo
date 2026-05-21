@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../data/models/local.dart';
-import '../../data/models/user.dart';
 import '../../logic/provider/auth_provider.dart';
 import '../../logic/provider/clima_provider.dart';
 import '../../logic/provider/home_provider.dart';
@@ -92,10 +91,10 @@ class _HomeDrawer extends StatelessWidget {
           UserAccountsDrawerHeader(
             decoration: const BoxDecoration(color: Color(0xFF2E7D32)),
             accountName: Text(
-              produtor?.nome ?? user!.email.split('@')[0],
+              produtor?.nome ?? user.email.split('@')[0],
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            accountEmail: Text(user!.email),
+            accountEmail: Text(user.email),
             currentAccountPicture: const CircleAvatar(
               backgroundColor: Colors.white,
               child: Icon(Icons.person, size: 40, color: Color(0xFF2E7D32)),
@@ -116,7 +115,7 @@ class _HomeDrawer extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) =>
-                        LocalScreen(user: user, propriedade: propriedade),
+                        LocalScreen(),
                   ),
                 );
               },
@@ -129,10 +128,7 @@ class _HomeDrawer extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => AnotacoesListScreen(
-                      user: user,
-                      propriedade: propriedade,
-                    ),
+                    builder: (_) => AnotacoesListScreen(),
                   ),
                 );
               },
@@ -146,7 +142,7 @@ class _HomeDrawer extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) =>
-                        LocalScreen(user: user, propriedade: propriedade),
+                        LocalScreen(),
                   ),
                 );
               },
@@ -223,7 +219,7 @@ class _NoPropertyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.read<AuthProvider>();
+    // final auth = context.read<AuthProvider>();
     final provider = context.read<HomeProvider>();
 
     return Column(
@@ -331,8 +327,8 @@ class _AnotacoesDoDiaSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<HomeProvider>();
     final anotacoes = provider.anotacoesDoDia;
-    final auth = context.read<AuthProvider>();
-    final user = auth.user!;
+    // final auth = context.read<AuthProvider>();
+    // final user = auth.user!;
 
     if (anotacoes.isEmpty) return const SizedBox.shrink();
 
@@ -351,10 +347,7 @@ class _AnotacoesDoDiaSection extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => AnotacoesListScreen(
-                      user: auth.user!,
-                      propriedade: provider.propriedade!,
-                    ),
+                    builder: (_) => AnotacoesListScreen(),
                   ),
                 );
               },
@@ -487,7 +480,6 @@ class _LocaisSection extends StatelessWidget {
     final auth = context.read<AuthProvider>();
     final provider = context.read<HomeProvider>();
     final user = auth.user!;
-    final propriedade = auth.propriedade!;
     final colors = [
       Colors.redAccent.shade100,
       Colors.greenAccent.shade400,
@@ -510,7 +502,7 @@ class _LocaisSection extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) =>
-                        LocalScreen(user: user, propriedade: propriedade),
+                        LocalScreen(),
                   ),
                 );
                 provider.refresh();
@@ -589,7 +581,7 @@ class _AcoesSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.read<HomeProvider>();
     final auth = context.read<AuthProvider>();
-    final user = auth.user;
+
     final propriedade = auth.propriedade!;
 
     return Column(
@@ -617,8 +609,6 @@ class _AcoesSection extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => LocalScreen(
-                      user: user!,
-                      propriedade: propriedade,
                       selectionMode: true,
                     ),
                   ),

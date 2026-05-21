@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:provider/provider.dart';
 import '../../../data/dao/anotacao_dao.dart';
 import '../../../data/dao/atividade_dao.dart';
 import '../../../data/models/anotacao.dart';
 import '../../../data/models/atividade.dart';
-import '../../../data/models/user.dart';
-import '../../../data/models/propriedade.dart';
 
+import '../../../logic/provider/auth_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/anotacao_card.dart';
 import 'anotacoes_detail_screen.dart';
 import '../localAndAreaCultivo/local_screen.dart';
 
 class AnotacoesListScreen extends StatefulWidget {
-  final User user;
-  final Propriedade propriedade;
-  const AnotacoesListScreen({super.key, required this.user, required this.propriedade});
+
+  const AnotacoesListScreen({super.key});
 
   @override
   State<AnotacoesListScreen> createState() => _AnotacoesListScreenState();
@@ -30,7 +29,7 @@ class _AnotacoesListScreenState extends State<AnotacoesListScreen> {
   List<Anotacao> _filteredRegistros = [];
   List<Atividade> _allAtividades = [];
   
-  Set<int> _selectedAtividadeIds = {};
+  final Set<int> _selectedAtividadeIds = {};
   DateTimeRange? _selectedDateRange;
   
   bool _isLoading = true;
@@ -42,9 +41,11 @@ class _AnotacoesListScreenState extends State<AnotacoesListScreen> {
   }
 
   Future<void> _loadInitialData() async {
+
+    final propriedade = context.read<AuthProvider>().propriedade!;
     setState(() => _isLoading = true);
     final results = await Future.wait([
-      _dao.getAnotacoesByPropriedade(widget.propriedade.id!),
+      _dao.getAnotacoesByPropriedade(propriedade.id!),
       _atividadeDAO.getAll(),
     ]);
     
@@ -289,9 +290,7 @@ class _AnotacoesListScreenState extends State<AnotacoesListScreen> {
             context,
             MaterialPageRoute(
               builder: (context) => LocalScreen(
-                user: widget.user,
-                propriedade: widget.propriedade,
-                selectionMode: true,
+                selectionMode: true
               ),
             ),
           );

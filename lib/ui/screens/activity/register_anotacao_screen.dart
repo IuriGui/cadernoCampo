@@ -214,7 +214,7 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<int>(
-          value: _areaId,
+          initialValue: _areaId,
           decoration: InputDecoration(
             labelText: 'Área de Cultivo',
             prefixIcon: Icon(MdiIcons.mapMarkerRadius),
@@ -227,7 +227,7 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<int>(
-          value: _atividadeId,
+          initialValue: _atividadeId,
           decoration: InputDecoration(
             labelText: 'Tipo de Atividade',
             prefixIcon: Icon(MdiIcons.tractor),
@@ -257,7 +257,7 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
 
   Widget _buildCulturaField() {
     return DropdownButtonFormField<int>(
-      value: _culturaId,
+      initialValue: _culturaId,
       decoration: InputDecoration(
         labelText: 'Cultura',
         prefixIcon: Icon(MdiIcons.sprout),
@@ -341,7 +341,7 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
         _buildSectionTitle('Insumo Utilizado'),
         const SizedBox(height: 16),
         DropdownButtonFormField<int>(
-          value: _insumoId,
+          initialValue: _insumoId,
           isExpanded: true,
           decoration: InputDecoration(
             labelText: 'Selecione o Insumo',

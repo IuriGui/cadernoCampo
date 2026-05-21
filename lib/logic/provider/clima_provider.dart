@@ -9,7 +9,7 @@ import '../../data/models/clima_info.dart';
 
 class ClimaProvider extends ChangeNotifier{
   ClimaInfo? _clima;
-  String _cidadeEstado = 'Não foi possível determinar a localização';
+  String _cidadeEstado = '';
   bool _isLoading = true;
 
   ClimaInfo? get clima => _clima;
