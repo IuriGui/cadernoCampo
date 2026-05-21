@@ -1,7 +1,8 @@
-import '../database/app_database.dart';
-import '../dao/user_dao.dart';
-import '../dao/produtor_dao.dart';
-import '../dao/propriedade_dao.dart';
+
+
+import '../../data/dao/produtor_dao.dart';
+import '../../data/dao/user_dao.dart';
+import '../../data/database/app_database.dart';
 
 class RegistrationService {
   final UserDAO _userDAO = UserDAO();
@@ -25,13 +26,6 @@ class RegistrationService {
           'nome': data['nomeProdutor'],
         });
 
-
-        // 5. Mecanismo de Controle
-        // await txn.insert('mecanismo_controle', {
-        //   'produtor_id': produtorId,
-        //   'tipo': data['mecanismoControle'],
-        //   'valor': data['mecanismoControle'],
-        // });
 
         final mecanismo = data['mecanismoControle'] as Map<String, dynamic>;
         await txn.insert('mecanismo_controle', {
