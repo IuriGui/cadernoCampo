@@ -107,7 +107,9 @@ class AppDatabase {
     await db.execute('''
       CREATE TABLE destino (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT NOT NULL
+        nome TEXT NOT NULL,
+        tipo TEXT,
+        is_deleted INTEGER DEFAULT 0
       )
     ''');
 
