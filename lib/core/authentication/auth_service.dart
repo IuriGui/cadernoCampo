@@ -1,5 +1,7 @@
-import '../dao/user_dao.dart';
-import '../models/user.dart';
+
+
+import '../../data/dao/user_dao.dart';
+import '../../data/models/user.dart';
 
 class AuthService {
   final UserDAO _userDAO = UserDAO();
