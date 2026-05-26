@@ -17,7 +17,6 @@ class HomeProvider extends ChangeNotifier {
 
   User? get user => _auth.user;
 
-
   bool _isLoading = true;
   bool get isLoading => _isLoading;
 
@@ -56,13 +55,12 @@ class HomeProvider extends ChangeNotifier {
 
   Future<void> _carregarDadosLocais() async {
     try {
-      //final userId = _auth.user!.id!;
       final propriedade = _auth.propriedade;
 
       if (propriedade != null) {
         final dataResults = await Future.wait([
           LocalDAO().getTopThreeLocais(propriedade.id!),
-          AnotacaoDAO().getAnotacoesDoDia(propriedade.id!),
+          AnotacaoDAO().getUltimasAnotacoes(propriedade.id!),
         ]);
         _locais = dataResults[0] as List<Local>;
         _anotacoesDoDia = dataResults[1] as List<Anotacao>;

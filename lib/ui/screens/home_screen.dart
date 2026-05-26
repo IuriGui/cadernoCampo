@@ -317,7 +317,7 @@ class _MainContent extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Anotacoes do dia
+// Ultimas anotacoes
 // ---------------------------------------------------------------------------
 
 class _AnotacoesDoDiaSection extends StatelessWidget {
@@ -339,7 +339,7 @@ class _AnotacoesDoDiaSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
-              'Anotações do Dia',
+              'Anotações Mais Recentes',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             TextButton(
@@ -518,51 +518,51 @@ class _LocaisSection extends StatelessWidget {
         if (locais.isEmpty)
           const Text('Nenhum local cadastrado.')
         else
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: locais.asMap().entries.map((e) {
-              final local = e.value;
-              final color = colors[e.key % colors.length];
-              return GestureDetector(
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          LocalDetailScreen(local: local, user: user),
-                    ),
-                  );
-                  provider.refresh();
-                },
-                child: Column(
-                  children: [
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: color,
-                        shape: BoxShape.circle,
+          SizedBox(
+            height: 110,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: locais.length,
+              itemBuilder: (context, index) {
+                final local = locais[index];
+                final color = colors[index % colors.length];
+                return GestureDetector(
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => LocalDetailScreen(local: local, user: user),
                       ),
-                      child: Icon(
-                        _iconByTipo(local.tipo),
-                        color: Colors.white,
-                        size: 32,
-                      ),
+                    );
+                    provider.refresh();
+                  },
+                  child: Container(
+                    width: 90,
+                    margin: const EdgeInsets.only(right: 12),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                          child: Icon(_iconByTipo(local.tipo), color: Colors.white, size: 32),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          local.nome,
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      local.nome,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
+                  ),
+                );
+              },
+            ),
           ),
+
       ],
     );
   }

@@ -12,12 +12,13 @@ class ClimaProvider extends ChangeNotifier{
   String _cidadeEstado = '';
   bool _isLoading = true;
 
+
   ClimaInfo? get clima => _clima;
   String get cidadeEstado => _cidadeEstado;
   bool get isLoading => _isLoading;
 
   Future<void> carregarClima() async {
-    print("Carregando clima...");
+    // print("Carregando clima...");
     _isLoading = true;
     try {
       final posicao = await LocalizacaoService.determinarPosicao();
