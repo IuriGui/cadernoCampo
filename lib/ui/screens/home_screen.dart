@@ -7,6 +7,7 @@ import '../../logic/provider/clima_provider.dart';
 import '../../logic/provider/home_provider.dart';
 import '../widgets/anotacao_card.dart';
 import '../widgets/home/weather_card.dart';
+import 'activity/anotacoes_detail_screen.dart';
 import 'supply/insumo_screen.dart';
 import 'supply/register_insumo_screen.dart';
 import 'localAndAreaCultivo/local_screen.dart';
@@ -367,7 +368,12 @@ class _AnotacoesDoDiaSection extends StatelessWidget {
             return AnotacaoCard(
               registro: anotacoes[index],
               onTap: () {
-                // TODO Navegar para detalhes da anotacao se existir
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AnotacoesDetailScreen(registro: anotacoes[index]),
+                  ),
+                );
               },
             );
           },
