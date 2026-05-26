@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../data/dao/local_dao.dart';
 import '../../../data/models/local.dart';
 import '../../../data/models/user.dart';
 import '../../../data/models/propriedade.dart';
+import '../../../logic/provider/auth_provider.dart';
 import '../../widgets/async_list_view.dart';
 import 'local_detail_screen.dart';
 import '../activity/register_anotacao_screen.dart';
 import 'register_local_screen.dart';
 
 class LocalScreen extends StatefulWidget {
-  final User user;
-  final Propriedade propriedade;
   final bool selectionMode;
   
   const LocalScreen({
-    super.key, 
-    required this.user, 
-    required this.propriedade,
+    super.key,
     this.selectionMode = false
   });
 
@@ -28,6 +26,7 @@ class _LocalScreenState extends State<LocalScreen> {
   final LocalDAO _localDAO = LocalDAO();
   late Future<List<Local>> _locaisFuture;
 
+
   @override
   void initState() {
     super.initState();
@@ -35,14 +34,20 @@ class _LocalScreenState extends State<LocalScreen> {
   }
 
   void _refreshLocais() {
+    final propriedade = context.read<AuthProvider>().propriedade!;
     setState(() {
-      _locaisFuture = _localDAO.getLocaisByPropriedade(widget.propriedade.id!);
+      _locaisFuture = _localDAO.getLocaisByPropriedade(propriedade.id!);
     });
   }
 
 
   @override
   Widget build(BuildContext context) {
+
+    final propriedade = context.read<AuthProvider>().propriedade!;
+    final user = context.read<AuthProvider>().user!;
+
+
     return Scaffold(
       appBar: AppBar( title: Text (widget.selectionMode ? 'Selecione o Local' : 'Meus Locais')),
       body: SafeArea(
@@ -71,7 +76,7 @@ class _LocalScreenState extends State<LocalScreen> {
                       MaterialPageRoute(
                         builder: (context) => RegisterAnotacaoScreen(
                           local: local,
-                          user: widget.user,
+                          user: user,
                         ),
                       ),
                     );
@@ -79,7 +84,7 @@ class _LocalScreenState extends State<LocalScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => LocalDetailScreen(local: local, user: widget.user),
+                        builder: (context) => LocalDetailScreen(local: local, user: user),
                       ),
                     );
                   }
@@ -97,7 +102,7 @@ class _LocalScreenState extends State<LocalScreen> {
           final result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => RegisterLocalScreen(propriedade: widget.propriedade),
+              builder: (context) => RegisterLocalScreen(propriedade: propriedade),
             ),
           );
           if (result == true) _refreshLocais();

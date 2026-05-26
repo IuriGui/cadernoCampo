@@ -78,7 +78,7 @@ class _DestinoScreenState extends State<DestinoScreen> with SingleTickerProvider
             future: _programasFuture,
             emptyMessage: 'Nenhum programa cadastrado.',
             itemBuilder: (context, programa) => ListTile(
-              leading: const CircleAvatar(child: Icon(Icons.assignment), backgroundColor: Colors.green),
+              leading: const CircleAvatar(backgroundColor: Colors.green, child: Icon(Icons.assignment)),
               title: Text(programa['tipo'] ?? ''),
               subtitle: Text(programa['valor'] ?? ''),
             ),

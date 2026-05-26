@@ -4,7 +4,6 @@ import '../../../core/constants/estados.dart';
 import '../../../data/models/propriedade.dart';
 import '../../../logic/provider/auth_provider.dart';
 import '../../widgets/primary_button.dart';
-import '../user/register_producer_screen.dart';
 
 
 class RegisterPropertyScreen extends StatefulWidget {
@@ -73,7 +72,7 @@ class _RegisterPropertyScreenState extends State<RegisterPropertyScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _estado,
+                initialValue: _estado,
                 decoration: const InputDecoration(labelText: 'Estado *'),
                 items: brazilStates.entries
                     .map((e) => DropdownMenuItem(value: e.value, child: Text(e.key)))

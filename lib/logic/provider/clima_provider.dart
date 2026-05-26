@@ -9,15 +9,16 @@ import '../../data/models/clima_info.dart';
 
 class ClimaProvider extends ChangeNotifier{
   ClimaInfo? _clima;
-  String _cidadeEstado = 'Não foi possível determinar a localização';
+  String _cidadeEstado = '';
   bool _isLoading = true;
+
 
   ClimaInfo? get clima => _clima;
   String get cidadeEstado => _cidadeEstado;
   bool get isLoading => _isLoading;
 
   Future<void> carregarClima() async {
-    print("Carregando clima...");
+    // print("Carregando clima...");
     _isLoading = true;
     try {
       final posicao = await LocalizacaoService.determinarPosicao();

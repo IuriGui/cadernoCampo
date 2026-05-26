@@ -1,11 +1,7 @@
 import 'package:caderno_de_campo/logic/provider/clima_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../../data/models/clima_info.dart';
-import '../../../logic/provider/home_provider.dart';
-
-
 
 class WeatherCard extends StatelessWidget {
   const WeatherCard({super.key});
@@ -201,15 +197,4 @@ class WeatherCard extends StatelessWidget {
       ],
     );
   }
-}
-
-
-class _WeatherCardBuild extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
-  }
-
-
 }

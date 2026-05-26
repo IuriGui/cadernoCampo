@@ -37,7 +37,7 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
   List<Anotacao> _filteredRegistros = [];
   List<Atividade> _allAtividades = [];
   
-  Set<int> _selectedAtividadeIds = {};
+  final Set<int> _selectedAtividadeIds = {};
   DateTimeRange? _selectedDateRange;
   
   bool _isLoading = true;
