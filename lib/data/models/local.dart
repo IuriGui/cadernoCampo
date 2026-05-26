@@ -7,6 +7,7 @@ class Local {
   final bool areaSensivel;
   final String? observacoes;
   final int propriedadeId;
+  final bool isDeleted;
 
   Local({
     this.id,
@@ -17,6 +18,7 @@ class Local {
     required this.areaSensivel,
     this.observacoes,
     required this.propriedadeId,
+    this.isDeleted = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -29,6 +31,7 @@ class Local {
       'area_sensivel': areaSensivel ? 1 : 0,
       'observacoes': observacoes,
       'propriedade_id': propriedadeId,
+      'is_deleted': isDeleted ? 1 : 0,
     };
   }
 
@@ -42,6 +45,7 @@ class Local {
       areaSensivel: map['area_sensivel'] == 1,
       observacoes: map['observacoes'],
       propriedadeId: map['propriedade_id'] ?? 0,
+      isDeleted: map['is_deleted'] == 1,
     );
   }
 }

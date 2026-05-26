@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../../data/dao/anotacao_dao.dart';
 import '../../../data/dao/atividade_dao.dart';
+import '../../../data/dao/area_cultivo_dao.dart';
 import '../../../data/models/area_cultivo.dart';
 import '../../../data/models/anotacao.dart';
 import '../../../data/models/atividade.dart';
@@ -32,6 +33,7 @@ class AreaDetailScreen extends StatefulWidget {
 class _AreaDetailScreenState extends State<AreaDetailScreen> {
   final AnotacaoDAO _anotacaoDAO = AnotacaoDAO();
   final AtividadeDAO _atividadeDAO = AtividadeDAO();
+  final AreaCultivoDAO _areaDAO = AreaCultivoDAO();
   
   List<Anotacao> _allRegistros = [];
   List<Anotacao> _filteredRegistros = [];
@@ -157,6 +159,34 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
     );
   }
 
+  Future<void> _confirmDelete() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Excluir Área de Cultivo'),
+        content: const Text('Tem certeza que deseja excluir esta área? Esta ação não pode ser desfeita.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await _areaDAO.softDeleteAreaCultivo(widget.area.id!);
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -180,6 +210,11 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
                 tooltip: 'Filtrar Atividade',
                 onPressed: _showFilterDialog,
               ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline),
+                tooltip: 'Excluir Área',
+                onPressed: _confirmDelete,
+              ),
             ],
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
@@ -188,14 +223,6 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
               ),
               centerTitle: true,
               background: Container(
-
-                // decoration: BoxDecoration(
-                //   gradient: LinearGradient(
-                //     begin: Alignment.topCenter,
-                //     end: Alignment.bottomCenter,
-                //     colors: [AppTheme.primaryGreen, AppTheme.primaryGreen.withValues(alpha: 0.8)],
-                //   ),
-                // ),
                 child: Center(
                   child: Icon(
                     MdiIcons.sprout,

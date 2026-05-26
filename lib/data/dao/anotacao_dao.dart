@@ -20,6 +20,7 @@ class AnotacaoDAO {
   LEFT  JOIN insumo       i  ON i.id  = r.insumo_id
   LEFT  JOIN colheita     cl ON cl.anotacao_id = r.id
   LEFT  JOIN destino      d  ON d.id  = cl.destino_id
+  WHERE r.is_deleted = 0
 ''';
 
   Future<int> insertAnotacao(Anotacao anotacao, {int? destinoId}) async {
@@ -46,7 +47,7 @@ class AnotacaoDAO {
   Future<List<Anotacao>> getAnotacoesByPropriedade(int propriedadeId) async {
     final db = await AppDatabase().database;
     final maps = await db.rawQuery(
-      '$_baseQuery WHERE l.propriedade_id = ? ORDER BY r.data_criacao DESC',
+      '$_baseQuery AND l.propriedade_id = ? ORDER BY r.data_criacao DESC',
       [propriedadeId],
     );
     return maps.map(Anotacao.fromMap).toList();
@@ -55,13 +56,12 @@ class AnotacaoDAO {
   Future<List<Anotacao>> getUltimasAnotacoes(int propriedadeId) async {
     final db = await AppDatabase().database;
     final maps = await db.rawQuery(
-      '$_baseQuery WHERE l.propriedade_id = ? ORDER BY r.data_criacao DESC LIMIT 3',
+      '$_baseQuery AND l.propriedade_id = ? AND r.is_deleted = 0 ORDER BY r.data_criacao DESC LIMIT 3',
       [propriedadeId],
     );
     return maps.map(Anotacao.fromMap).toList();
   }
 
-  // TODO  implementar no calendário
   Future<List<Anotacao>> getAnotacoesDoDia(int propriedadeId) async {
     final db = await AppDatabase().database;
     final hoje = DateTime.now();
@@ -69,7 +69,7 @@ class AnotacaoDAO {
     final fimDia = DateTime(hoje.year, hoje.month, hoje.day, 23, 59, 59).toIso8601String();
 
     final maps = await db.rawQuery(
-      '$_baseQuery WHERE l.propriedade_id = ? AND r.data_criacao BETWEEN ? AND ? ORDER BY r.data_criacao DESC',
+      '$_baseQuery AND l.propriedade_id = ? AND r.data_criacao BETWEEN ? AND ? ORDER BY r.data_criacao DESC',
       [propriedadeId, inicioDia, fimDia],
     );
     return maps.map(Anotacao.fromMap).toList();
@@ -77,20 +77,31 @@ class AnotacaoDAO {
 
   Future<List<Anotacao>> getAnotacoesByArea(int areaId) async {
     final db = await AppDatabase().database;
-    final List<Map<String, dynamic>> maps = await db.rawQuery('''
-      SELECT r.*, a.nome as nomeAtividade, l.nome as nomeLocal, ac.nome as nomeArea,
-             c.nome as nomeCultura, i.produto as nomeInsumo, d.nome as nomeDestino
-      FROM anotacao r
-      JOIN atividade a ON r.atividade_id = a.id
-      LEFT JOIN area_cultivo ac ON r.area_cultivo_id = ac.id
-      LEFT JOIN local l ON ac.local_id = l.id
-      LEFT JOIN cultura c ON r.cultura_id = c.id
-      LEFT JOIN insumo i ON r.insumo_id = i.id
-      LEFT JOIN colheita cl ON r.id = cl.anotacao_id
-      LEFT JOIN destino d ON cl.destino_id = d.id
-      WHERE r.area_cultivo_id = ?
-      ORDER BY r.data_criacao DESC
-    ''', [areaId]);
-    return maps.map((e) => Anotacao.fromMap(e)).toList();
+    final maps = await db.rawQuery(
+      '$_baseQuery AND r.area_cultivo_id = ? ORDER BY r.data_criacao DESC',
+      [areaId],
+    );
+    return maps.map(Anotacao.fromMap).toList();
+  }
+
+  Future<int> softDeleteAnotacao(int id) async {
+    final db = await AppDatabase().database;
+    return await db.transaction((txn) async {
+      // Deleta a colheita vinculada se existir
+      await txn.update(
+        'colheita',
+        {'is_deleted': 1},
+        where: 'anotacao_id = ?',
+        whereArgs: [id],
+      );
+      
+      // Deleta a anotação
+      return await txn.update(
+        'anotacao',
+        {'is_deleted': 1},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    });
   }
 }

@@ -15,6 +15,7 @@ class Anotacao {
   final String? nomeInsumo;
   final String? nomeDestino;
   final String? observacao;
+  final bool isDeleted;
 
   Anotacao({
     this.id,
@@ -32,6 +33,7 @@ class Anotacao {
     this.nomeInsumo,
     this.nomeDestino,
     this.observacao,
+    this.isDeleted = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -45,6 +47,7 @@ class Anotacao {
       'insumo_id': insumoId,
       'cultura_id': culturaId,
       'observacao': observacao,
+      'is_deleted': isDeleted ? 1 : 0,
     };
   }
 
@@ -64,7 +67,8 @@ class Anotacao {
       nomeCultura: map['nomeCultura'],
       nomeInsumo: map['nomeInsumo'],
       nomeDestino: map['nomeDestino'],
-      observacao: map['observacao']
+      observacao: map['observacao'],
+      isDeleted: map['is_deleted'] == 1,
     );
   }
 }

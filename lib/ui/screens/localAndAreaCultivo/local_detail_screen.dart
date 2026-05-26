@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../../data/dao/area_cultivo_dao.dart';
+import '../../../data/dao/local_dao.dart';
 import '../../../data/models/local.dart';
 import '../../../data/models/area_cultivo.dart';
 import '../../../data/models/user.dart';
@@ -19,6 +20,7 @@ class LocalDetailScreen extends StatefulWidget {
 
 class _LocalDetailScreenState extends State<LocalDetailScreen> {
   final AreaCultivoDAO _areaDAO = AreaCultivoDAO();
+  final LocalDAO _localDAO = LocalDAO();
   late Future<List<AreaCultivo>> _areasFuture;
 
   @override
@@ -31,6 +33,34 @@ class _LocalDetailScreenState extends State<LocalDetailScreen> {
     setState(() {
       _areasFuture = _areaDAO.getAreasByLocal(widget.local.id!);
     });
+  }
+
+  Future<void> _confirmDelete() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Excluir Local'),
+        content: const Text('Tem certeza que deseja excluir este local? Esta ação não pode ser desfeita.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await _localDAO.softDeleteLocal(widget.local.id!);
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    }
   }
 
   @override
@@ -53,6 +83,11 @@ class _LocalDetailScreenState extends State<LocalDetailScreen> {
                 ),
               );
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            tooltip: 'Excluir Local',
+            onPressed: _confirmDelete,
           ),
         ],
       ),

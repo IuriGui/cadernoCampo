@@ -69,7 +69,7 @@ class _LocalScreenState extends State<LocalScreen> {
                 ),
                 subtitle: Text('${local.tipo} • ${local.areaEmMetros}m²'),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () {
+                onTap: () async {
                   if (widget.selectionMode) {
                     Navigator.pushReplacement(
                       context,
@@ -81,12 +81,15 @@ class _LocalScreenState extends State<LocalScreen> {
                       ),
                     );
                   } else {
-                    Navigator.push(
+                    final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => LocalDetailScreen(local: local, user: user),
                       ),
                     );
+                    if (result == true) {
+                      _refreshLocais();
+                    }
                   }
                 },
               ),

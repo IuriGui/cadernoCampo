@@ -52,6 +52,7 @@ class AppDatabase {
         area_total REAL NOT NULL,
         area_propria REAL NOT NULL,
         area_arrendada REAL,
+        is_deleted INTEGER DEFAULT 0,
         area_producao_vegetal REAL
       )
     ''');
@@ -67,6 +68,7 @@ class AppDatabase {
         area_sensivel INTEGER NOT NULL,
         observacoes TEXT,
         propriedade_id INTEGER NOT NULL,
+        is_deleted INTEGER DEFAULT 0,
         FOREIGN KEY (propriedade_id) REFERENCES propriedade (id)
       )
     ''');
@@ -77,6 +79,7 @@ class AppDatabase {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
         local_id INTEGER,
+        is_deleted INTEGER DEFAULT 0,
         FOREIGN KEY (local_id) REFERENCES local (id)
       )
     ''');
@@ -115,6 +118,7 @@ class AppDatabase {
         produto TEXT NOT NULL,
         fornecedor TEXT NOT NULL,
         data_aquisicao TEXT NOT NULL,
+        is_deleted INTEGER DEFAULT 0,
         propriedade_id INTEGER,
         FOREIGN KEY (propriedade_id) REFERENCES propriedade (id)
       )
@@ -132,6 +136,7 @@ class AppDatabase {
         insumo_id INTEGER,
         cultura_id INTEGER,
         observacao TEXT,
+        is_deleted INTEGER DEFAULT 0,
         FOREIGN KEY (area_cultivo_id) REFERENCES area_cultivo (id),
         FOREIGN KEY (atividade_id) REFERENCES atividade (id),
         FOREIGN KEY (insumo_id) REFERENCES insumo (id),
@@ -147,6 +152,7 @@ class AppDatabase {
         unidade_medida TEXT NOT NULL,
         quantidade REAL NOT NULL,
         destino_id INTEGER NOT NULL,
+        is_deleted INTEGER DEFAULT 0,
         FOREIGN KEY (anotacao_id) REFERENCES anotacao (id),
         FOREIGN KEY (destino_id) REFERENCES destino (id)
       )
@@ -169,6 +175,7 @@ class AppDatabase {
         produtor_id INTEGER NOT NULL UNIQUE,
         tipo TEXT NOT NULL,
         valor TEXT NOT NULL,
+        is_deleted INTEGER DEFAULT 0,
         FOREIGN KEY (produtor_id) REFERENCES produtor (id)
       )
     ''');
@@ -180,6 +187,7 @@ class AppDatabase {
         produtor_id INTEGER NOT NULL,
         tipo TEXT NOT NULL,
         valor TEXT NOT NULL,
+        is_deleted INTEGER DEFAULT 0,
         FOREIGN KEY (produtor_id) REFERENCES produtor (id)
       )
     ''');

@@ -2,11 +2,13 @@ class AreaCultivo {
   final int? id;
   final String nome;
   final int? localId;
+  final bool isDeleted;
 
   AreaCultivo({
     this.id,
     required this.nome,
     this.localId,
+    this.isDeleted = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -14,6 +16,7 @@ class AreaCultivo {
       'id': id,
       'nome': nome,
       'local_id': localId,
+      'is_deleted': isDeleted ? 1 : 0,
     };
   }
 
@@ -22,6 +25,7 @@ class AreaCultivo {
       id: map['id'],
       nome: map['nome'] ?? '',
       localId: map['local_id'],
+      isDeleted: map['is_deleted'] == 1,
     );
   }
 }

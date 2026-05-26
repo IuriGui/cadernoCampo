@@ -4,11 +4,6 @@ import '../models/propriedade.dart';
 class PropriedadeDAO {
   static const String table = 'propriedade';
 
-  // Future<int> insertPropriedade(Propriedade propriedade) async {
-  //   final db = await AppDatabase().database;
-  //   return await db.insert(table, propriedade.toMap());
-  // }
-
   Future<int> insertComVinculo(Propriedade propriedade, int produtorId) async {
     final db = await AppDatabase().database;
     return await db.transaction((txn) async {
@@ -22,16 +17,22 @@ class PropriedadeDAO {
     });
   }
 
-
   Future<List<Propriedade>> getAllPropriedades() async {
     final db = await AppDatabase().database;
-    final List<Map<String, dynamic>> maps = await db.query(table);
+    final List<Map<String, dynamic>> maps = await db.query(
+      table,
+      where: 'is_deleted = 0',
+    );
     return maps.map((e) => Propriedade.fromMap(e)).toList();
   }
 
   Future<Propriedade?> getFirstPropriedade() async {
     final db = await AppDatabase().database;
-    final List<Map<String, dynamic>> maps = await db.query(table, limit: 1);
+    final List<Map<String, dynamic>> maps = await db.query(
+      table,
+      where: 'is_deleted = 0',
+      limit: 1,
+    );
     if (maps.isNotEmpty) {
       return Propriedade.fromMap(maps.first);
     }
@@ -44,7 +45,7 @@ class PropriedadeDAO {
       SELECT p.* FROM $table p
       JOIN produtor_propriedade pp ON p.id = pp.propriedade_id
       JOIN produtor pr ON pp.produtor_id = pr.id
-      WHERE pr.usuario_id = ?
+      WHERE pr.usuario_id = ? AND p.is_deleted = 0
       LIMIT 1
     ''', [usuarioId]);
 
@@ -58,7 +59,7 @@ class PropriedadeDAO {
     final db = await AppDatabase().database;
     final List<Map<String, dynamic>> maps = await db.query(
       table,
-      where: 'id = ?',
+      where: 'id = ? AND is_deleted = 0',
       whereArgs: [id],
       limit: 1,
     );
@@ -75,6 +76,16 @@ class PropriedadeDAO {
       propriedade.toMap(),
       where: 'id = ?',
       whereArgs: [propriedade.id],
+    );
+  }
+
+  Future<int> deletePropriedade(int id) async {
+    final db = await AppDatabase().database;
+    return await db.update(
+      table,
+      {'is_deleted': 1},
+      where: 'id = ?',
+      whereArgs: [id],
     );
   }
 }
