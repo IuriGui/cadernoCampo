@@ -1,5 +1,7 @@
 
 
+import 'package:caderno_de_campo/logic/authentication/auth_service.dart';
+
 import '../../data/dao/produtor_dao.dart';
 import '../../data/dao/user_dao.dart';
 import '../../data/database/app_database.dart';
@@ -7,6 +9,7 @@ import '../../data/database/app_database.dart';
 class RegistrationService {
   final UserDAO _userDAO = UserDAO();
   final ProdutorDAO _produtorDAO = ProdutorDAO();
+  final AuthService _authService = AuthService();
 
   Future<bool> registerFullData(Map<String, dynamic> data) async {
     final db = await AppDatabase().database;
@@ -17,8 +20,10 @@ class RegistrationService {
         // 1. Inserir Usuário
         final userId = await txn.insert('usuario', {
           'email': data['email'],
-          'password': data['senha'],
+          'password': _authService.hashPassword(data['senha']),
         });
+
+
 
         // 2. Inserir Produtor
         final produtorId = await txn.insert('produtor', {

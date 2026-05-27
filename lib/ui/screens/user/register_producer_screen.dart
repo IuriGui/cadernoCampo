@@ -124,19 +124,6 @@ class _RegisterProducerScreenState extends State<RegisterProducerScreen> {
     );
   }
 
-  Widget _buildDashedDivider() {
-    return Row(
-      children: List.generate(
-        150 ~/ 5,
-        (index) => Expanded(
-          child: Container(
-            color: index % 2 == 0 ? Colors.transparent : Colors.grey.shade300,
-            height: 1,
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildTypeButton(String type) {
     bool isSelected = _mecanismo == type;
@@ -160,44 +147,6 @@ class _RegisterProducerScreenState extends State<RegisterProducerScreen> {
     );
   }
 
-  // Widget _buildProgramasSection() {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       const Text(
-  //         "Programas e Comercializações",
-  //         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-  //       ),
-  //       const SizedBox(height: 16),
-  //       ..._programas.keys.map((p) => _buildProgramItem(p)),
-  //     ],
-  //   );
-  // }
-
-  // Widget _buildProgramItem(String program) {
-  //   bool isSelected = _selecionados[program] ?? false;
-  //
-  //   return Column(
-  //     children: [
-  //       CheckboxListTile(
-  //         title: Text(program),
-  //         value: isSelected,
-  //         onChanged: (v) => setState(() => _selecionados[program] = v!),
-  //         controlAffinity: ListTileControlAffinity.leading,
-  //         contentPadding: EdgeInsets.zero,
-  //         activeColor: const Color(0xFF1B5E20),
-  //       ),
-  //       if (isSelected)
-  //         Padding(
-  //           padding: const EdgeInsets.only(bottom: 16.0),
-  //           child: _buildTextField(
-  //             controller: _programControllers[program]!,
-  //             hint: fieldHint,
-  //           ),
-  //         ),
-  //     ],
-  //   );
-  // }
 
   Widget _buildTextField({
     required TextEditingController controller,
@@ -233,23 +182,12 @@ class _RegisterProducerScreenState extends State<RegisterProducerScreen> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      final selectedPrograms = _selecionados.entries
-          .where((e) => e.value)
-          .map((e) {
-            return {
-              'nome': e.key,
-              'detalhe': _programControllers[e.key]!.text,
-            };
-          })
-          .toList();
-
       final fullData = {
         ...widget.userData,
         'mecanismoControle': {
           'tipo': _mecanismo,
           'nome': _mecanismoNomeController.text,
         },
-        'programas': selectedPrograms,
       };
 
       final success = await _registrationService.registerFullData(fullData);
