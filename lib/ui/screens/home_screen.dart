@@ -123,7 +123,7 @@ class _HomeDrawer extends StatelessWidget {
             ),
             ListTile(
               leading: Icon(MdiIcons.clipboardListOutline),
-              title: const Text('Anotações do Campo'),
+              title: const Text('Anotações'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -134,20 +134,20 @@ class _HomeDrawer extends StatelessWidget {
                 );
               },
             ),
-            ListTile(
-              leading: Icon(MdiIcons.sproutOutline),
-              title: const Text('Areas de Cultivo'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        LocalScreen(),
-                  ),
-                );
-              },
-            ),
+            // ListTile(
+            //   leading: Icon(MdiIcons.sproutOutline),
+            //   title: const Text('Areas de Cultivo'),
+            //   onTap: () {
+            //     Navigator.pop(context);
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //         builder: (_) =>
+            //             LocalScreen(),
+            //       ),
+            //     );
+            //   },
+            // ),
             ListTile(
               leading: Icon(MdiIcons.hoopHouse),
               title: const Text('Propriedade'),
@@ -174,21 +174,21 @@ class _HomeDrawer extends StatelessWidget {
                 );
               },
             ),
-            ListTile(
-              leading: Icon(MdiIcons.truckDeliveryOutline),
-              title: const Text('Destinos'),
-              onTap: () {
-                Navigator.pop(context);
-                if (produtor != null) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => DestinoScreen(produtor: produtor),
-                    ),
-                  );
-                }
-              },
-            ),
+            // ListTile(
+            //   leading: Icon(MdiIcons.truckDeliveryOutline),
+            //   title: const Text('Destinos'),
+            //   onTap: () {
+            //     Navigator.pop(context);
+            //     if (produtor != null) {
+            //       Navigator.push(
+            //         context,
+            //         MaterialPageRoute(
+            //           builder: (_) => DestinoScreen(produtor: produtor),
+            //         ),
+            //       );
+            //     }
+            //   },
+            // ),
           ],
           const Divider(),
           ListTile(
@@ -579,8 +579,6 @@ class _LocaisSection extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _AcoesSection extends StatelessWidget {
-
-
   const _AcoesSection();
 
   @override
@@ -594,7 +592,7 @@ class _AcoesSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Acoes',
+          'Ações Rápidas',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
@@ -602,14 +600,14 @@ class _AcoesSection extends StatelessWidget {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 2.5,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 2.2,
           children: [
             _AcaoButton(
               icon: MdiIcons.tractorVariant,
               label: 'Nova Anotação',
-              color: const Color(0xFF5C6BC0),
+              color: const Color(0xFF2E7D32),
               onPressed: () async {
                 await Navigator.push(
                   context,
@@ -623,19 +621,9 @@ class _AcoesSection extends StatelessWidget {
               },
             ),
             _AcaoButton(
-              icon: MdiIcons.shovel,
-              label: 'Novo Canteiro',
-              color: const Color(0xFF8D6E63),
-            ),
-            _AcaoButton(
-              icon: MdiIcons.sprout,
-              label: 'Novo Plantio',
-              color: const Color(0xFF43A047),
-            ),
-            _AcaoButton(
               icon: MdiIcons.packageVariantClosed,
               label: 'Registrar Insumo',
-              color: const Color(0xFF26A69A),
+              color: const Color(0xFF1976D2),
               onPressed: () async {
                 await Navigator.push(
                   context,
@@ -669,32 +657,53 @@ class _AcaoButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: Colors.white, size: 20),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withOpacity(0.2), width: 1.5),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                overflow: TextOverflow.ellipsis,
+                child: Icon(icon, color: Colors.white, size: 18),
               ),
-            ),
-          ],
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: color.withDarkness(0.2),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+}
+
+extension ColorBrightness on Color {
+  Color withDarkness(double amount) {
+    assert(amount >= 0 && amount <= 1);
+    final hsl = HSLColor.fromColor(this);
+    final hslDark = hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
+    return hslDark.toColor();
   }
 }

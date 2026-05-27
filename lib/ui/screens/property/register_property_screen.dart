@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/constants/estados.dart';
+import '/constants/estados.dart';
 import '../../../data/models/propriedade.dart';
 import '../../../logic/provider/auth_provider.dart';
 import '../../widgets/primary_button.dart';
@@ -75,7 +75,7 @@ class _RegisterPropertyScreenState extends State<RegisterPropertyScreen> {
                 initialValue: _estado,
                 decoration: const InputDecoration(labelText: 'Estado *'),
                 items: brazilStates.entries
-                    .map((e) => DropdownMenuItem(value: e.value, child: Text(e.key)))
+                    .map((e) => DropdownMenuItem(value: e.value, child: Text(e.value)))
                     .toList(),
                 onChanged: (v) => setState(() => _estado = v),
                 validator: (v) => v == null ? '* Obrigatório' : null,

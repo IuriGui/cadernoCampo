@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/services/registration_service.dart';
+import '../../../logic/services/registration_service.dart';
 import '../../widgets/primary_button.dart';
 import 'login_screen.dart';
 
@@ -24,14 +24,6 @@ class _RegisterProducerScreenState extends State<RegisterProducerScreen> {
   
   bool _isLoading = false;
 
-  final Map<String, String> _programas = {
-    'Feira': 'Nome',
-    'Cestas': 'Quantidade',
-    'CSA': 'Nome',
-    'PNAE': 'Nome do recebedor',
-    'Cooperativa': 'Nome',
-    'Associação': 'Nome'
-  };
 
   final Map<String, bool> _selecionados = {};
   final Map<String, TextEditingController> _programControllers = {};
@@ -39,10 +31,6 @@ class _RegisterProducerScreenState extends State<RegisterProducerScreen> {
   @override
   void initState() {
     super.initState();
-    _programas.forEach((key, value) {
-      _selecionados[key] = false;
-      _programControllers[key] = TextEditingController();
-    });
   }
 
   @override
@@ -72,8 +60,6 @@ class _RegisterProducerScreenState extends State<RegisterProducerScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _buildMecanismoControle(),
-              const SizedBox(height: 32),
-              _buildProgramasSection(),
               const SizedBox(height: 32),
               PrimaryButton(
                 label: 'Finalizar Cadastro',
@@ -174,45 +160,44 @@ class _RegisterProducerScreenState extends State<RegisterProducerScreen> {
     );
   }
 
-  Widget _buildProgramasSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Programas e Comercializações",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        const SizedBox(height: 16),
-        ..._programas.keys.map((p) => _buildProgramItem(p)),
-      ],
-    );
-  }
+  // Widget _buildProgramasSection() {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       const Text(
+  //         "Programas e Comercializações",
+  //         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+  //       ),
+  //       const SizedBox(height: 16),
+  //       ..._programas.keys.map((p) => _buildProgramItem(p)),
+  //     ],
+  //   );
+  // }
 
-  Widget _buildProgramItem(String program) {
-    bool isSelected = _selecionados[program] ?? false;
-    String fieldHint = _programas[program]!;
-
-    return Column(
-      children: [
-        CheckboxListTile(
-          title: Text(program),
-          value: isSelected,
-          onChanged: (v) => setState(() => _selecionados[program] = v!),
-          controlAffinity: ListTileControlAffinity.leading,
-          contentPadding: EdgeInsets.zero,
-          activeColor: const Color(0xFF1B5E20),
-        ),
-        if (isSelected)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: _buildTextField(
-              controller: _programControllers[program]!,
-              hint: fieldHint,
-            ),
-          ),
-      ],
-    );
-  }
+  // Widget _buildProgramItem(String program) {
+  //   bool isSelected = _selecionados[program] ?? false;
+  //
+  //   return Column(
+  //     children: [
+  //       CheckboxListTile(
+  //         title: Text(program),
+  //         value: isSelected,
+  //         onChanged: (v) => setState(() => _selecionados[program] = v!),
+  //         controlAffinity: ListTileControlAffinity.leading,
+  //         contentPadding: EdgeInsets.zero,
+  //         activeColor: const Color(0xFF1B5E20),
+  //       ),
+  //       if (isSelected)
+  //         Padding(
+  //           padding: const EdgeInsets.only(bottom: 16.0),
+  //           child: _buildTextField(
+  //             controller: _programControllers[program]!,
+  //             hint: fieldHint,
+  //           ),
+  //         ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildTextField({
     required TextEditingController controller,

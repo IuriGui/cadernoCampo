@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 
-import '../../core/constants/estados.dart';
-import '../../core/services/localizacao_service.dart';
+import '/constants/estados.dart';
+import '../services/localizacao_service.dart';
 import '../../data/models/clima_info.dart';
 
 class ClimaProvider extends ChangeNotifier{

@@ -245,20 +245,20 @@ class AppDatabase {
 
     await db.insert('atividade', {
       'nome': 'Preparo do solo',
-      'descricao': 'Correção e preparo do terreno para cultivo',
-      'tipo': 'Manejo'
+      'descricao': 'Preparo e condicionamento do solo para o cultivo',
+      'tipo': 'Preparo do solo'
     });
 
     await db.insert('atividade', {
       'nome': 'Plantio',
-      'descricao': 'Semeadura ou transplante de mudas',
+      'descricao': 'Semeadura ou transplante de mudas na área de cultivo',
       'tipo': 'Plantio'
     });
 
     await db.insert('atividade', {
       'nome': 'Adubação',
-      'descricao': 'Aplicação de fertilizantes e nutrientes',
-      'tipo': 'Nutrição'
+      'descricao': 'Aplicação de fertilizantes e corretivos no solo ou na planta',
+      'tipo': 'Adubação'
     });
 
     await db.insert('atividade', {
@@ -268,9 +268,39 @@ class AppDatabase {
     });
 
     await db.insert('atividade', {
+      'nome': 'Capina',
+      'descricao': 'Remoção de plantas daninhas da área de cultivo',
+      'tipo': 'Capina'
+    });
+
+    await db.insert('atividade', {
+      'nome': 'Raleio',
+      'descricao': 'Eliminação do excesso de frutos ou plantas para melhorar o desenvolvimento',
+      'tipo': 'Raleio'
+    });
+
+    await db.insert('atividade', {
+      'nome': 'Poda',
+      'descricao': 'Remoção de galhos, folhas ou partes da planta para manejo e produção',
+      'tipo': 'Poda'
+    });
+
+    await db.insert('atividade', {
       'nome': 'Colheita',
       'descricao': 'Coleta e armazenamento da cultura',
       'tipo': 'Colheita'
+    });
+
+    await db.insert('atividade', {
+      'nome': 'Cobertura do solo',
+      'descricao': 'Aplicação de material orgânico ou sintético para proteção do solo',
+      'tipo': 'Cobertura do solo'
+    });
+
+    await db.insert('atividade', {
+      'nome': 'Aplicação de bioinsumo',
+      'descricao': 'Aplicação de produtos biológicos para controle fitossanitário ou nutrição',
+      'tipo': 'Aplicação de bioinsumo'
     });
 
     await db.insert('cultura', {'nome': 'Alface', 'categoria': 'Hortaliça'});

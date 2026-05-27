@@ -22,7 +22,13 @@ import '../supply/register_insumo_screen.dart';
 import '../../theme/app_theme.dart';
 
 const _requerCultura = {'Plantio', 'Adubação', 'Colheita'};
-const _requerInsumo  = {'Adubação', 'Preparo do solo'};
+const _requerInsumo  = {
+  'Adubação',
+  'Preparo do solo',
+  'Plantio',
+  'Cobertura do solo',
+
+};
 const _requerDestino = {'Colheita'};
 
 class RegisterAnotacaoScreen extends StatefulWidget {

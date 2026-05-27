@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../core/authentication/auth_service.dart';
+import '../authentication/auth_service.dart';
 import '../../data/dao/produtor_dao.dart';
 import '../../data/dao/propriedade_dao.dart';
 import '../../data/models/propriedade.dart';

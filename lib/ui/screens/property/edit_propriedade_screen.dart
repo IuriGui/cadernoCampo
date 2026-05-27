@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../data/dao/propriedade_dao.dart';
 import '../../../data/models/propriedade.dart';
 import '../../widgets/primary_button.dart';
-import '../../../core/constants/estados.dart';
+import '/constants/estados.dart';
 
 class EditPropriedadeScreen extends StatefulWidget {
   final Propriedade propriedade;
