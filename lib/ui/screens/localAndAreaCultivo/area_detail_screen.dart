@@ -13,6 +13,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/anotacao_card.dart';
 import '../activity/register_anotacao_screen.dart';
 import '../activity/anotacoes_detail_screen.dart';
+import 'edit_area_screen.dart';
 
 class AreaDetailScreen extends StatefulWidget {
   final AreaCultivo area;
@@ -35,6 +36,7 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
   final AtividadeDAO _atividadeDAO = AtividadeDAO();
   final AreaCultivoDAO _areaDAO = AreaCultivoDAO();
   
+  late AreaCultivo _currentArea;
   List<Anotacao> _allRegistros = [];
   List<Anotacao> _filteredRegistros = [];
   List<Atividade> _allAtividades = [];
@@ -47,13 +49,14 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
   @override
   void initState() {
     super.initState();
+    _currentArea = widget.area;
     _loadInitialData();
   }
 
   Future<void> _loadInitialData() async {
     setState(() => _isLoading = true);
     final results = await Future.wait([
-      _anotacaoDAO.getAnotacoesByArea(widget.area.id!),
+      _anotacaoDAO.getAnotacoesByArea(_currentArea.id!),
       _atividadeDAO.getAll(),
     ]);
     
@@ -180,7 +183,7 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
     );
 
     if (confirm == true) {
-      await _areaDAO.softDeleteAreaCultivo(widget.area.id!);
+      await _areaDAO.softDeleteAreaCultivo(_currentArea.id!);
       if (mounted) {
         Navigator.pop(context, true);
       }
@@ -211,6 +214,23 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
                 onPressed: _showFilterDialog,
               ),
               IconButton(
+                icon: const Icon(Icons.edit_outlined),
+                tooltip: 'Editar Área',
+                onPressed: () async {
+                  final updated = await Navigator.push<AreaCultivo>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EditAreaScreen(area: _currentArea),
+                    ),
+                  );
+                  if (updated != null) {
+                    setState(() {
+                      _currentArea = updated;
+                    });
+                  }
+                },
+              ),
+              IconButton(
                 icon: const Icon(Icons.delete_outline),
                 tooltip: 'Excluir Área',
                 onPressed: _confirmDelete,
@@ -218,7 +238,7 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
             ],
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                widget.area.nome,
+                _currentArea.nome,
                 style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: Colors.white),
               ),
               centerTitle: true,
@@ -363,7 +383,7 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
               builder: (context) => RegisterAnotacaoScreen(
                 local: widget.local,
                 user: widget.user,
-                preSelectedArea: widget.area,
+                preSelectedArea: _currentArea,
               ),
             ),
           );

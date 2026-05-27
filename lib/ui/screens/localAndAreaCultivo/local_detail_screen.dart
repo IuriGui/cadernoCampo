@@ -6,7 +6,7 @@ import '../../../data/models/local.dart';
 import '../../../data/models/user.dart';
 import '../../../logic/provider/local_provider.dart';
 import 'area_detail_screen.dart';
-import '../activity/register_anotacao_screen.dart';
+import 'edit_local_screen.dart';
 
 class LocalDetailScreen extends StatelessWidget {
   final Local local;
@@ -23,11 +23,24 @@ class LocalDetailScreen extends StatelessWidget {
   }
 }
 
-class _LocalDetailView extends StatelessWidget {
+class _LocalDetailView extends StatefulWidget {
   final Local local;
   final User user;
 
   const _LocalDetailView({required this.local, required this.user});
+
+  @override
+  State<_LocalDetailView> createState() => _LocalDetailViewState();
+}
+
+class _LocalDetailViewState extends State<_LocalDetailView> {
+  late Local _currentLocal;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentLocal = widget.local;
+  }
 
   Future<void> _confirmDelete(BuildContext context) async {
     final confirm = await showDialog<bool>(
@@ -51,8 +64,7 @@ class _LocalDetailView extends StatelessWidget {
     );
 
     if (confirm == true && context.mounted) {
-      await context.read<LocalProvider>().deleteLocal(local.id!);
-      // LocalProvider().loadAreas(local.id!);
+      await context.read<LocalProvider>().deleteLocal(_currentLocal.id!);
       Navigator.pop(context, true);
     }
   }
@@ -78,10 +90,10 @@ class _LocalDetailView extends StatelessWidget {
               if (titleController.text.isNotEmpty) {
                 await context.read<LocalProvider>().addArea(
                   AreaCultivo(
-                    localId: local.id!,
+                    localId: _currentLocal.id!,
                     nome: titleController.text,
                   ),
-                  local.id!,
+                  _currentLocal.id!,
                 );
                 Navigator.pop(dialogContext);
               }
@@ -97,21 +109,25 @@ class _LocalDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(local.nome),
+        title: Text(_currentLocal.nome),
         actions: [
-          // IconButton(
-          //   icon: Icon(MdiIcons.clipboardEditOutline),
-          //   tooltip: 'Registrar Anotação',
-          //   onPressed: () => Navigator.push(
-          //     context,
-          //     MaterialPageRoute(
-          //       builder: (_) => RegisterAnotacaoScreen(
-          //         local: local,
-          //         user: user,
-          //       ),
-          //     ),
-          //   ),
-          // ),
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            tooltip: 'Editar Local',
+            onPressed: () async {
+              final updated = await Navigator.push<Local>(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => EditLocalScreen(local: _currentLocal),
+                ),
+              );
+              if (updated != null) {
+                setState(() {
+                  _currentLocal = updated;
+                });
+              }
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
             tooltip: 'Excluir Local',
@@ -180,14 +196,14 @@ class _LocalDetailView extends StatelessWidget {
               MaterialPageRoute(
                 builder: (_) => AreaDetailScreen(
                   area: area,
-                  local: local,
-                  user: user,
+                  local: _currentLocal,
+                  user: widget.user,
                 ),
               ),
             );
 
             if (result == true && context.mounted) {
-              context.read<LocalProvider>().loadAreas(local.id!);
+              context.read<LocalProvider>().loadAreas(_currentLocal.id!);
             }
           },
         );
@@ -205,29 +221,29 @@ class _LocalDetailView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInfoRow(MdiIcons.tagOutline, 'Tipo', local.tipo),
+            _buildInfoRow(MdiIcons.tagOutline, 'Tipo', _currentLocal.tipo),
             const Divider(),
-            _buildInfoRow(MdiIcons.rulerSquare, 'Área', '${local.areaEmMetros} m²'),
+            _buildInfoRow(MdiIcons.rulerSquare, 'Área', '${_currentLocal.areaEmMetros} m²'),
             const Divider(),
             _buildInfoRow(
               MdiIcons.windPowerOutline,
               'Quebra-vento',
-              local.quebraVento ? 'Presente' : 'Ausente',
+              _currentLocal.quebraVento ? 'Presente' : 'Ausente',
             ),
             const Divider(),
             _buildInfoRow(
               MdiIcons.alertOutline,
               'Área Sensível',
-              local.areaSensivel ? 'Sim' : 'Não',
+              _currentLocal.areaSensivel ? 'Sim' : 'Não',
             ),
-            if (local.observacoes != null && local.observacoes!.isNotEmpty) ...[
+            if (_currentLocal.observacoes != null && _currentLocal.observacoes!.isNotEmpty) ...[
               const Divider(),
               const Text(
                 'Observações:',
                 style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
               ),
               const SizedBox(height: 4),
-              Text(local.observacoes!),
+              Text(_currentLocal.observacoes!),
             ],
           ],
         ),

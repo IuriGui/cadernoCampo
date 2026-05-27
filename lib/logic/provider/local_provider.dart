@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import '../../data/dao/area_cultivo_dao.dart';
 import '../../data/dao/local_dao.dart';
 import '../../data/models/area_cultivo.dart';
+import '../../data/models/local.dart';
 
-class LocalProvider extends ChangeNotifier{
+class LocalProvider extends ChangeNotifier {
   final AreaCultivoDAO _areaDAO = AreaCultivoDAO();
   final LocalDAO _localDAO = LocalDAO();
 
@@ -31,13 +32,10 @@ class LocalProvider extends ChangeNotifier{
   Future<void> deleteLocal(int localId) async {
     await _localDAO.softDeleteLocal(localId);
     notifyListeners();
-
   }
 
-
-
-
-
-
-
+  Future<void> updateLocal(Local local) async {
+    await _localDAO.updateLocal(local);
+    notifyListeners();
+  }
 }
