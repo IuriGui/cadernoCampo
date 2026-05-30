@@ -1,3 +1,4 @@
+import 'package:caderno_de_campo/domain/models/mecanismoControle/mecanismo_controle.dart';
 import 'package:caderno_de_campo/domain/models/propriedade/produtor_propriedade.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -11,6 +12,7 @@ class Produtor with _$Produtor{
     required int id,
     required String nome,
     required Usuario usuario,
+    required MecanismoControle? mecanismoControle,
     required List<ProdutorPropriedade> propriedades
   }) = _Produtor;
 }

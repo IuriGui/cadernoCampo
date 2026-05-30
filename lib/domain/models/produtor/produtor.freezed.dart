@@ -20,6 +20,8 @@ mixin _$Produtor {
   int get id => throw _privateConstructorUsedError;
   String get nome => throw _privateConstructorUsedError;
   Usuario get usuario => throw _privateConstructorUsedError;
+  MecanismoControle? get mecanismoControle =>
+      throw _privateConstructorUsedError;
   List<ProdutorPropriedade> get propriedades =>
       throw _privateConstructorUsedError;
 
@@ -39,10 +41,12 @@ abstract class $ProdutorCopyWith<$Res> {
     int id,
     String nome,
     Usuario usuario,
+    MecanismoControle? mecanismoControle,
     List<ProdutorPropriedade> propriedades,
   });
 
   $UsuarioCopyWith<$Res> get usuario;
+  $MecanismoControleCopyWith<$Res>? get mecanismoControle;
 }
 
 /// @nodoc
@@ -63,6 +67,7 @@ class _$ProdutorCopyWithImpl<$Res, $Val extends Produtor>
     Object? id = null,
     Object? nome = null,
     Object? usuario = null,
+    Object? mecanismoControle = freezed,
     Object? propriedades = null,
   }) {
     return _then(
@@ -79,6 +84,10 @@ class _$ProdutorCopyWithImpl<$Res, $Val extends Produtor>
                 ? _value.usuario
                 : usuario // ignore: cast_nullable_to_non_nullable
                       as Usuario,
+            mecanismoControle: freezed == mecanismoControle
+                ? _value.mecanismoControle
+                : mecanismoControle // ignore: cast_nullable_to_non_nullable
+                      as MecanismoControle?,
             propriedades: null == propriedades
                 ? _value.propriedades
                 : propriedades // ignore: cast_nullable_to_non_nullable
@@ -97,6 +106,20 @@ class _$ProdutorCopyWithImpl<$Res, $Val extends Produtor>
       return _then(_value.copyWith(usuario: value) as $Val);
     });
   }
+
+  /// Create a copy of Produtor
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $MecanismoControleCopyWith<$Res>? get mecanismoControle {
+    if (_value.mecanismoControle == null) {
+      return null;
+    }
+
+    return $MecanismoControleCopyWith<$Res>(_value.mecanismoControle!, (value) {
+      return _then(_value.copyWith(mecanismoControle: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -112,11 +135,14 @@ abstract class _$$ProdutorImplCopyWith<$Res>
     int id,
     String nome,
     Usuario usuario,
+    MecanismoControle? mecanismoControle,
     List<ProdutorPropriedade> propriedades,
   });
 
   @override
   $UsuarioCopyWith<$Res> get usuario;
+  @override
+  $MecanismoControleCopyWith<$Res>? get mecanismoControle;
 }
 
 /// @nodoc
@@ -136,6 +162,7 @@ class __$$ProdutorImplCopyWithImpl<$Res>
     Object? id = null,
     Object? nome = null,
     Object? usuario = null,
+    Object? mecanismoControle = freezed,
     Object? propriedades = null,
   }) {
     return _then(
@@ -152,6 +179,10 @@ class __$$ProdutorImplCopyWithImpl<$Res>
             ? _value.usuario
             : usuario // ignore: cast_nullable_to_non_nullable
                   as Usuario,
+        mecanismoControle: freezed == mecanismoControle
+            ? _value.mecanismoControle
+            : mecanismoControle // ignore: cast_nullable_to_non_nullable
+                  as MecanismoControle?,
         propriedades: null == propriedades
             ? _value._propriedades
             : propriedades // ignore: cast_nullable_to_non_nullable
@@ -168,6 +199,7 @@ class _$ProdutorImpl implements _Produtor {
     required this.id,
     required this.nome,
     required this.usuario,
+    required this.mecanismoControle,
     required final List<ProdutorPropriedade> propriedades,
   }) : _propriedades = propriedades;
 
@@ -177,6 +209,8 @@ class _$ProdutorImpl implements _Produtor {
   final String nome;
   @override
   final Usuario usuario;
+  @override
+  final MecanismoControle? mecanismoControle;
   final List<ProdutorPropriedade> _propriedades;
   @override
   List<ProdutorPropriedade> get propriedades {
@@ -187,7 +221,7 @@ class _$ProdutorImpl implements _Produtor {
 
   @override
   String toString() {
-    return 'Produtor(id: $id, nome: $nome, usuario: $usuario, propriedades: $propriedades)';
+    return 'Produtor(id: $id, nome: $nome, usuario: $usuario, mecanismoControle: $mecanismoControle, propriedades: $propriedades)';
   }
 
   @override
@@ -198,6 +232,8 @@ class _$ProdutorImpl implements _Produtor {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.nome, nome) || other.nome == nome) &&
             (identical(other.usuario, usuario) || other.usuario == usuario) &&
+            (identical(other.mecanismoControle, mecanismoControle) ||
+                other.mecanismoControle == mecanismoControle) &&
             const DeepCollectionEquality().equals(
               other._propriedades,
               _propriedades,
@@ -210,6 +246,7 @@ class _$ProdutorImpl implements _Produtor {
     id,
     nome,
     usuario,
+    mecanismoControle,
     const DeepCollectionEquality().hash(_propriedades),
   );
 
@@ -227,6 +264,7 @@ abstract class _Produtor implements Produtor {
     required final int id,
     required final String nome,
     required final Usuario usuario,
+    required final MecanismoControle? mecanismoControle,
     required final List<ProdutorPropriedade> propriedades,
   }) = _$ProdutorImpl;
 
@@ -236,6 +274,8 @@ abstract class _Produtor implements Produtor {
   String get nome;
   @override
   Usuario get usuario;
+  @override
+  MecanismoControle? get mecanismoControle;
   @override
   List<ProdutorPropriedade> get propriedades;
 

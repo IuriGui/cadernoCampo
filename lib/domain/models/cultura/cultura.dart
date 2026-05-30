@@ -9,6 +9,8 @@ class Cultura with _$Cultura{
   const factory Cultura({
     required int id,
     required String nome,
+    required String descricao,
+
     // TODO adicionar mais algumas coisas
   }) = _Cultura;
 }

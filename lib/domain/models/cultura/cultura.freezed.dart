@@ -19,6 +19,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$Cultura {
   int get id => throw _privateConstructorUsedError;
   String get nome => throw _privateConstructorUsedError;
+  String get descricao => throw _privateConstructorUsedError;
 
   /// Create a copy of Cultura
   /// with the given fields replaced by the non-null parameter values.
@@ -31,7 +32,7 @@ abstract class $CulturaCopyWith<$Res> {
   factory $CulturaCopyWith(Cultura value, $Res Function(Cultura) then) =
       _$CulturaCopyWithImpl<$Res, Cultura>;
   @useResult
-  $Res call({int id, String nome});
+  $Res call({int id, String nome, String descricao});
 }
 
 /// @nodoc
@@ -48,7 +49,11 @@ class _$CulturaCopyWithImpl<$Res, $Val extends Cultura>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? id = null, Object? nome = null}) {
+  $Res call({
+    Object? id = null,
+    Object? nome = null,
+    Object? descricao = null,
+  }) {
     return _then(
       _value.copyWith(
             id: null == id
@@ -58,6 +63,10 @@ class _$CulturaCopyWithImpl<$Res, $Val extends Cultura>
             nome: null == nome
                 ? _value.nome
                 : nome // ignore: cast_nullable_to_non_nullable
+                      as String,
+            descricao: null == descricao
+                ? _value.descricao
+                : descricao // ignore: cast_nullable_to_non_nullable
                       as String,
           )
           as $Val,
@@ -73,7 +82,7 @@ abstract class _$$CulturaImplCopyWith<$Res> implements $CulturaCopyWith<$Res> {
   ) = __$$CulturaImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int id, String nome});
+  $Res call({int id, String nome, String descricao});
 }
 
 /// @nodoc
@@ -89,7 +98,11 @@ class __$$CulturaImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? id = null, Object? nome = null}) {
+  $Res call({
+    Object? id = null,
+    Object? nome = null,
+    Object? descricao = null,
+  }) {
     return _then(
       _$CulturaImpl(
         id: null == id
@@ -100,6 +113,10 @@ class __$$CulturaImplCopyWithImpl<$Res>
             ? _value.nome
             : nome // ignore: cast_nullable_to_non_nullable
                   as String,
+        descricao: null == descricao
+            ? _value.descricao
+            : descricao // ignore: cast_nullable_to_non_nullable
+                  as String,
       ),
     );
   }
@@ -108,16 +125,22 @@ class __$$CulturaImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$CulturaImpl implements _Cultura {
-  const _$CulturaImpl({required this.id, required this.nome});
+  const _$CulturaImpl({
+    required this.id,
+    required this.nome,
+    required this.descricao,
+  });
 
   @override
   final int id;
   @override
   final String nome;
+  @override
+  final String descricao;
 
   @override
   String toString() {
-    return 'Cultura(id: $id, nome: $nome)';
+    return 'Cultura(id: $id, nome: $nome, descricao: $descricao)';
   }
 
   @override
@@ -126,11 +149,13 @@ class _$CulturaImpl implements _Cultura {
         (other.runtimeType == runtimeType &&
             other is _$CulturaImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.nome, nome) || other.nome == nome));
+            (identical(other.nome, nome) || other.nome == nome) &&
+            (identical(other.descricao, descricao) ||
+                other.descricao == descricao));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, id, nome);
+  int get hashCode => Object.hash(runtimeType, id, nome, descricao);
 
   /// Create a copy of Cultura
   /// with the given fields replaced by the non-null parameter values.
@@ -142,13 +167,18 @@ class _$CulturaImpl implements _Cultura {
 }
 
 abstract class _Cultura implements Cultura {
-  const factory _Cultura({required final int id, required final String nome}) =
-      _$CulturaImpl;
+  const factory _Cultura({
+    required final int id,
+    required final String nome,
+    required final String descricao,
+  }) = _$CulturaImpl;
 
   @override
   int get id;
   @override
   String get nome;
+  @override
+  String get descricao;
 
   /// Create a copy of Cultura
   /// with the given fields replaced by the non-null parameter values.

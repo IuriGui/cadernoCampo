@@ -4,7 +4,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 
 import '/constants/estados.dart';
-import '../services/localizacao_service.dart';
+import '../../data/services/device/localizacao_service.dart';
 import '../../data/models/clima_info.dart';
 
 class ClimaProvider extends ChangeNotifier{

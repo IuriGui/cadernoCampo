@@ -10,6 +10,5 @@ class MecanismoControle with _$MecanismoControle{
     required int id,
     required String tipo,
     required String valor,
-    required Produtor produtor,
   }) = _MecanismoControle;
 }

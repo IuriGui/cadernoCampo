@@ -20,7 +20,6 @@ mixin _$MecanismoControle {
   int get id => throw _privateConstructorUsedError;
   String get tipo => throw _privateConstructorUsedError;
   String get valor => throw _privateConstructorUsedError;
-  Produtor get produtor => throw _privateConstructorUsedError;
 
   /// Create a copy of MecanismoControle
   /// with the given fields replaced by the non-null parameter values.
@@ -36,9 +35,7 @@ abstract class $MecanismoControleCopyWith<$Res> {
     $Res Function(MecanismoControle) then,
   ) = _$MecanismoControleCopyWithImpl<$Res, MecanismoControle>;
   @useResult
-  $Res call({int id, String tipo, String valor, Produtor produtor});
-
-  $ProdutorCopyWith<$Res> get produtor;
+  $Res call({int id, String tipo, String valor});
 }
 
 /// @nodoc
@@ -55,12 +52,7 @@ class _$MecanismoControleCopyWithImpl<$Res, $Val extends MecanismoControle>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? id = null,
-    Object? tipo = null,
-    Object? valor = null,
-    Object? produtor = null,
-  }) {
+  $Res call({Object? id = null, Object? tipo = null, Object? valor = null}) {
     return _then(
       _value.copyWith(
             id: null == id
@@ -75,23 +67,9 @@ class _$MecanismoControleCopyWithImpl<$Res, $Val extends MecanismoControle>
                 ? _value.valor
                 : valor // ignore: cast_nullable_to_non_nullable
                       as String,
-            produtor: null == produtor
-                ? _value.produtor
-                : produtor // ignore: cast_nullable_to_non_nullable
-                      as Produtor,
           )
           as $Val,
     );
-  }
-
-  /// Create a copy of MecanismoControle
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $ProdutorCopyWith<$Res> get produtor {
-    return $ProdutorCopyWith<$Res>(_value.produtor, (value) {
-      return _then(_value.copyWith(produtor: value) as $Val);
-    });
   }
 }
 
@@ -104,10 +82,7 @@ abstract class _$$MecanismoControleImplCopyWith<$Res>
   ) = __$$MecanismoControleImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int id, String tipo, String valor, Produtor produtor});
-
-  @override
-  $ProdutorCopyWith<$Res> get produtor;
+  $Res call({int id, String tipo, String valor});
 }
 
 /// @nodoc
@@ -123,12 +98,7 @@ class __$$MecanismoControleImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? id = null,
-    Object? tipo = null,
-    Object? valor = null,
-    Object? produtor = null,
-  }) {
+  $Res call({Object? id = null, Object? tipo = null, Object? valor = null}) {
     return _then(
       _$MecanismoControleImpl(
         id: null == id
@@ -143,10 +113,6 @@ class __$$MecanismoControleImplCopyWithImpl<$Res>
             ? _value.valor
             : valor // ignore: cast_nullable_to_non_nullable
                   as String,
-        produtor: null == produtor
-            ? _value.produtor
-            : produtor // ignore: cast_nullable_to_non_nullable
-                  as Produtor,
       ),
     );
   }
@@ -159,7 +125,6 @@ class _$MecanismoControleImpl implements _MecanismoControle {
     required this.id,
     required this.tipo,
     required this.valor,
-    required this.produtor,
   });
 
   @override
@@ -168,12 +133,10 @@ class _$MecanismoControleImpl implements _MecanismoControle {
   final String tipo;
   @override
   final String valor;
-  @override
-  final Produtor produtor;
 
   @override
   String toString() {
-    return 'MecanismoControle(id: $id, tipo: $tipo, valor: $valor, produtor: $produtor)';
+    return 'MecanismoControle(id: $id, tipo: $tipo, valor: $valor)';
   }
 
   @override
@@ -183,13 +146,11 @@ class _$MecanismoControleImpl implements _MecanismoControle {
             other is _$MecanismoControleImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.tipo, tipo) || other.tipo == tipo) &&
-            (identical(other.valor, valor) || other.valor == valor) &&
-            (identical(other.produtor, produtor) ||
-                other.produtor == produtor));
+            (identical(other.valor, valor) || other.valor == valor));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, id, tipo, valor, produtor);
+  int get hashCode => Object.hash(runtimeType, id, tipo, valor);
 
   /// Create a copy of MecanismoControle
   /// with the given fields replaced by the non-null parameter values.
@@ -208,7 +169,6 @@ abstract class _MecanismoControle implements MecanismoControle {
     required final int id,
     required final String tipo,
     required final String valor,
-    required final Produtor produtor,
   }) = _$MecanismoControleImpl;
 
   @override
@@ -217,8 +177,6 @@ abstract class _MecanismoControle implements MecanismoControle {
   String get tipo;
   @override
   String get valor;
-  @override
-  Produtor get produtor;
 
   /// Create a copy of MecanismoControle
   /// with the given fields replaced by the non-null parameter values.
