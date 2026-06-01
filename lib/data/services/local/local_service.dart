@@ -12,6 +12,16 @@ class LocalService {
     );
   }
 
+  Future<Map<String, dynamic>> get(int id) async {
+    final db = await AppDatabase().database;
+    final rows = await db.query(
+      _table,
+      where: 'id = ? AND is_deleted = 0',
+      whereArgs: [id],
+    );
+    return rows.first;
+  }
+
   Future<List<Map<String, dynamic>>> getTopThree(int propriedadeId) async {
     final db = await AppDatabase().database;
     return await db.query(

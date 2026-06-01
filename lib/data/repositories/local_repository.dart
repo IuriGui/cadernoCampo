@@ -14,12 +14,18 @@ class LocalRepository {
     return Future.wait(rows.map(_toModel));
   }
 
+  Future<Local> get(int id) async {
+    final row = await _service.get(id);
+    return _toModel(row);
+  }
+
+
   Future<List<Local>> getTopThree(int propriedadeId) async {
     final rows = await _service.getTopThree(propriedadeId);
     return Future.wait(rows.map(_toModel));
   }
 
-  Future<void> criar(Local local) async {
+  Future<void> insert(Local local) async {
     await _service.insert(_toMap(local));
   }
 
@@ -60,7 +66,7 @@ class LocalRepository {
     'quebra_vento': l.quebraVento ? 1 : 0,
     'area_sensivel': l.areaSensivel ? 1 : 0,
     'observacoes': l.observacoes,
-    'propriedade_id': l.propriedade.id,
+    'propriedade_id': l.propriedade?.id,
     'is_deleted': 0,
   };
 }

@@ -17,7 +17,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$Local {
-  int get id => throw _privateConstructorUsedError;
+  int? get id => throw _privateConstructorUsedError;
   String get nome =>
       throw _privateConstructorUsedError; // TODO Definir tipos de locais
   String get tipo => throw _privateConstructorUsedError;
@@ -25,7 +25,7 @@ mixin _$Local {
   bool get quebraVento => throw _privateConstructorUsedError;
   bool get areaSensivel => throw _privateConstructorUsedError;
   String? get observacoes => throw _privateConstructorUsedError;
-  Propriedade get propriedade => throw _privateConstructorUsedError;
+  Propriedade? get propriedade => throw _privateConstructorUsedError;
 
   /// Create a copy of Local
   /// with the given fields replaced by the non-null parameter values.
@@ -39,17 +39,17 @@ abstract class $LocalCopyWith<$Res> {
       _$LocalCopyWithImpl<$Res, Local>;
   @useResult
   $Res call({
-    int id,
+    int? id,
     String nome,
     String tipo,
     double areaEmMetros,
     bool quebraVento,
     bool areaSensivel,
     String? observacoes,
-    Propriedade propriedade,
+    Propriedade? propriedade,
   });
 
-  $PropriedadeCopyWith<$Res> get propriedade;
+  $PropriedadeCopyWith<$Res>? get propriedade;
 }
 
 /// @nodoc
@@ -67,21 +67,21 @@ class _$LocalCopyWithImpl<$Res, $Val extends Local>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
+    Object? id = freezed,
     Object? nome = null,
     Object? tipo = null,
     Object? areaEmMetros = null,
     Object? quebraVento = null,
     Object? areaSensivel = null,
     Object? observacoes = freezed,
-    Object? propriedade = null,
+    Object? propriedade = freezed,
   }) {
     return _then(
       _value.copyWith(
-            id: null == id
+            id: freezed == id
                 ? _value.id
                 : id // ignore: cast_nullable_to_non_nullable
-                      as int,
+                      as int?,
             nome: null == nome
                 ? _value.nome
                 : nome // ignore: cast_nullable_to_non_nullable
@@ -106,10 +106,10 @@ class _$LocalCopyWithImpl<$Res, $Val extends Local>
                 ? _value.observacoes
                 : observacoes // ignore: cast_nullable_to_non_nullable
                       as String?,
-            propriedade: null == propriedade
+            propriedade: freezed == propriedade
                 ? _value.propriedade
                 : propriedade // ignore: cast_nullable_to_non_nullable
-                      as Propriedade,
+                      as Propriedade?,
           )
           as $Val,
     );
@@ -119,8 +119,12 @@ class _$LocalCopyWithImpl<$Res, $Val extends Local>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $PropriedadeCopyWith<$Res> get propriedade {
-    return $PropriedadeCopyWith<$Res>(_value.propriedade, (value) {
+  $PropriedadeCopyWith<$Res>? get propriedade {
+    if (_value.propriedade == null) {
+      return null;
+    }
+
+    return $PropriedadeCopyWith<$Res>(_value.propriedade!, (value) {
       return _then(_value.copyWith(propriedade: value) as $Val);
     });
   }
@@ -135,18 +139,18 @@ abstract class _$$localImplCopyWith<$Res> implements $LocalCopyWith<$Res> {
   @override
   @useResult
   $Res call({
-    int id,
+    int? id,
     String nome,
     String tipo,
     double areaEmMetros,
     bool quebraVento,
     bool areaSensivel,
     String? observacoes,
-    Propriedade propriedade,
+    Propriedade? propriedade,
   });
 
   @override
-  $PropriedadeCopyWith<$Res> get propriedade;
+  $PropriedadeCopyWith<$Res>? get propriedade;
 }
 
 /// @nodoc
@@ -163,21 +167,21 @@ class __$$localImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
+    Object? id = freezed,
     Object? nome = null,
     Object? tipo = null,
     Object? areaEmMetros = null,
     Object? quebraVento = null,
     Object? areaSensivel = null,
     Object? observacoes = freezed,
-    Object? propriedade = null,
+    Object? propriedade = freezed,
   }) {
     return _then(
       _$localImpl(
-        id: null == id
+        id: freezed == id
             ? _value.id
             : id // ignore: cast_nullable_to_non_nullable
-                  as int,
+                  as int?,
         nome: null == nome
             ? _value.nome
             : nome // ignore: cast_nullable_to_non_nullable
@@ -202,10 +206,10 @@ class __$$localImplCopyWithImpl<$Res>
             ? _value.observacoes
             : observacoes // ignore: cast_nullable_to_non_nullable
                   as String?,
-        propriedade: null == propriedade
+        propriedade: freezed == propriedade
             ? _value.propriedade
             : propriedade // ignore: cast_nullable_to_non_nullable
-                  as Propriedade,
+                  as Propriedade?,
       ),
     );
   }
@@ -215,7 +219,7 @@ class __$$localImplCopyWithImpl<$Res>
 
 class _$localImpl implements _local {
   const _$localImpl({
-    required this.id,
+    this.id,
     required this.nome,
     required this.tipo,
     required this.areaEmMetros,
@@ -226,7 +230,7 @@ class _$localImpl implements _local {
   });
 
   @override
-  final int id;
+  final int? id;
   @override
   final String nome;
   // TODO Definir tipos de locais
@@ -241,7 +245,7 @@ class _$localImpl implements _local {
   @override
   final String? observacoes;
   @override
-  final Propriedade propriedade;
+  final Propriedade? propriedade;
 
   @override
   String toString() {
@@ -292,18 +296,18 @@ class _$localImpl implements _local {
 
 abstract class _local implements Local {
   const factory _local({
-    required final int id,
+    final int? id,
     required final String nome,
     required final String tipo,
     required final double areaEmMetros,
     required final bool quebraVento,
     required final bool areaSensivel,
     final String? observacoes,
-    required final Propriedade propriedade,
+    required final Propriedade? propriedade,
   }) = _$localImpl;
 
   @override
-  int get id;
+  int? get id;
   @override
   String get nome; // TODO Definir tipos de locais
   @override
@@ -317,7 +321,7 @@ abstract class _local implements Local {
   @override
   String? get observacoes;
   @override
-  Propriedade get propriedade;
+  Propriedade? get propriedade;
 
   /// Create a copy of Local
   /// with the given fields replaced by the non-null parameter values.

@@ -6,7 +6,7 @@ part 'propriedade.freezed.dart';
 @freezed
 class Propriedade with _$Propriedade {
   const factory Propriedade({
-    required int id,
+    int? id,
     required String nome,
     required String cidade,
     required String estado,

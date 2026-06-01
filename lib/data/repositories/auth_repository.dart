@@ -47,27 +47,37 @@ class AuthRepository {
     return digest.toString();
   }
 
-  Future<void> cadastrar(String email, String password, String nome,
+  Future<bool> cadastrar(String email, String password, String nome,
       String mecanismoTipo,
       String mecanismoValor,) async {
 
-    final hashed = _hashPassword(password); // Hash da senha
+    try{
+      final hashed = _hashPassword(password); // Hash da senha
 
-    final usuarioId = await _usuarioService.insert({
-      'email': email,
-      'password': hashed,
-    });
+      final usuarioId = await _usuarioService.insert({
+        'email': email,
+        'password': hashed,
+      });
 
-    final produtorId = await _produtorService.insert({
-      'nome': nome,
-      'usuario_id': usuarioId,
-    });
+      final produtorId = await _produtorService.insert({
+        'nome': nome,
+        'usuario_id': usuarioId,
+      });
 
-    await _produtorService.insertMecanismoControle(
-      produtorId,
-      mecanismoTipo,
-      mecanismoValor,
-    );
+      await _produtorService.insertMecanismoControle(
+        produtorId,
+        mecanismoTipo,
+        mecanismoValor,
+      );
+
+      return true;
+    }
+    catch(e){
+      return false;
+    }
+
+
+
 
   }
 }

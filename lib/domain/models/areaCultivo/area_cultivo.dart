@@ -9,9 +9,9 @@ part 'area_cultivo.freezed.dart';
 @freezed
 class AreaCultivo with _$AreaCultivo {
   const factory AreaCultivo({
-    required int id,
+    int? id,
     required String nome,
-    required Propriedade propriedade,
+    required int localId
 }) = _AreaCultivo;
 
 }

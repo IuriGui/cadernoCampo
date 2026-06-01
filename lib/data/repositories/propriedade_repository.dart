@@ -4,6 +4,8 @@ import '../services/local/propriedade_service.dart';
 class PropriedadeRepository {
   final PropriedadeService _service;
 
+  Propriedade? _cache;
+
   PropriedadeRepository(this._service);
 
   Future<List<Propriedade>> getAll() async {
@@ -26,12 +28,24 @@ class PropriedadeRepository {
     return row != null ? _toModel(row) : null;
   }
 
-  Future<void> criar(Propriedade p, int produtorId) async {
-    await _service.insertComVinculo(_toMap(p), produtorId);
+  Future<bool> insert(Propriedade p, int produtorId) async {
+
+    try {
+      await _service.insertComVinculo(_toMap(p), produtorId);
+      return true;
+    } catch (e) {
+      return false;
+    }
+
   }
 
-  Future<void> atualizar(Propriedade p) async {
-    await _service.update(_toMap(p));
+  Future<bool> update(Propriedade p) async {
+    try {
+      await _service.update(_toMap(p));
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<void> deletar(int id) async {

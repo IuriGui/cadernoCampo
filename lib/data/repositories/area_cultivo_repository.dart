@@ -28,25 +28,17 @@ class AreaCultivoRepository {
   }
 
   Future<AreaCultivo> _toModel(Map<String, dynamic> map) async {
-    final propRow = await _propriedadeService.getById(map['propriedade_id']);
     return AreaCultivo(
       id: map['id'],
       nome: map['nome'],
-      propriedade: Propriedade(
-        id: propRow!['id'],
-        nome: propRow['nome'],
-        cidade: propRow['cidade'],
-        estado: propRow['estado'],
-        cep: propRow['cep'],
-        areaTotal: (propRow['area_total'] as num).toDouble(),
-      ),
+      localId: map['localId']
     );
   }
 
   Map<String, dynamic> _toMap(AreaCultivo a) => {
     'id': a.id,
     'nome': a.nome,
-    'propriedade_id': a.propriedade.id,
+    'local_id': a.localId,
     'is_deleted': 0,
   };
 }

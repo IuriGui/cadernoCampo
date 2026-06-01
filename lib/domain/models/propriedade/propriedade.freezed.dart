@@ -17,7 +17,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$Propriedade {
-  int get id => throw _privateConstructorUsedError;
+  int? get id => throw _privateConstructorUsedError;
   String get nome => throw _privateConstructorUsedError;
   String get cidade => throw _privateConstructorUsedError;
   String get estado => throw _privateConstructorUsedError;
@@ -43,7 +43,7 @@ abstract class $PropriedadeCopyWith<$Res> {
   ) = _$PropriedadeCopyWithImpl<$Res, Propriedade>;
   @useResult
   $Res call({
-    int id,
+    int? id,
     String nome,
     String cidade,
     String estado,
@@ -71,7 +71,7 @@ class _$PropriedadeCopyWithImpl<$Res, $Val extends Propriedade>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
+    Object? id = freezed,
     Object? nome = null,
     Object? cidade = null,
     Object? estado = null,
@@ -84,10 +84,10 @@ class _$PropriedadeCopyWithImpl<$Res, $Val extends Propriedade>
   }) {
     return _then(
       _value.copyWith(
-            id: null == id
+            id: freezed == id
                 ? _value.id
                 : id // ignore: cast_nullable_to_non_nullable
-                      as int,
+                      as int?,
             nome: null == nome
                 ? _value.nome
                 : nome // ignore: cast_nullable_to_non_nullable
@@ -140,7 +140,7 @@ abstract class _$$PropriedadeImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    int id,
+    int? id,
     String nome,
     String cidade,
     String estado,
@@ -167,7 +167,7 @@ class __$$PropriedadeImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
+    Object? id = freezed,
     Object? nome = null,
     Object? cidade = null,
     Object? estado = null,
@@ -180,10 +180,10 @@ class __$$PropriedadeImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$PropriedadeImpl(
-        id: null == id
+        id: freezed == id
             ? _value.id
             : id // ignore: cast_nullable_to_non_nullable
-                  as int,
+                  as int?,
         nome: null == nome
             ? _value.nome
             : nome // ignore: cast_nullable_to_non_nullable
@@ -229,7 +229,7 @@ class __$$PropriedadeImplCopyWithImpl<$Res>
 
 class _$PropriedadeImpl implements _Propriedade {
   const _$PropriedadeImpl({
-    required this.id,
+    this.id,
     required this.nome,
     required this.cidade,
     required this.estado,
@@ -242,7 +242,7 @@ class _$PropriedadeImpl implements _Propriedade {
   });
 
   @override
-  final int id;
+  final int? id;
   @override
   final String nome;
   @override
@@ -315,7 +315,7 @@ class _$PropriedadeImpl implements _Propriedade {
 
 abstract class _Propriedade implements Propriedade {
   const factory _Propriedade({
-    required final int id,
+    final int? id,
     required final String nome,
     required final String cidade,
     required final String estado,
@@ -328,7 +328,7 @@ abstract class _Propriedade implements Propriedade {
   }) = _$PropriedadeImpl;
 
   @override
-  int get id;
+  int? get id;
   @override
   String get nome;
   @override

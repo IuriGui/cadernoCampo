@@ -17,9 +17,9 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$AreaCultivo {
-  int get id => throw _privateConstructorUsedError;
+  int? get id => throw _privateConstructorUsedError;
   String get nome => throw _privateConstructorUsedError;
-  Propriedade get propriedade => throw _privateConstructorUsedError;
+  int get localId => throw _privateConstructorUsedError;
 
   /// Create a copy of AreaCultivo
   /// with the given fields replaced by the non-null parameter values.
@@ -35,9 +35,7 @@ abstract class $AreaCultivoCopyWith<$Res> {
     $Res Function(AreaCultivo) then,
   ) = _$AreaCultivoCopyWithImpl<$Res, AreaCultivo>;
   @useResult
-  $Res call({int id, String nome, Propriedade propriedade});
-
-  $PropriedadeCopyWith<$Res> get propriedade;
+  $Res call({int? id, String nome, int localId});
 }
 
 /// @nodoc
@@ -55,37 +53,27 @@ class _$AreaCultivoCopyWithImpl<$Res, $Val extends AreaCultivo>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
+    Object? id = freezed,
     Object? nome = null,
-    Object? propriedade = null,
+    Object? localId = null,
   }) {
     return _then(
       _value.copyWith(
-            id: null == id
+            id: freezed == id
                 ? _value.id
                 : id // ignore: cast_nullable_to_non_nullable
-                      as int,
+                      as int?,
             nome: null == nome
                 ? _value.nome
                 : nome // ignore: cast_nullable_to_non_nullable
                       as String,
-            propriedade: null == propriedade
-                ? _value.propriedade
-                : propriedade // ignore: cast_nullable_to_non_nullable
-                      as Propriedade,
+            localId: null == localId
+                ? _value.localId
+                : localId // ignore: cast_nullable_to_non_nullable
+                      as int,
           )
           as $Val,
     );
-  }
-
-  /// Create a copy of AreaCultivo
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $PropriedadeCopyWith<$Res> get propriedade {
-    return $PropriedadeCopyWith<$Res>(_value.propriedade, (value) {
-      return _then(_value.copyWith(propriedade: value) as $Val);
-    });
   }
 }
 
@@ -98,10 +86,7 @@ abstract class _$$AreaCultivoImplCopyWith<$Res>
   ) = __$$AreaCultivoImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int id, String nome, Propriedade propriedade});
-
-  @override
-  $PropriedadeCopyWith<$Res> get propriedade;
+  $Res call({int? id, String nome, int localId});
 }
 
 /// @nodoc
@@ -118,24 +103,24 @@ class __$$AreaCultivoImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
+    Object? id = freezed,
     Object? nome = null,
-    Object? propriedade = null,
+    Object? localId = null,
   }) {
     return _then(
       _$AreaCultivoImpl(
-        id: null == id
+        id: freezed == id
             ? _value.id
             : id // ignore: cast_nullable_to_non_nullable
-                  as int,
+                  as int?,
         nome: null == nome
             ? _value.nome
             : nome // ignore: cast_nullable_to_non_nullable
                   as String,
-        propriedade: null == propriedade
-            ? _value.propriedade
-            : propriedade // ignore: cast_nullable_to_non_nullable
-                  as Propriedade,
+        localId: null == localId
+            ? _value.localId
+            : localId // ignore: cast_nullable_to_non_nullable
+                  as int,
       ),
     );
   }
@@ -144,22 +129,18 @@ class __$$AreaCultivoImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$AreaCultivoImpl implements _AreaCultivo {
-  const _$AreaCultivoImpl({
-    required this.id,
-    required this.nome,
-    required this.propriedade,
-  });
+  const _$AreaCultivoImpl({this.id, required this.nome, required this.localId});
 
   @override
-  final int id;
+  final int? id;
   @override
   final String nome;
   @override
-  final Propriedade propriedade;
+  final int localId;
 
   @override
   String toString() {
-    return 'AreaCultivo(id: $id, nome: $nome, propriedade: $propriedade)';
+    return 'AreaCultivo(id: $id, nome: $nome, localId: $localId)';
   }
 
   @override
@@ -169,12 +150,11 @@ class _$AreaCultivoImpl implements _AreaCultivo {
             other is _$AreaCultivoImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.nome, nome) || other.nome == nome) &&
-            (identical(other.propriedade, propriedade) ||
-                other.propriedade == propriedade));
+            (identical(other.localId, localId) || other.localId == localId));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, id, nome, propriedade);
+  int get hashCode => Object.hash(runtimeType, id, nome, localId);
 
   /// Create a copy of AreaCultivo
   /// with the given fields replaced by the non-null parameter values.
@@ -187,17 +167,17 @@ class _$AreaCultivoImpl implements _AreaCultivo {
 
 abstract class _AreaCultivo implements AreaCultivo {
   const factory _AreaCultivo({
-    required final int id,
+    final int? id,
     required final String nome,
-    required final Propriedade propriedade,
+    required final int localId,
   }) = _$AreaCultivoImpl;
 
   @override
-  int get id;
+  int? get id;
   @override
   String get nome;
   @override
-  Propriedade get propriedade;
+  int get localId;
 
   /// Create a copy of AreaCultivo
   /// with the given fields replaced by the non-null parameter values.

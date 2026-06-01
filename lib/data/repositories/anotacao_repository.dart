@@ -59,14 +59,7 @@ class AnotacaoRepository {
         ? AreaCultivo(
       id: map['area_cultivo_id'],
       nome: map['nomeArea'] ?? '',
-      propriedade: Propriedade(
-        id: 0,
-        nome: map['nomeLocal'] ?? '',
-        cidade: '',
-        estado: '',
-        cep: '',
-        areaTotal: 0,
-      ),
+      localId: map['localId'],
     )
         : null,
     insumo: map['insumo_id'] != null

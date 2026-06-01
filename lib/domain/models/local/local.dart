@@ -7,7 +7,7 @@ part 'local.freezed.dart';
 @freezed
 class Local with _$Local{
   const factory Local({
-    required int id,
+    int? id,
     required String nome,
     // TODO Definir tipos de locais
     required String tipo,
@@ -15,6 +15,6 @@ class Local with _$Local{
     required bool quebraVento,
     required bool areaSensivel,
     String? observacoes,
-    required Propriedade propriedade,
+    required Propriedade? propriedade,
 }) = _local;
 }
