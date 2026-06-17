@@ -7,6 +7,7 @@ class Anotacao {
   final int atividadeId;
   final int? insumoId;
   final int? culturaId;
+  final int? colheitaId;
 
   final String? nomeAtividade;
   final String? nomeLocal;
@@ -17,6 +18,8 @@ class Anotacao {
   final String? observacao;
   final bool isDeleted;
 
+
+
   Anotacao({
     this.id,
     this.areaCultivoId,
@@ -26,6 +29,7 @@ class Anotacao {
     required this.atividadeId,
     this.insumoId,
     this.culturaId,
+    this.colheitaId,
     this.nomeAtividade,
     this.nomeLocal,
     this.nomeArea,
@@ -45,6 +49,7 @@ class Anotacao {
       'quantidade': quantidade,
       'atividade_id': atividadeId,
       'insumo_id': insumoId,
+      'colheita_id': colheitaId,
       'cultura_id': culturaId,
       'observacao': observacao,
       'is_deleted': isDeleted ? 1 : 0,
@@ -61,6 +66,7 @@ class Anotacao {
       atividadeId: map['atividade_id'] ?? 0,
       insumoId: map['insumo_id'],
       culturaId: map['cultura_id'],
+      colheitaId: map['colheita_id'],
       nomeAtividade: map['nomeAtividade'],
       nomeLocal: map['nomeLocal'],
       nomeArea: map['nomeArea'],

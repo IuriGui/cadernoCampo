@@ -1,21 +1,23 @@
+import 'package:caderno_de_campo/data/dao/produtor_dao.dart';
+import 'package:caderno_de_campo/data/models/canal.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../../data/dao/atividade_dao.dart';
 import '../../../data/dao/area_cultivo_dao.dart';
+import '../../../data/dao/canal_escoamento_dao.dart';
 import '../../../data/dao/cultura_dao.dart';
 import '../../../data/dao/insumo_dao.dart';
 import '../../../data/dao/anotacao_dao.dart';
-import '../../../data/dao/destino_dao.dart';
 import '../../../data/dao/propriedade_dao.dart';
 import '../../../data/models/atividade.dart';
 import '../../../data/models/area_cultivo.dart';
 import '../../../data/models/cultura.dart';
 import '../../../data/models/insumo.dart';
 import '../../../data/models/local.dart';
+import '../../../data/models/produtor.dart';
 import '../../../data/models/user.dart';
 import '../../../data/models/anotacao.dart';
-import '../../../data/models/destino.dart';
 import '../../../data/models/propriedade.dart';
 import '../../widgets/primary_button.dart';
 import '../supply/register_insumo_screen.dart';
@@ -27,9 +29,9 @@ const _requerInsumo  = {
   'Preparo do solo',
   'Plantio',
   'Cobertura do solo',
-
 };
-const _requerDestino = {'Colheita'};
+const _requerCanalEscoamento = {'Destinar colheita'};
+const _requerQuantidade = {'Colheita'};
 
 class RegisterAnotacaoScreen extends StatefulWidget {
   final Local local;
@@ -57,7 +59,6 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
   final _unidadeColheitaController = TextEditingController();
   final _quantidadePlantioController = TextEditingController();
   final _unidadePlantioController = TextEditingController();
-  final _destinoController = TextEditingController();
   final _observacoesController = TextEditingController();
 
   DateTime _dataSelecionada = DateTime.now();
@@ -66,13 +67,18 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
   int? _areaId;
   int? _atividadeId;
   int? _insumoId;
+  int? _canalId;
+  int? _colheitaId;
+
 
   List<Cultura> _culturas = [];
   List<AreaCultivo> _areas = [];
   List<Atividade> _atividades = [];
   List<Insumo> _insumos = [];
-  List<Destino> _destinos = [];
+  List<CanalEscoamento> _canais = [];
   Propriedade? _propriedade;
+  List<Map<String, dynamic>> _colheitas = [];
+
 
   bool _isLoading = true;
   bool _isSaving = false;
@@ -83,7 +89,8 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
 
   bool get _exibeCultura => _nomeAtividade != null && _requerCultura.contains(_nomeAtividade);
   bool get _exibeInsumo  => _nomeAtividade != null && _requerInsumo.contains(_nomeAtividade);
-  bool get _exibeDestino => _nomeAtividade != null && _requerDestino.contains(_nomeAtividade);
+  bool get _exibeCanalEscoamento => _nomeAtividade != null && _requerCanalEscoamento.contains(_nomeAtividade);
+  bool get _exibeQuantidade => _nomeAtividade != null && _requerQuantidade.contains(_nomeAtividade);
 
   @override
   void initState() {
@@ -100,29 +107,35 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
     _unidadeColheitaController.dispose();
     _quantidadePlantioController.dispose();
     _unidadePlantioController.dispose();
-    _destinoController.dispose();
     _observacoesController.dispose();
     super.dispose();
   }
 
   Future<void> _loadData() async {
     try {
+      Produtor? p = await ProdutorDAO().getProdutorByUsuario(widget.user.id!);
+      if (p != null) {
+        _canais = await CanalEscoamentoDAO().getCanaisByProdutor(p.id!);
+      }
+
       final data = await Future.wait([
         CulturaDAO().getAll(),
         AreaCultivoDAO().getAreasByLocal(widget.local.id!),
         AtividadeDAO().getAll(),
         InsumoDAO().getInsumosByPropriedade(widget.local.propriedadeId),
-        DestinoDAO().getAllDestinos(),
         PropriedadeDAO().getPropriedadeById(widget.local.propriedadeId),
       ]);
 
+      final colheitas = await AnotacaoDAO().getColheitasByLocal(widget.local.id!);
+
+
       setState(() {
+        _colheitas = colheitas;
         _culturas  = data[0] as List<Cultura>;
         _areas     = data[1] as List<AreaCultivo>;
         _atividades = data[2] as List<Atividade>;
         _insumos   = data[3] as List<Insumo>;
-        _destinos  = data[4] as List<Destino>;
-        _propriedade = data[5] as Propriedade?;
+        _propriedade = data[4] as Propriedade?;
         _isLoading = false;
       });
     } catch (e) {
@@ -155,10 +168,14 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
                   _buildCulturaField(),
                   _buildPlantioSection(),
                 ],
-                if (_exibeDestino) _buildColheitaSection(),
+                if (_exibeCanalEscoamento) _buildColheitaSection(),
                 if (_exibeInsumo) ...[
                   const SizedBox(height: 24),
                   _buildInsumosSection(),
+                ],
+                if (_exibeQuantidade) ...[
+                  const SizedBox(height: 24),
+                  _buildQuantidadeColheitaSection(),
                 ],
                 const SizedBox(height: 16),
                 TextFormField(
@@ -246,13 +263,13 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
               _atividadeId = v;
               _culturaId = null;
               _insumoId = null;
+              _canalId = null;
               _quantidadeColheitaController.clear();
               _unidadeColheitaController.clear();
               _quantidadeInsumoController.clear();
               _unidadeInsumoController.clear();
               _quantidadePlantioController.clear();
               _unidadePlantioController.clear();
-              _destinoController.clear();
             });
           },
           validator: (v) => v == null ? '* Obrigatório' : null,
@@ -301,35 +318,23 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 24),
-        _buildSectionTitle('Destino da Produção'),
+        _buildSectionTitle('Escoamento da Produção'),
         const SizedBox(height: 16),
-        Autocomplete<String>(
-          optionsBuilder: (textEditingValue) {
-            if (textEditingValue.text.isEmpty) return _destinos.map((d) => d.nome);
-            return _destinos
-                .map((d) => d.nome)
-                .where((o) => o.toLowerCase().contains(textEditingValue.text.toLowerCase()));
-          },
-          onSelected: (selection) => _destinoController.text = selection,
-          fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-            if (controller.text.isEmpty && _destinoController.text.isNotEmpty) {
-              controller.text = _destinoController.text;
-            }
-            controller.addListener(() => _destinoController.text = controller.text);
-            return TextFormField(
-              controller: controller,
-              focusNode: focusNode,
-              decoration: const InputDecoration(
-                labelText: 'Destino',
-                prefixIcon: Icon(Icons.place_outlined),
-                hintText: 'Ex: Mercado Central, Feira Local...',
-              ),
-              validator: (v) => v == null || v.isEmpty ? '* Obrigatório' : null,
-            );
-          },
+        _buildColheitaDropdown(),
+        const SizedBox(height: 16),
+        DropdownButtonFormField<int>(
+          initialValue: _canalId,
+          decoration: InputDecoration(
+            labelText: 'Canal de Escoamento',
+            prefixIcon: Icon(MdiIcons.truckDelivery),
+          ),
+          items: _canais
+              .map((c) => DropdownMenuItem(value: c.id, child: Text(c.nome)))
+              .toList(),
+          onChanged: (v) => setState(() => _canalId = v),
+          validator: (v) => v == null ? '* Obrigatório' : null,
         ),
         const SizedBox(height: 16),
-        // TODO implementar dropdown/busca rápida
         _buildQuantityUnitFields(
           'Quantidade Colhida',
           'Unid. (ex: kg)',
@@ -355,12 +360,12 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
           ),
           items: [
             ..._insumos.map((i) => DropdownMenuItem(
-                  value: i.id,
-                  child: Text(
-                    '${i.produto} (${i.fornecedor})',
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                )),
+              value: i.id,
+              child: Text(
+                '${i.produto} (${i.fornecedor})',
+                overflow: TextOverflow.ellipsis,
+              ),
+            )),
             const DropdownMenuItem<int>(
               value: -1,
               child: Row(
@@ -429,8 +434,6 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
     );
   }
 
-
-
   Widget _buildSectionTitle(String title) {
     return Text(
       title.toUpperCase(),
@@ -473,39 +476,68 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
     }
   }
 
-  Future<int?> _obterOuCriarDestinoId() async {
-    if (!_exibeDestino) return null;
-    final nome = _destinoController.text.trim();
-    if (nome.isEmpty) return null;
-    final dao = DestinoDAO();
-    final destino = await dao.getDestinoByNome(nome);
-    return destino?.id ?? await dao.insertDestino(Destino(nome: nome));
-  }
-
   (double, String) _obterQuantidadeEUnidade() {
-    if (_exibeDestino) {
+    if (_exibeCanalEscoamento || _exibeQuantidade) {
       return (
-        double.tryParse(_quantidadeColheitaController.text) ?? 0.0,
-        _unidadeColheitaController.text,
+      double.tryParse(_quantidadeColheitaController.text) ?? 0.0,
+      _unidadeColheitaController.text,
       );
     } else if (_nomeAtividade == 'Plantio' && _culturaId != null) {
       return (
-        double.tryParse(_quantidadePlantioController.text) ?? 0.0,
-        _unidadePlantioController.text,
+      double.tryParse(_quantidadePlantioController.text) ?? 0.0,
+      _unidadePlantioController.text,
       );
     } else if (_insumoId != null) {
       return (
-        double.tryParse(_quantidadeInsumoController.text) ?? 0.0,
-        _unidadeInsumoController.text,
+      double.tryParse(_quantidadeInsumoController.text) ?? 0.0,
+      _unidadeInsumoController.text,
       );
     }
     return (0.0, '');
+  }
+
+  Widget _buildQuantidadeColheitaSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildSectionTitle('Quantidade Colhida'),
+        const SizedBox(height: 16),
+        _buildQuantityUnitFields(
+          'Quantidade Colhida',
+          'Unid. (ex: kg)',
+          _quantidadeColheitaController,
+          _unidadeColheitaController,
+        ),
+      ],
+    );
   }
 
   void _showSnackBar(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
     }
+  }
+
+  Widget _buildColheitaDropdown() {
+    return DropdownButtonFormField<int>(
+      initialValue: _colheitaId,
+      decoration: InputDecoration(
+        labelText: 'Colheita',
+        prefixIcon: Icon(MdiIcons.barley),
+      ),
+      items: _colheitas.map((c) {
+        final data = DateFormat('dd/MM/yyyy').format(
+          DateTime.parse(c['data_criacao']),
+        );
+        final cultura = c['cultura'] ?? 'Sem cultura';
+        return DropdownMenuItem<int>(
+          value: c['id'] as int,
+          child: Text('$cultura — $data'),
+        );
+      }).toList(),
+      onChanged: (v) => setState(() => _colheitaId = v),
+      validator: (v) => v == null ? '* Obrigatório' : null,
+    );
   }
 
   Future<void> _salvarRegistro() async {
@@ -527,8 +559,26 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
         observacao: _observacoesController.text.trim().isEmpty ? null : _observacoesController.text,
       );
 
-      final destinoId = await _obterOuCriarDestinoId();
-      await _anotacaoDAO.insertAnotacao(anotacao, destinoId: destinoId);
+
+      if(_nomeAtividade == 'Colheita') {
+        await _anotacaoDAO.insertAnotacao(
+          anotacao,
+          isColheita: true,
+        );
+      } else if(_nomeAtividade == 'Destinar colheita'){
+        await _anotacaoDAO.insertAnotacao(
+          anotacao,
+          colheitaId: _colheitaId,
+          canalEscoamentoId: _canalId,
+        );
+      } else {
+        await _anotacaoDAO.insertAnotacao(
+          anotacao,
+        );
+      }
+
+
+
 
       _showSnackBar('Anotação registrada com sucesso!');
       if (mounted) Navigator.pop(context, true);

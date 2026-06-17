@@ -8,6 +8,7 @@ import '../../logic/provider/home_provider.dart';
 import '../widgets/anotacao_card.dart';
 import '../widgets/home/weather_card.dart';
 import 'activity/anotacoes_detail_screen.dart';
+import 'canaisEscoamento/canal_escoamento_screen.dart';
 import 'supply/insumo_screen.dart';
 import 'supply/register_insumo_screen.dart';
 import 'localAndAreaCultivo/local_screen.dart';
@@ -15,7 +16,6 @@ import 'activity/anotacoes_list_screen.dart';
 import 'property/propriedade_screen.dart';
 import 'localAndAreaCultivo/local_detail_screen.dart';
 import 'property/register_property_screen.dart';
-import 'destiny/destino_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -134,20 +134,20 @@ class _HomeDrawer extends StatelessWidget {
                 );
               },
             ),
-            // ListTile(
-            //   leading: Icon(MdiIcons.sproutOutline),
-            //   title: const Text('Areas de Cultivo'),
-            //   onTap: () {
-            //     Navigator.pop(context);
-            //     Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //         builder: (_) =>
-            //             LocalScreen(),
-            //       ),
-            //     );
-            //   },
-            // ),
+            ListTile(
+              leading: Icon(MdiIcons.store),
+              title: const Text('Canais de escoamento'),
+              onTap: (){
+                // TODO vai pra registrar cadastro
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CanalEscoamentoScreen( produtor: produtor!,),
+                  ),
+                );
+              },
+            ),
             ListTile(
               leading: Icon(MdiIcons.hoopHouse),
               title: const Text('Propriedade'),

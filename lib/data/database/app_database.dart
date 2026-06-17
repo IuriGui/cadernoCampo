@@ -103,16 +103,6 @@ class AppDatabase {
       )
     ''');
 
-    // Tabela destino
-    await db.execute('''
-      CREATE TABLE destino (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT NOT NULL,
-        tipo TEXT,
-        is_deleted INTEGER DEFAULT 0
-      )
-    ''');
-
     // Tabela insumo
     await db.execute('''
       CREATE TABLE insumo (
@@ -126,6 +116,20 @@ class AppDatabase {
       )
     ''');
 
+    // Tabela colheita
+    await db.execute('''
+      CREATE TABLE colheita (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        anotacao_id INTEGER NOT NULL UNIQUE,
+        unidade_medida TEXT NOT NULL,
+        quantidade REAL NOT NULL,
+        is_deleted INTEGER DEFAULT 0
+      )
+    ''');
+
+    // FOREIGN KEY (anotacao_id) REFERENCES anotacao (id)
+
+
     // Tabela anotacao
     await db.execute('''
       CREATE TABLE anotacao (
@@ -137,26 +141,16 @@ class AppDatabase {
         atividade_id INTEGER NOT NULL,
         insumo_id INTEGER,
         cultura_id INTEGER,
+        colheita_id INTEGER,
+        canal_escoamento_id INTEGER,
         observacao TEXT,
         is_deleted INTEGER DEFAULT 0,
         FOREIGN KEY (area_cultivo_id) REFERENCES area_cultivo (id),
         FOREIGN KEY (atividade_id) REFERENCES atividade (id),
         FOREIGN KEY (insumo_id) REFERENCES insumo (id),
         FOREIGN KEY (cultura_id) REFERENCES cultura (id)
-      )
-    ''');
-
-    // Tabela colheita
-    await db.execute('''
-      CREATE TABLE colheita (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        anotacao_id INTEGER NOT NULL UNIQUE,
-        unidade_medida TEXT NOT NULL,
-        quantidade REAL NOT NULL,
-        destino_id INTEGER NOT NULL,
-        is_deleted INTEGER DEFAULT 0,
-        FOREIGN KEY (anotacao_id) REFERENCES anotacao (id),
-        FOREIGN KEY (destino_id) REFERENCES destino (id)
+        FOREIGN KEY (colheita_id) REFERENCES colheita (id)
+        FOREIGN KEY (canal_escoamento_id) REFERENCES canal_escoamento (id)
       )
     ''');
 
@@ -182,13 +176,12 @@ class AppDatabase {
       )
     ''');
 
-    // Tabela programa_comercializacao
     await db.execute('''
-      CREATE TABLE programa_comercializacao (
+      CREATE TABLE canal_escoamento (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         produtor_id INTEGER NOT NULL,
         tipo TEXT NOT NULL,
-        valor TEXT NOT NULL,
+        nome TEXT NOT NULL,
         is_deleted INTEGER DEFAULT 0,
         FOREIGN KEY (produtor_id) REFERENCES produtor (id)
       )
@@ -208,7 +201,7 @@ class AppDatabase {
   }
 
   Future<void> _seedDatabase(Database db) async {
-    // Seed básico para manter o app funcional para testes iniciais
+
     await db.insert('usuario', {
       'email': 'admin@campo.com',
       'password': 'password123'
@@ -247,6 +240,12 @@ class AppDatabase {
       'nome': 'Preparo do solo',
       'descricao': 'Preparo e condicionamento do solo para o cultivo',
       'tipo': 'Preparo do solo'
+    });
+
+    await db.insert('atividade', {
+      'nome': 'Destinar colheita',
+      'descricao': 'Informa para onde foi a colheita',
+      'tipo': 'gerenciamento'
     });
 
     await db.insert('atividade', {
@@ -306,7 +305,5 @@ class AppDatabase {
     await db.insert('cultura', {'nome': 'Alface', 'categoria': 'Hortaliça'});
     await db.insert('cultura', {'nome': 'Tomate', 'categoria': 'Fruto'});
 
-    await db.insert('destino', {'nome': 'Mercado Local'});
-    await db.insert('destino', {'nome': 'Consumo Próprio'});
   }
 }

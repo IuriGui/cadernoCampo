@@ -8,6 +8,7 @@ import '../../data/models/propriedade.dart';
 import '../../data/models/user.dart';
 import '../../data/dao/anotacao_dao.dart';
 import '../../data/dao/local_dao.dart';
+import '../../data/dao/produtor_dao.dart';
 
 
 class HomeProvider extends ChangeNotifier {
@@ -56,14 +57,18 @@ class HomeProvider extends ChangeNotifier {
   Future<void> _carregarDadosLocais() async {
     try {
       final propriedade = _auth.propriedade;
+      final user = _auth.user;
 
-      if (propriedade != null) {
+      if (propriedade != null && user != null) {
+        _propriedade = propriedade;
         final dataResults = await Future.wait([
           LocalDAO().getTopThreeLocais(propriedade.id!),
           AnotacaoDAO().getUltimasAnotacoes(propriedade.id!),
+          ProdutorDAO().getProdutorByUsuario(user.id!),
         ]);
         _locais = dataResults[0] as List<Local>;
         _anotacoesDoDia = dataResults[1] as List<Anotacao>;
+        _produtor = dataResults[2] as Produtor?;
       }
     } catch (_) {}
   }

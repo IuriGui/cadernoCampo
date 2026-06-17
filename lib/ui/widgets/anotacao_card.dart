@@ -14,8 +14,11 @@ class AnotacaoCard extends StatelessWidget {
     required this.onTap,
   });
 
+  // TODO ARRUMAR ESSA PORCARIA DE CORES E ICONES
+
   Color _activityColor(String? nome) {
     final n = nome?.toLowerCase() ?? '';
+    if(n == 'destinar colheita') return Color(0xFFFF1212);
     if (n.contains('colheit')) return const Color(0xFFF59E0B);
     if (n.contains('plant')) return const Color(0xFF22C55E);
     if (n.contains('irrig')) return const Color(0xFF3B82F6);
@@ -27,10 +30,11 @@ class AnotacaoCard extends StatelessWidget {
 
   IconData _activityIcon(String? nome) {
     final n = nome?.toLowerCase() ?? '';
+    if(n == 'destinar colheita') return MdiIcons.truckDelivery;
     if (n.contains('colheit')) return MdiIcons.barley;
     if (n.contains('plant')) return MdiIcons.sprout;
-    if (n.contains('irrig')) return MdiIcons.waterPump;
-    if (n.contains('adub') || n.contains('nutri')) return MdiIcons.flask;
+    if (n.contains('irrig')) return MdiIcons.wateringCan;
+    if (n.contains('adub') || n.contains('nutri')) return MdiIcons.compost;
     if (n.contains('preparo') || n.contains('solo')) return MdiIcons.shovel;
     if (n.contains('poda')) return MdiIcons.scissorsCutting;
     return MdiIcons.clipboardTextOutline;
