@@ -1,5 +1,6 @@
 import 'package:caderno_de_campo/data/dao/anotacao_dao.dart';
 import 'package:caderno_de_campo/data/models/canal.dart';
+import 'package:caderno_de_campo/ui/screens/activity/anotacoes_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -115,6 +116,15 @@ class _CanalEscoamentoDetailScreenState
                         (anotacao['nome_cultura'] as String?) ??
                             'Cultura não definida',
                       ),
+                      // TODO Implementar o botão de detalhes
+                      // onTap: () async{
+                      //   final result = await Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         // builder: (context) => AnotacoesDetailScreen();
+                      //     ),
+                      //   );
+                      // },
                       subtitle: Text(
                         DateFormat('dd/MM/yyyy').format(
                           DateTime.parse(

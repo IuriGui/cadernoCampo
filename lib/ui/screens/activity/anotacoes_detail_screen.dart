@@ -29,6 +29,7 @@ IconData _activityIcon(String? nome) {
 class AnotacoesDetailScreen extends StatelessWidget {
   final Anotacao registro;
 
+
   const AnotacoesDetailScreen({super.key, required this.registro});
 
   @override
