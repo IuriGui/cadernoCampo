@@ -418,7 +418,13 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
             controller: qController,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(labelText: qLabel),
-            validator: (v) => v == null || v.isEmpty ? '*' : null,
+            validator: (v) {
+              if (v == null || v.isEmpty) return '* Obrigatório';
+              final n = double.tryParse(v.replaceAll(',', '.'));
+              if (n == null) return 'Valor inválido';
+              if (n <= 0) return 'Deve ser maior que zero';
+              return null;
+            },
           ),
         ),
         const SizedBox(width: 16),
@@ -427,6 +433,7 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
           child: TextFormField(
             controller: uController,
             decoration: InputDecoration(labelText: uLabel),
+            // TODO MONTAR O CAMPINHO DE CULTURA E UNIDADE
             validator: (v) => v == null || v.isEmpty ? '*' : null,
           ),
         ),
