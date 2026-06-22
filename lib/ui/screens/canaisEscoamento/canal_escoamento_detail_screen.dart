@@ -117,14 +117,14 @@ class _CanalEscoamentoDetailScreenState
                             'Cultura não definida',
                       ),
                       // TODO Implementar o botão de detalhes
-                      // onTap: () async{
-                      //   final result = await Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         // builder: (context) => AnotacoesDetailScreen();
-                      //     ),
-                      //   );
-                      // },
+                      onTap: () async{
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AnotacoesDetailScreen(anotacaoId: anotacao['id'],)
+                          ),
+                        );
+                      },
                       subtitle: Text(
                         DateFormat('dd/MM/yyyy').format(
                           DateTime.parse(
@@ -132,6 +132,9 @@ class _CanalEscoamentoDetailScreenState
                           ),
                         ),
                       ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.chevron_right, color: Colors.black), onPressed: () {  },
+                      )
                     ),
                   );
                 },

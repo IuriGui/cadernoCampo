@@ -1,6 +1,8 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
+import 'culturas_seed.dart';
+
 class AppDatabase {
   static final AppDatabase _instance = AppDatabase._internal();
   static Database? _db;
@@ -302,8 +304,9 @@ class AppDatabase {
       'tipo': 'Aplicação de bioinsumo'
     });
 
-    await db.insert('cultura', {'nome': 'Alface', 'categoria': 'Hortaliça'});
-    await db.insert('cultura', {'nome': 'Tomate', 'categoria': 'Fruto'});
+    for (final cultura in culturasSeed) {
+      await db.insert('cultura', cultura);
+    }
 
   }
 }

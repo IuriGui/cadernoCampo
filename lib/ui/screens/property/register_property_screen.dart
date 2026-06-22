@@ -68,6 +68,12 @@ class _RegisterPropertyScreenState extends State<RegisterPropertyScreen> {
               TextFormField(
                 controller: _cepController,
                 keyboardType: TextInputType.number,
+                validator: (v) {
+                  if (v == null || v.isEmpty) return null;
+                  final digits = v.replaceAll(RegExp(r'\D'), '');
+                  if (digits.length != 8) return 'CEP inválido (8 dígitos)';
+                  return null;
+                },
                 decoration: const InputDecoration(labelText: 'CEP'),
               ),
               const SizedBox(height: 16),
@@ -85,25 +91,28 @@ class _RegisterPropertyScreenState extends State<RegisterPropertyScreen> {
                 controller: _areaTotalController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(labelText: 'Área total (ha) *'),
-                validator: (v) => v == null || v.isEmpty ? '* Obrigatório' : null,
+                validator: _areaValidator(required: true)
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _areaPropriaController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(labelText: 'Área própria (ha)'),
+                validator: _areaValidator(maxController: _areaTotalController),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _areaArrendadaController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(labelText: 'Área arrendada (ha)'),
+                validator: _areaValidator(maxController: _areaTotalController),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _areaProducaoController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(labelText: 'Área de produção vegetal (ha)'),
+                validator: _areaValidator(maxController: _areaTotalController),
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -162,4 +171,30 @@ class _RegisterPropertyScreenState extends State<RegisterPropertyScreen> {
       }
     }
   }
+
+  FormFieldValidator<String> _areaValidator({
+    bool required = false,
+    TextEditingController? maxController,
+    String? maxLabel,
+  }) {
+    return (v) {
+      if (v == null || v.isEmpty) {
+        return required ? '* Obrigatório' : null;
+      }
+      final n = double.tryParse(v.replaceAll(',', '.'));
+      if (n == null) return 'Digite um número válido';
+      if (n < 0) return 'Deve ser maior ou igual a zero';
+
+      if (maxController != null) {
+        final max = double.tryParse(maxController.text.replaceAll(',', '.'));
+        if (max != null && n > max) {
+          final ref = maxLabel ?? 'área total';
+          return 'Não pode ser maior que a $ref';
+        }
+      }
+      return null;
+    };
+  }
+
+
 }

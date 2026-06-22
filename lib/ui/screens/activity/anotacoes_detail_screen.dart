@@ -1,3 +1,4 @@
+import 'package:caderno_de_campo/data/dao/anotacao_dao.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -26,16 +27,81 @@ IconData _activityIcon(String? nome) {
   return MdiIcons.clipboardTextOutline;
 }
 
-class AnotacoesDetailScreen extends StatelessWidget {
-  final Anotacao registro;
+
+class AnotacoesDetailScreen extends StatefulWidget {
+  final Anotacao? registro;
+  final int? anotacaoId;
+
+  const AnotacoesDetailScreen({
+    super.key,
+    this.registro,
+    this.anotacaoId,
+  });
+
+  @override
+  State<AnotacoesDetailScreen> createState() =>
+      _AnotacoesDetailScreenState();
+}
+
+class _AnotacoesDetailScreenState extends State<AnotacoesDetailScreen> {
+
+  Anotacao? registro;
+  bool loading = true;
+  final AnotacaoDAO _anotacaoDAO = AnotacaoDAO();
 
 
-  const AnotacoesDetailScreen({super.key, required this.registro});
+  @override
+  void initState() {
+    super.initState();
+
+    registro = widget.registro;
+
+    _loadRegistro();
+  }
+
+  Future<void> _loadRegistro() async {
+
+    if (widget.anotacaoId != null) {
+
+      final result = await _anotacaoDAO
+          .getAnotacoesById(widget.anotacaoId!);
+
+      setState(() {
+        registro = result;
+        loading = false;
+      });
+
+    } else {
+
+      setState(() {
+        loading = false;
+      });
+
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final color = _activityColor(registro.nomeAtividade);
-    final isColheita = registro.nomeDestino != null;
+
+    if (loading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (registro == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('Registro não encontrado'),
+        ),
+      );
+    }
+
+    final color = _activityColor(registro!.nomeAtividade);
+    final isColheita =
+        registro!.nomeDestino != null;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -72,7 +138,7 @@ class AnotacoesDetailScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: Icon(
-                                _activityIcon(registro.nomeAtividade),
+                                _activityIcon(registro?.nomeAtividade),
                                 color: Colors.white,
                                 size: 32,
                               ),
@@ -83,7 +149,7 @@ class AnotacoesDetailScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    registro.nomeAtividade ?? 'Anotação',
+                                    registro?.nomeAtividade ?? 'Anotação',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 24,
@@ -91,7 +157,7 @@ class AnotacoesDetailScreen extends StatelessWidget {
                                     ),
                                   ),
                                   Text(
-                                    DateFormat("d 'de' MMMM, yyyy", 'pt_BR').format(registro.dataCriacao),
+                                    DateFormat("d 'de' MMMM, yyyy", 'pt_BR').format(registro!.dataCriacao),
                                     style: TextStyle(
                                       color: Colors.white.withOpacity(0.9),
                                       fontSize: 14,
@@ -119,37 +185,37 @@ class AnotacoesDetailScreen extends StatelessWidget {
                 color: color,
                 child: Column(
                   children: [
-                    _buildInfoTile('Local', registro.nomeLocal ?? '—'),
+                    _buildInfoTile('Local', registro?.nomeLocal ?? '—'),
                     _buildDivider(),
-                    _buildInfoTile('Área de Cultivo', registro.nomeArea ?? '—'),
+                    _buildInfoTile('Área de Cultivo', registro?.nomeArea ?? '—'),
                   ],
                 ),
               ),
-              
+
               _buildSection(
                 title: 'Detalhes',
                 icon: MdiIcons.informationOutline,
                 color: color,
                 child: Column(
                   children: [
-                    _buildInfoTile('Cultura', registro.nomeCultura ?? 'Não informada'),
+                    _buildInfoTile('Cultura', registro?.nomeCultura ?? 'Não informada'),
                     _buildDivider(),
                     _buildInfoTile(
-                      'Quantidade', 
-                      registro.quantidade % 1 == 0
-                        ? '${registro.quantidade.toInt()} ${registro.unidadeMedida ?? ''}'
-                        : '${registro.quantidade} ${registro.unidadeMedida ?? ''}'
+                        'Quantidade',
+                        registro!.quantidade % 1 == 0
+                            ? '${registro?.quantidade.toInt()} ${registro?.unidadeMedida ?? ''}'
+                            : '${registro?.quantidade} ${registro?.unidadeMedida ?? ''}'
                     ),
                   ],
                 ),
               ),
 
-              if (registro.nomeInsumo != null)
+              if (registro?.nomeInsumo != null)
                 _buildSection(
                   title: 'Insumo',
                   icon: MdiIcons.packageVariantClosed,
                   color: Colors.brown,
-                  child: _buildInfoTile('Produto', registro.nomeInsumo!),
+                  child: _buildInfoTile('Produto', registro!.nomeInsumo!),
                 ),
 
               if (isColheita)
@@ -157,10 +223,10 @@ class AnotacoesDetailScreen extends StatelessWidget {
                   title: 'Dados da Colheita',
                   icon: MdiIcons.truckDeliveryOutline,
                   color: Colors.orange,
-                  child: _buildInfoTile('Destino da Produção', registro.nomeDestino!, isHighlight: true),
+                  child: _buildInfoTile('Destino da Produção', registro!.nomeDestino!, isHighlight: true),
                 ),
 
-              if (registro.observacao != null && registro.observacao!.isNotEmpty)
+              if (registro?.observacao != null && registro!.observacao!.isNotEmpty)
                 _buildSection(
                   title: 'Observações',
                   icon: MdiIcons.noteTextOutline,
@@ -173,12 +239,12 @@ class AnotacoesDetailScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      registro.observacao!,
+                      registro!.observacao!,
                       style: TextStyle(fontSize: 15, color: Colors.grey.shade800, height: 1.5),
                     ),
                   ),
                 ),
-              
+
               const SizedBox(height: 40),
             ]),
           ),
@@ -253,6 +319,5 @@ class AnotacoesDetailScreen extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildDivider() => Divider(height: 1, color: Colors.grey.shade100, indent: 16, endIndent: 16);
 }

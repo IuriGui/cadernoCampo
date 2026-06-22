@@ -3,7 +3,6 @@ import '../models/anotacao.dart';
 
 class AnotacaoDAO {
 
-  // nomeCanal vem de canal_escoamento, só presente em anotações de destinação
   static const String _baseQuery = '''
     SELECT
       r.*,
@@ -23,9 +22,6 @@ class AnotacaoDAO {
     WHERE r.is_deleted = 0
   ''';
 
-  // Anotação simples (sem colheita nem destinação)
-  // Anotação de colheita: passa isColheita = true, preenche unidadeMedida e quantidade no model
-  // Anotação de destinação: passa colheitaId e canalEscoamentoId
   Future<int> insertAnotacao(
       Anotacao anotacao, {
         bool isColheita = false,
@@ -58,6 +54,18 @@ class AnotacaoDAO {
     return await db.insert('anotacao', anotacao.toMap());
   }
 
+
+  Future<Anotacao> getAnotacoesById(int id) async {
+    final db = await AppDatabase().database;
+    final maps = await db.query(
+      'anotacao',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    print(maps);
+    return maps.map(Anotacao.fromMap).first;
+  }
+
   Future<List<Map<String, dynamic>>> getColheitasByLocal(int localId) async {
     final db = await AppDatabase().database;
     return await db.rawQuery('''
@@ -77,6 +85,7 @@ class AnotacaoDAO {
 SELECT
     a_dest.id,
     a_dest.data_criacao,
+    a_dest.id,
     c.nome AS nome_cultura
 FROM anotacao a_dest
 JOIN colheita col
