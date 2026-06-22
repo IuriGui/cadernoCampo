@@ -32,7 +32,7 @@ class _RegisterInsumoScreenState extends State<RegisterInsumoScreen> {
       context: context,
       initialDate: _dataAquisicao,
       firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      lastDate: DateTime.now(),
     );
     if (picked != null && picked != _dataAquisicao) {
       setState(() {
