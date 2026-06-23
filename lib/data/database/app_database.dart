@@ -21,14 +21,22 @@ class AppDatabase {
     final path = join(await getDatabasesPath(), 'caderno_de_campo.db');
     return openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await _createTables(db);
         await _seedDatabase(db);
       },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('''
+      ALTER TABLE anotacao ADD COLUMN plantio_id INTEGER REFERENCES anotacao(id)
+    ''');
+        }
+      },
       onOpen: (db) async {
         await db.execute("PRAGMA foreign_keys = ON");
-      }
+      },
+
     );
   }
 
@@ -129,7 +137,7 @@ class AppDatabase {
       )
     ''');
 
-    // FOREIGN KEY (anotacao_id) REFERENCES anotacao (id)
+
 
 
     // Tabela anotacao

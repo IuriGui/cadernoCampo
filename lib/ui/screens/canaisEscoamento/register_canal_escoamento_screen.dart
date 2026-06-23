@@ -43,7 +43,7 @@ class _RegisterCanalEscoamentoScreenState
     const labelStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: 16);
     return [
       DropdownButtonFormField<String>(
-        value: _tipo,
+        initialValue: _tipo,
         decoration: const InputDecoration(
           labelText: 'Tipo de Canal',
           prefixIcon: Icon(Icons.category_outlined),

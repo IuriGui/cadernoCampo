@@ -371,7 +371,7 @@ class _AnotacoesDoDiaSection extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => AnotacoesDetailScreen(registro: anotacoes[index]),
+                    builder: (_) => AnotacoesDetailScreen(anotacaoId: anotacoes[index].id!),
                   ),
                 );
               },

@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import '../database/app_database.dart';
 import '../models/anotacao.dart';
+import 'cultura_dao.dart';
 
 class AnotacaoDAO {
 
@@ -26,17 +29,19 @@ class AnotacaoDAO {
       Anotacao anotacao, {
         bool isColheita = false,
         int? colheitaId,
+        int? plantioId,
         int? canalEscoamentoId,
       }) async {
     final db = await AppDatabase().database;
 
     if (isColheita) {
       return await db.transaction((txn) async {
-        final anotacaoId = await txn.insert('anotacao', anotacao.toMap());
+        final anotacaoId = await txn.insert('anotacao', anotacao.toMap()
+          ..['plantio_id'] = plantioId);
 
         await txn.insert('colheita', {
-          'anotacao_id': anotacaoId,
-          'unidade_medida': anotacao.unidadeMedida ?? 'kg',
+          'anotacao_id': plantioId,
+          'unidade_medida': anotacao.unidadeMedida ?? 'uk',
           'quantidade': anotacao.quantidade,
         });
 
@@ -55,6 +60,53 @@ class AnotacaoDAO {
   }
 
 
+  Future<List<Map<String, dynamic>>>  getPlantiosNaoColhidos() async{
+    final db = await AppDatabase().database;
+
+    final maps = await db.rawQuery('''
+      SELECT a.* 
+      FROM anotacao a
+      LEFT JOIN colheita c ON c.anotacao_id = a.id
+      WHERE c.anotacao_id IS NULL
+      AND a.is_deleted = 0; 
+    ''');
+
+
+    print('Rows encontradas: ${maps.length}');
+    for (final row in maps) {
+      print(row);
+    }
+    return maps;
+
+
+  }
+
+
+
+  Future<List<Anotacao>> getPlantiosNaoColhidosByArea(int id) async {
+    final db = await AppDatabase().database;
+
+    final maps = await db.rawQuery('''
+      SELECT 
+        a.*,
+        cu.nome AS nomeCultura
+      FROM anotacao a
+      LEFT JOIN cultura cu ON cu.id = a.cultura_id
+      WHERE a.is_deleted = 0 
+        AND a.area_cultivo_id = ?
+        AND a.atividade_id = (SELECT id FROM atividade WHERE nome = 'Plantio' LIMIT 1)
+        AND NOT EXISTS (
+          SELECT 1 FROM colheita c WHERE c.anotacao_id = a.id
+  )
+  ''', [id]);
+
+    final results = maps.map((r) => Anotacao.fromMap(Map<String, dynamic>.from(r))).toList();
+    for (final a in results) {
+      print(a.toMap());
+    }
+    return results;
+  }
+
   Future<Anotacao> getAnotacoesById(int id) async {
     final db = await AppDatabase().database;
     final maps = await db.query(
@@ -65,6 +117,64 @@ class AnotacaoDAO {
     print(maps);
     return maps.map(Anotacao.fromMap).first;
   }
+
+  Future<Map<String, dynamic>> getAnotacaoDetalhadaById(int id) async {
+    final db = await AppDatabase().database;
+
+    final maps = await db.rawQuery('''
+    SELECT
+      a.id,
+      a.data_criacao,
+      a.quantidade,
+      a.unidade_medida,
+      a.observacao,
+
+      at.nome           AS nomeAtividade,
+
+      ac.nome           AS nomeArea,
+      l.nome            AS nomeLocal,
+      l.tipo            AS tipoLocal,
+
+      c.nome            AS nomeCultura,
+      c.categoria       AS categoriaCltura,
+
+      i.produto         AS nomeInsumo,
+      i.fornecedor      AS fornecedorInsumo,
+
+      ce.nome           AS nomeCanal,
+      ce.tipo           AS tipoCanal,
+
+      -- Plantio vinculado (via plantio_id na anotacao de Colheita)
+      a_plantio.data_criacao    AS dataPlantio,
+      a_plantio.quantidade      AS quantidadePlantada,
+      a_plantio.unidade_medida  AS unidadePlantada,
+      c_plantio.nome            AS culturaPlantio,
+      
+      -- Informações da colheita (quando o plantio já foi colhido)
+      col.id             AS colheitaId,
+      col.quantidade     AS quantidadeColhida,
+      col.unidade_medida AS unidadeColhida
+
+    FROM anotacao a
+    INNER JOIN atividade        at        ON at.id   = a.atividade_id
+    INNER JOIN area_cultivo     ac        ON ac.id   = a.area_cultivo_id
+    INNER JOIN local            l         ON l.id    = ac.local_id
+    LEFT  JOIN cultura          c         ON c.id    = a.cultura_id
+    LEFT  JOIN insumo           i         ON i.id    = a.insumo_id
+    LEFT  JOIN canal_escoamento ce        ON ce.id   = a.canal_escoamento_id
+    LEFT  JOIN anotacao         a_plantio ON a_plantio.id = a.plantio_id
+    LEFT  JOIN cultura          c_plantio ON c_plantio.id = a_plantio.cultura_id
+    LEFT  JOIN colheita         col       ON col.anotacao_id = a.plantio_id
+                                      AND col.is_deleted = 0
+
+    WHERE a.id = ?
+      AND a.is_deleted = 0
+  ''', [id]);
+
+    if (maps.isEmpty) throw Exception('Anotação $id não encontrada');
+    return maps.first;
+  }
+
 
   Future<List<Map<String, dynamic>>> getColheitasByLocal(int localId) async {
     final db = await AppDatabase().database;
@@ -98,25 +208,11 @@ WHERE a_dest.canal_escoamento_id = ?
   AND a_dest.is_deleted = 0
 ''', [canalId]);
 
-    print('Rows encontradas: ${maps.length}');
-    for (final row in maps) {
-      print(row);
-    }
-
-
-
-    print('Canal pesquisado: $canalId');
-    print('Rows encontradas: ${maps.length}');
-
-
-
     return maps;
 
 
 
   }
-
-
 
   Future<List<Anotacao>> getAnotacoesByPropriedade(int propriedadeId) async {
     final db = await AppDatabase().database;

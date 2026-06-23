@@ -361,7 +361,7 @@ class _AreaDetailScreenState extends State<AreaDetailScreen> {
                                 final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => AnotacoesDetailScreen(registro: registro),
+                                    builder: (context) => AnotacoesDetailScreen(anotacaoId: registro.id!),
                                   ),
                                 );
                                 if (result == true) _loadInitialData();

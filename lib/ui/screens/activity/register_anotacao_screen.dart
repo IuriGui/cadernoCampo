@@ -23,7 +23,7 @@ import '../../widgets/primary_button.dart';
 import '../supply/register_insumo_screen.dart';
 import '../../theme/app_theme.dart';
 
-const _requerCultura = {'Plantio', 'Adubação', 'Colheita'};
+const _requerCultura = {'Plantio', 'Adubação'};
 const _requerInsumo  = {
   'Adubação',
   'Preparo do solo',
@@ -32,6 +32,8 @@ const _requerInsumo  = {
 };
 const _requerCanalEscoamento = {'Destinar colheita'};
 const _requerQuantidade = {'Colheita'};
+const _requerPlantioVinculado = {'Colheita'};
+
 
 class RegisterAnotacaoScreen extends StatefulWidget {
   final Local local;
@@ -69,6 +71,7 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
   int? _insumoId;
   int? _canalId;
   int? _colheitaId;
+  int? _plantioId;
 
 
   List<Cultura> _culturas = [];
@@ -76,8 +79,10 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
   List<Atividade> _atividades = [];
   List<Insumo> _insumos = [];
   List<CanalEscoamento> _canais = [];
+  List<Anotacao> _plantiosNaoColhidos = [];
   Propriedade? _propriedade;
   List<Map<String, dynamic>> _colheitas = [];
+
 
 
   bool _isLoading = true;
@@ -91,6 +96,8 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
   bool get _exibeInsumo  => _nomeAtividade != null && _requerInsumo.contains(_nomeAtividade);
   bool get _exibeCanalEscoamento => _nomeAtividade != null && _requerCanalEscoamento.contains(_nomeAtividade);
   bool get _exibeQuantidade => _nomeAtividade != null && _requerQuantidade.contains(_nomeAtividade);
+  bool get _exibeSelecaoPlantio =>
+      _nomeAtividade != null && _requerPlantioVinculado.contains(_nomeAtividade);
 
   @override
   void initState() {
@@ -127,9 +134,11 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
       ]);
 
       final colheitas = await AnotacaoDAO().getColheitasByLocal(widget.local.id!);
+      final plantios = await AnotacaoDAO().getPlantiosNaoColhidosByArea(_areaId!);
 
 
       setState(() {
+        _plantiosNaoColhidos = plantios;
         _colheitas = colheitas;
         _culturas  = data[0] as List<Cultura>;
         _areas     = data[1] as List<AreaCultivo>;
@@ -168,6 +177,22 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
                   _buildCulturaField(),
                   _buildPlantioSection(),
                 ],
+                if (_exibeSelecaoPlantio) ...[
+                  const SizedBox(height: 24),
+                  _buildSectionTitle('Selecione o plantio que foi colhido'),
+                  const SizedBox(height: 12),
+                  _buildPlantioDropdown(),
+                  if (_plantioId != null) ...[
+                    const SizedBox(height: 8),
+                    Builder(builder: (_) {
+                      final plantio = _plantiosNaoColhidos.firstWhere((p) => p.id == _plantioId);
+                      return Text(
+                        'Quantidade plantada: ${plantio.quantidade} ${plantio.unidadeMedida ?? ''}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                      );
+                    }),
+                  ],
+                ],
                 if (_exibeCanalEscoamento) _buildColheitaSection(),
                 if (_exibeInsumo) ...[
                   const SizedBox(height: 24),
@@ -194,6 +219,31 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
                   onPressed: _salvarRegistro,
                 ),
                 const SizedBox(height: 24),
+                PrimaryButton(
+                  label: 'get plantios Anotação',
+                  onPressed: () async =>  {
+                    _anotacaoDAO.getPlantiosNaoColhidos()
+                  },
+                ),
+                const SizedBox(height: 24),
+                PrimaryButton(
+                  label: 'get plantios Anotação by area',
+                  onPressed: () async =>  {
+                    _anotacaoDAO.getPlantiosNaoColhidosByArea(_areaId!)
+                  },
+                ),const SizedBox(height: 24),        PrimaryButton(
+                  label: 'teste Colheita',
+                  onPressed: () async =>  {
+                    // _anotacaoDAO.testaColheita()
+                  },
+                ),
+                const SizedBox(height: 24),
+
+
+
+
+
+
               ],
             ),
           ),
@@ -201,6 +251,41 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
       ),
     );
   }
+
+
+  Widget _buildPlantioDropdown() {
+    if (_plantiosNaoColhidos.isEmpty) {
+      return InputDecorator(
+        decoration: InputDecoration(
+          labelText: 'Plantio',
+          prefixIcon: Icon(MdiIcons.sprout),
+        ),
+        child: Text(
+          'Nenhum plantio disponível para a colheita',
+          style: TextStyle(color: Colors.grey),
+        ),
+      );
+    }
+
+    return DropdownButtonFormField<int>(
+      value: _plantioId,
+      decoration: InputDecoration(
+        labelText: 'Plantio',
+        prefixIcon: Icon(MdiIcons.sprout),
+      ),
+      items: _plantiosNaoColhidos.map((p) {
+        final data = DateFormat('dd/MM/yyyy').format(p.dataCriacao);
+        final cultura = p.nomeCultura ?? 'Sem cultura';
+        return DropdownMenuItem<int>(
+          value: p.id,
+          child: Text('$cultura — $data'),
+        );
+      }).toList(),
+      onChanged: (v) => setState(() => _plantioId = v),
+      validator: (v) => v == null ? '* Obrigatório' : null,
+    );
+  }
+
 
   Widget _buildBasicInfoSection() {
     return Column(
@@ -571,6 +656,7 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
         await _anotacaoDAO.insertAnotacao(
           anotacao,
           isColheita: true,
+          plantioId: _plantioId
         );
       } else if(_nomeAtividade == 'Destinar colheita'){
         await _anotacaoDAO.insertAnotacao(
