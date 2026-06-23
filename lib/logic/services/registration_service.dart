@@ -23,8 +23,6 @@ class RegistrationService {
           'password': _authService.hashPassword(data['senha']),
         });
 
-
-
         // 2. Inserir Produtor
         final produtorId = await txn.insert('produtor', {
           'usuario_id': userId,

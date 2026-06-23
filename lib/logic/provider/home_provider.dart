@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../data/models/anotacao.dart';
 import '../../data/models/clima_info.dart';
 import '../../data/models/local.dart';
+import '../../data/models/plantio_ativo.dart';
 import '../../data/models/produtor.dart';
 import '../../data/models/propriedade.dart';
 import '../../data/models/user.dart';
@@ -32,6 +33,9 @@ class HomeProvider extends ChangeNotifier {
 
   List<Anotacao> _anotacoesDoDia = [];
   List<Anotacao> get anotacoesDoDia => _anotacoesDoDia;
+
+  List<PlantioAtivo> _plantiosAtivos = [];
+  List<PlantioAtivo> get plantiosAtivos => _plantiosAtivos;
 
   final String _cidadeEstado = "Localização desconhecida";
   String get cidadeEstado => _cidadeEstado;
@@ -65,10 +69,13 @@ class HomeProvider extends ChangeNotifier {
           LocalDAO().getTopThreeLocais(propriedade.id!),
           AnotacaoDAO().getUltimasAnotacoes(propriedade.id!),
           ProdutorDAO().getProdutorByUsuario(user.id!),
+          AnotacaoDAO().getPlantiosAtivos(propriedade.id!),
+
         ]);
         _locais = dataResults[0] as List<Local>;
         _anotacoesDoDia = dataResults[1] as List<Anotacao>;
         _produtor = dataResults[2] as Produtor?;
+        _plantiosAtivos = dataResults[3] as List<PlantioAtivo>;
       }
     } catch (_) {}
   }

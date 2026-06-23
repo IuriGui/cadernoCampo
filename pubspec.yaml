@@ -51,7 +51,8 @@ dependencies:
   geolocator: ^14.0.2
   geocoding: ^4.0.0
   crypto: ^3.0.7
-  collection: ^1.18.0
+  pdf: ^3.10.8
+  printing: ^5.13.1
 
 dev_dependencies:
   flutter_test:

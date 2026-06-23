@@ -67,8 +67,11 @@ class _RegisterCanalEscoamentoScreenState
           if (value == null || value.isEmpty) {
             return 'Por favor, informe o nome ou quantidade';
           }
-          if (_tipo == 'Cestas' && int.tryParse(value) == null || int.parse(value) <= 0){
-            return 'Deve ser um número inteiro maior que zero.';
+          if (_tipo == 'Cestas') {
+            final n = int.tryParse(value);
+            if (n == null || n <= 0) {
+              return 'Deve ser um número inteiro maior que zero.';
+            }
           }
           return null;
         },

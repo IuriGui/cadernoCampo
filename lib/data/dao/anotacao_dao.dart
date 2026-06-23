@@ -1,5 +1,6 @@
 import '../database/app_database.dart';
 import '../models/anotacao.dart';
+import '../models/plantio_ativo.dart';
 
 class AnotacaoDAO {
 
@@ -57,28 +58,41 @@ class AnotacaoDAO {
   }
 
 
-  Future<List<Map<String, dynamic>>>  getPlantiosNaoColhidos() async{
+  Future<List<PlantioAtivo>> getPlantiosAtivos(int propriedadeId) async {
     final db = await AppDatabase().database;
 
-    final maps = await db.rawQuery('''
-      SELECT a.* 
-      FROM anotacao a
-      LEFT JOIN colheita c ON c.anotacao_id = a.id
-      WHERE c.anotacao_id IS NULL
-      AND a.is_deleted = 0; 
-    ''');
+    final maps =  await db.rawQuery('''
+    SELECT
+      a.id,
+      a.data_criacao    AS dataPlantio,
+      a.quantidade,
+      a.unidade_medida,
+      a.observacao,
+      c.nome            AS nomeCultura,
+      c.categoria       AS categoriaCultura,
+      ac.id             AS areaCultivoId,
+      ac.nome           AS nomeArea,
+      l.nome            AS nomeLocal,
+      CAST(julianday('now') - julianday(a.data_criacao) AS INTEGER) AS diasDesdePlantio
+    FROM anotacao a
+    INNER JOIN area_cultivo ac ON ac.id = a.area_cultivo_id
+    INNER JOIN local        l  ON l.id  = ac.local_id
+    LEFT  JOIN cultura      c  ON c.id  = a.cultura_id
+    WHERE a.is_deleted = 0
+      AND l.propriedade_id = ?
+      AND a.atividade_id = (SELECT id FROM atividade WHERE nome = 'Plantio' LIMIT 1)
+      AND NOT EXISTS (
+        SELECT 1 FROM colheita col
+        WHERE col.anotacao_id = a.id
+          AND col.is_deleted = 0
+      )
+    ORDER BY a.data_criacao DESC
+  ''', [propriedadeId]);
 
 
-    print('Rows encontradas: ${maps.length}');
-    for (final row in maps) {
-      print(row);
-    }
-    return maps;
-
+    return maps.map((m) => PlantioAtivo.fromMap(Map<String, dynamic>.from(m))).toList();
 
   }
-
-
 
   Future<List<Anotacao>> getPlantiosNaoColhidosByArea(int id) async {
     final db = await AppDatabase().database;
@@ -171,7 +185,6 @@ class AnotacaoDAO {
     if (maps.isEmpty) throw Exception('Anotação $id não encontrada');
     return maps.first;
   }
-
 
   Future<List<Map<String, dynamic>>> getColheitasByLocal(int localId) async {
     final db = await AppDatabase().database;

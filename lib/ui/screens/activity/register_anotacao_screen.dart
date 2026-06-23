@@ -29,6 +29,7 @@ const _requerInsumo  = {
   'Preparo do solo',
   'Plantio',
   'Cobertura do solo',
+  'Aplicação de bioinsumo'
 };
 const _requerCanalEscoamento = {'Destinar colheita'};
 const _requerQuantidade = {'Colheita'};
@@ -134,7 +135,10 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
       ]);
 
       final colheitas = await AnotacaoDAO().getColheitasByLocal(widget.local.id!);
-      final plantios = await AnotacaoDAO().getPlantiosNaoColhidosByArea(_areaId!);
+
+      final plantios = _areaId != null
+          ? await AnotacaoDAO().getPlantiosNaoColhidosByArea(_areaId!)
+          : <Anotacao>[];
 
 
       setState(() {
@@ -224,8 +228,9 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
                 const SizedBox(height: 24),
                 PrimaryButton(
                   label: 'get plantios Anotação',
-                  onPressed: () async =>  {
-                    _anotacaoDAO.getPlantiosNaoColhidos()
+                  onPressed: ()  {
+                    // _anotacaoDAO.getPlantiosNaoColhidos()
+
                   },
                 ),
                 const SizedBox(height: 24),
@@ -288,6 +293,24 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
     );
   }
 
+  Future<void> _carregarPlantiosDaArea() async {
+    if (_areaId == null) {
+      setState(() {
+        _plantiosNaoColhidos = [];
+        _plantioId = null;
+      });
+      return;
+    }
+    try {
+      final plantios = await _anotacaoDAO.getPlantiosNaoColhidosByArea(_areaId!);
+      setState(() {
+        _plantiosNaoColhidos = plantios;
+        _plantioId = null;
+      });
+    } catch (e) {
+      _showSnackBar('Erro ao carregar plantios: $e');
+    }
+  }
 
   Widget _buildBasicInfoSection() {
     return Column(
@@ -323,18 +346,38 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        DropdownButtonFormField<int>(
-          initialValue: _areaId,
-          decoration: InputDecoration(
-            labelText: 'Área de Cultivo',
-            prefixIcon: Icon(MdiIcons.mapMarkerRadius),
-          ),
-          items: _areas
-              .map((a) => DropdownMenuItem(value: a.id, child: Text(a.nome)))
-              .toList(),
-          onChanged: (v) => setState(() => _areaId = v),
-          validator: (v) => v == null ? '* Obrigatório' : null,
-        ),
+
+        if (_areas.isNotEmpty) ... [
+          DropdownButtonFormField<int>(
+            initialValue: _areaId,
+            decoration: InputDecoration(
+              labelText: 'Área de Cultivo',
+              prefixIcon: Icon(MdiIcons.mapMarkerRadius),
+            ),
+            items: _areas
+                .map((a) => DropdownMenuItem(value: a.id, child: Text(a.nome)))
+                .toList(),
+            onChanged: (v) async {
+              setState(() => _areaId = v);
+              await _carregarPlantiosDaArea();
+            },
+            validator: (v) => v == null ? '* Obrigatório' : null,
+          )
+        ] else ... [
+          InputDecorator(
+            decoration: InputDecoration(
+              labelText: 'Área de Cultivo',
+              prefixIcon: Icon(MdiIcons.mapMarkerRadius),
+              errorText: 'Cadastre uma área de cultivo antes de continuar',
+              errorMaxLines: 2,
+            ),
+            child: Text(
+              'Nenhuma área de cultivo cadastrada para este local',
+              style: TextStyle(color: Colors.grey),
+            ),
+          )
+
+        ],
         const SizedBox(height: 16),
         DropdownButtonFormField<int>(
           initialValue: _atividadeId,
@@ -648,6 +691,11 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
   }
 
   Future<void> _salvarRegistro() async {
+
+    if (_areas.isEmpty) {
+      _showSnackBar('Cadastre uma área de cultivo antes de registrar a anotação.');
+      return;
+    }
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSaving = true);

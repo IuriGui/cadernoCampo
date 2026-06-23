@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../data/models/local.dart';
+import '../../data/models/plantio_ativo.dart';
 import '../../logic/provider/auth_provider.dart';
 import '../../logic/provider/clima_provider.dart';
 import '../../logic/provider/home_provider.dart';
@@ -297,7 +299,6 @@ class _MainContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<HomeProvider>();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -306,16 +307,147 @@ class _MainContent extends StatelessWidget {
         const SizedBox(height: 32),
         const WeatherCard(),
         const SizedBox(height: 32),
+        _CultivosSection(plantios: provider.plantiosAtivos),
+        const SizedBox(height: 32),
         _LocaisSection(locais: provider.locais),
         const SizedBox(height: 32),
         _AcoesSection(),
         const SizedBox(height: 32),
         const _AnotacoesDoDiaSection(),
         const SizedBox(height: 32),
+
       ],
     );
   }
 }
+
+
+
+class _CultivosSection extends StatelessWidget {
+  const _CultivosSection({
+    required this.plantios,
+    this.onVerTodos,
+    this.onTapPlantio,
+  });
+
+  final List<PlantioAtivo> plantios;
+  final VoidCallback? onVerTodos;
+  final void Function(PlantioAtivo plantio)? onTapPlantio;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Minhas culturas',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            if (onVerTodos != null)
+              TextButton(
+                onPressed: onVerTodos,
+                child: const Text(
+                  'Ver todos',
+                  style: TextStyle(color: Colors.green, fontWeight: FontWeight.w600),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (plantios.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Text(
+              'Nenhum plantio ativo no momento.',
+              style: TextStyle(color: Colors.black54),
+            ),
+          )
+        else
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: plantios.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            itemBuilder: (context, index) {
+              final plantio = plantios[index];
+              return _PlantioAtivoCard(
+                plantio: plantio,
+                onTap: onTapPlantio == null ? null : () => onTapPlantio!(plantio),
+              );
+            },
+          ),
+      ],
+    );
+  }
+}
+
+class _PlantioAtivoCard extends StatelessWidget {
+  const _PlantioAtivoCard({required this.plantio, this.onTap});
+
+  final PlantioAtivo plantio;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE8F5E9),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 22,
+              backgroundColor: const Color(0xFFFFD9CF),
+              child: const Icon(Icons.eco, color: Colors.deepOrange, size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    plantio.nomeCultura ?? 'Cultura não informada',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${plantio.nomeArea} • ${plantio.nomeLocal}',
+                    style: const TextStyle(color: Colors.black54, fontSize: 13),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  plantio.tempoDecorrido,
+                  style: const TextStyle(color: Colors.black54, fontSize: 12),
+                ),
+                const SizedBox(height: 4),
+                const Icon(Icons.chevron_right, color: Colors.black38, size: 20),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+
 
 // ---------------------------------------------------------------------------
 // Ultimas anotacoes
@@ -387,29 +519,50 @@ class _AnotacoesDoDiaSection extends StatelessWidget {
 // Calendario
 // ---------------------------------------------------------------------------
 
-class _CalendarStrip extends StatelessWidget {
-  const _CalendarStrip();
+class _CalendarStrip extends StatefulWidget {
+  const _CalendarStrip({this.onDaySelected});
+
+  final void Function(DateTime data)? onDaySelected;
+
+  @override
+  State<_CalendarStrip> createState() => _CalendarStripState();
+}
+
+class _CalendarStripState extends State<_CalendarStrip> {
+  late DateTime _selecionado;
+  late List<DateTime> _dias;
+
+  @override
+  void initState() {
+    super.initState();
+    final hoje = DateTime.now();
+    _selecionado = DateTime(hoje.year, hoje.month, hoje.day);
+    // últimos 7 dias, terminando em hoje
+    _dias = List.generate(7, (i) => _selecionado.subtract(Duration(days: 6 - i)));
+  }
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final monday = now.subtract(Duration(days: now.weekday - 1));
-    const labels = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(5, (i) {
-        final day = monday.add(Duration(days: i));
-        final isToday =
-            day.day == now.day &&
-            day.month == now.month &&
-            day.year == now.year;
-        return _CalendarDay(
-          label: labels[i],
-          date: day.day.toString(),
-          isSelected: isToday,
+      children: _dias.map((dia) {
+        final isSelected = dia.day == _selecionado.day &&
+            dia.month == _selecionado.month &&
+            dia.year == _selecionado.year;
+        return Expanded(
+          child: GestureDetector(
+            onTap: () {
+              setState(() => _selecionado = dia);
+              widget.onDaySelected?.call(dia);
+            },
+            child: _CalendarDay(
+              label: DateFormat('E', 'pt_BR').format(dia).replaceAll('.', ''),
+              date: dia.day.toString(),
+              isSelected: isSelected,
+            ),
+          ),
         );
-      }),
+      }).toList(),
     );
   }
 }
@@ -461,10 +614,9 @@ class _CalendarDay extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _LocaisSection extends StatelessWidget {
+  const _LocaisSection({required this.locais});
 
   final List<Local> locais;
-
-  const _LocaisSection({required this.locais});
 
   IconData _iconByTipo(String tipo) {
     switch (tipo.toLowerCase()) {
@@ -481,16 +633,17 @@ class _LocaisSection extends StatelessWidget {
     }
   }
 
+  String _formatArea(double areaEmMetros) {
+    return areaEmMetros >= 10000
+        ? '${(areaEmMetros / 10000).toStringAsFixed(1)} ha'
+        : '${areaEmMetros.toStringAsFixed(0)} m²';
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.read<AuthProvider>();
     final provider = context.read<HomeProvider>();
     final user = auth.user!;
-    final colors = [
-      Colors.redAccent.shade100,
-      Colors.greenAccent.shade400,
-      Colors.yellow,
-    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -498,66 +651,77 @@ class _LocaisSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Locais',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            const Text('Locais', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             TextButton(
               onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        LocalScreen(),
-                  ),
-                );
+                await Navigator.push(context, MaterialPageRoute(builder: (_) => LocalScreen()));
                 provider.refresh();
               },
-              child: const Text(
-                'Ver todos',
-                style: TextStyle(color: Colors.green),
-              ),
+              child: const Text('Ver todos', style: TextStyle(color: Colors.green)),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         if (locais.isEmpty)
-          const Text('Nenhum local cadastrado.')
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Text('Nenhum local cadastrado.', style: TextStyle(color: Colors.black54)),
+          )
         else
           SizedBox(
-            height: 110,
-            child: ListView.builder(
+            height: 130,
+            child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: locais.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
                 final local = locais[index];
-                final color = colors[index % colors.length];
                 return GestureDetector(
                   onTap: () async {
                     await Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => LocalDetailScreen(local: local, user: user),
-                      ),
+                      MaterialPageRoute(builder: (_) => LocalDetailScreen(local: local, user: user)),
                     );
                     provider.refresh();
                   },
                   child: Container(
-                    width: 90,
-                    margin: const EdgeInsets.only(right: 12),
+                    width: 170,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8F5E9),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-                          child: Icon(_iconByTipo(local.tipo), color: Colors.white, size: 32),
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 16,
+                              backgroundColor: Colors.white,
+                              child: Icon(_iconByTipo(local.tipo), size: 18, color: const Color(0xFF2E7D32)),
+                            ),
+                            const Spacer(),
+                            if (local.quebraVento)
+                               Icon(MdiIcons.weatherWindy, size: 16, color: Colors.blueGrey),
+                            if (local.areaSensivel)
+                              const Padding(
+                                padding: EdgeInsets.only(left: 4),
+                                child: Icon(Icons.warning_amber_rounded, size: 16, color: Colors.orange),
+                              ),
+                          ],
                         ),
-                        const SizedBox(height: 8),
+                        const Spacer(),
                         Text(
                           local.nome,
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${local.tipo} • ${_formatArea(local.areaEmMetros)}',
+                          style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -568,7 +732,6 @@ class _LocaisSection extends StatelessWidget {
               },
             ),
           ),
-
       ],
     );
   }
@@ -635,6 +798,7 @@ class _AcoesSection extends StatelessWidget {
                 provider.refresh();
               },
             ),
+
           ],
         ),
       ],

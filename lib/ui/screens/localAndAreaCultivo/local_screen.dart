@@ -5,6 +5,7 @@ import '../../../data/models/local.dart';
 import '../../../data/models/user.dart';
 import '../../../data/models/propriedade.dart';
 import '../../../logic/provider/auth_provider.dart';
+import '../../../logic/provider/home_provider.dart';
 import '../../widgets/async_list_view.dart';
 import 'local_detail_screen.dart';
 import '../activity/register_anotacao_screen.dart';
@@ -71,7 +72,7 @@ class _LocalScreenState extends State<LocalScreen> {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () async {
                   if (widget.selectionMode) {
-                    Navigator.pushReplacement(
+                    final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => RegisterAnotacaoScreen(
@@ -80,6 +81,11 @@ class _LocalScreenState extends State<LocalScreen> {
                         ),
                       ),
                     );
+                    if (!context.mounted) return;
+                    if (result == true) {
+                      context.read<HomeProvider>().refresh();
+                      Navigator.pop(context, true);
+                    }
                   } else {
                     final result = await Navigator.push(
                       context,

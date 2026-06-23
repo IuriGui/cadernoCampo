@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../theme/app_theme.dart';
+import '../relatorio/relatorio_rastreabilidade_screen.dart';
 
 // ─── helpers de cor e ícone ───────────────────────────────────────────────────
 
@@ -250,6 +251,31 @@ class _AnotacoesDetailScreenState extends State<AnotacoesDetailScreen> {
                         label: 'Quantidade Plantada',
                         value: _fmtQtd(_dbl('quantidade'), _str('unidade_medida')),
                         highlight: true,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => RelatorioRastreabilidadeScreen(
+                                    plantioId: widget.anotacaoId,
+                                  ),
+                                ),
+                              );
+                            },
+                            icon: Icon(MdiIcons.timeline, size: 18),
+                            label: const Text('Ver Relatório de Rastreabilidade'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF22C55E),
+                              side: const BorderSide(color: Color(0xFF22C55E)),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),

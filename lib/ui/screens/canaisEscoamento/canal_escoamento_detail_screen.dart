@@ -116,7 +116,6 @@ class _CanalEscoamentoDetailScreenState
                         (anotacao['nome_cultura'] as String?) ??
                             'Cultura não definida',
                       ),
-                      // TODO Implementar o botão de detalhes
                       onTap: () async{
                         final result = await Navigator.push(
                           context,

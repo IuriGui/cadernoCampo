@@ -152,6 +152,8 @@ class AppDatabase {
         insumo_id INTEGER,
         cultura_id INTEGER,
         colheita_id INTEGER,
+        plantio_id INTEGER,
+
         canal_escoamento_id INTEGER,
         observacao TEXT,
         is_deleted INTEGER DEFAULT 0,
@@ -161,6 +163,7 @@ class AppDatabase {
         FOREIGN KEY (cultura_id) REFERENCES cultura (id)
         FOREIGN KEY (colheita_id) REFERENCES colheita (id)
         FOREIGN KEY (canal_escoamento_id) REFERENCES canal_escoamento (id)
+        FOREIGN KEY (plantio_id) REFERENCES anotacao (id)
       )
     ''');
 
