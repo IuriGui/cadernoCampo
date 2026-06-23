@@ -193,7 +193,10 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
                     }),
                   ],
                 ],
-                if (_exibeCanalEscoamento) _buildColheitaSection(),
+                if (_exibeCanalEscoamento) ...[
+                  const SizedBox(height: 24),
+                  _buildColheitaSection(),
+                ],
                 if (_exibeInsumo) ...[
                   const SizedBox(height: 24),
                   _buildInsumosSection(),
@@ -251,7 +254,6 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
       ),
     );
   }
-
 
   Widget _buildPlantioDropdown() {
     if (_plantiosNaoColhidos.isEmpty) {
@@ -399,6 +401,19 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
   }
 
   Widget _buildColheitaSection() {
+    if (_canais.isEmpty) {
+      return InputDecorator(
+        decoration: InputDecoration(
+          labelText: 'Escoamento da produção',
+          prefixIcon: Icon(MdiIcons.truckDelivery),
+        ),
+        child: Text(
+          'Não há canais de escoamento registrados ainda. Por favor, cadastre um canal',
+          style: TextStyle(color: Colors.grey),
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
