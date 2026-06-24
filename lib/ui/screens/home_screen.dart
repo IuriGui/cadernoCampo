@@ -11,6 +11,7 @@ import '../widgets/anotacao_card.dart';
 import '../widgets/home/weather_card.dart';
 import 'activity/anotacoes_detail_screen.dart';
 import 'canaisEscoamento/canal_escoamento_screen.dart';
+import 'localAndAreaCultivo/register_local_screen.dart';
 import 'supply/insumo_screen.dart';
 import 'supply/register_insumo_screen.dart';
 import 'localAndAreaCultivo/local_screen.dart';
@@ -72,6 +73,167 @@ class _HomeView extends StatelessWidget {
               : const _MainContent(),
         ),
       ),
+      floatingActionButton: auth.propriedade == null
+          ? null
+          : const _HomeFAB(),
+    );
+  }
+}
+
+class _HomeFAB extends StatefulWidget {
+  const _HomeFAB();
+
+  @override
+  State<_HomeFAB> createState() => _HomeFABState();
+}
+
+class _HomeFABState extends State<_HomeFAB> with SingleTickerProviderStateMixin {
+  bool _aberto = false;
+  late AnimationController _controller;
+  late Animation<double> _expandAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _expandAnim = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _toggle() {
+    setState(() => _aberto = !_aberto);
+    _aberto ? _controller.forward() : _controller.reverse();
+  }
+
+  void _fechar() {
+    setState(() => _aberto = false);
+    _controller.reverse();
+  }
+
+  Future<void> _acao(Widget screen) async {
+    _fechar();
+    final provider = context.read<HomeProvider>();
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+    provider.refresh();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final propriedade = context.read<AuthProvider>().propriedade!;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        // Opções
+        FadeTransition(
+          opacity: _expandAnim,
+          child: ScaleTransition(
+            scale: _expandAnim,
+            alignment: Alignment.bottomRight,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                _FABOption(
+                  icon: MdiIcons.packageVariantClosed,
+                  label: 'Registrar Insumo',
+                  color: const Color(0xFF1976D2),
+                  onPressed: () => _acao(RegisterInsumoScreen(propriedade: propriedade)),
+                ),
+                const SizedBox(height: 12),
+                _FABOption(
+                  icon: MdiIcons.tractorVariant,
+                  label: 'Nova Anotação',
+                  color: const Color(0xFF2E7D32),
+                  onPressed: () => _acao(LocalScreen(selectionMode: true)),
+                ),
+                const SizedBox(height: 16),
+                _FABOption(
+                  icon: Icons.location_on,
+                  label: 'Novo Local',
+                  color: const Color(0xFF2E7D32),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => RegisterLocalScreen(propriedade: context.read<AuthProvider>().propriedade!),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16)
+              ],
+            ),
+          ),
+        ),
+        // Botão principal
+        FloatingActionButton(
+          heroTag: 'fab_main',
+          backgroundColor: const Color(0xFF2E7D32),
+          onPressed: _toggle,
+          child: AnimatedRotation(
+            turns: _aberto ? 0.125 : 0,
+            duration: const Duration(milliseconds: 200),
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FABOption extends StatelessWidget {
+  const _FABOption({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Material(
+          color: Colors.white,
+          elevation: 2,
+          borderRadius: BorderRadius.circular(8),
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        FloatingActionButton.small(
+          heroTag: label,
+          backgroundColor: color,
+          onPressed: onPressed,
+          child: Icon(icon, color: Colors.white, size: 20),
+        ),
+      ],
     );
   }
 }
@@ -140,7 +302,6 @@ class _HomeDrawer extends StatelessWidget {
               leading: Icon(MdiIcons.store),
               title: const Text('Canais de escoamento'),
               onTap: (){
-                // TODO vai pra registrar cadastro
                 Navigator.pop(context);
                 Navigator.push(
                   context,
@@ -303,15 +464,19 @@ class _MainContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 16),
-        const _CalendarStrip(),
+        _CalendarStrip(
+          onDaySelected: (dia) {
+            context.read<ClimaProvider>().selecionarDia(dia);
+          },
+        ),
         const SizedBox(height: 32),
         const WeatherCard(),
         const SizedBox(height: 32),
         _CultivosSection(plantios: provider.plantiosAtivos),
         const SizedBox(height: 32),
         _LocaisSection(locais: provider.locais),
-        const SizedBox(height: 32),
-        _AcoesSection(),
+        // const SizedBox(height: 32),
+        // _AcoesSection(),
         const SizedBox(height: 32),
         const _AnotacoesDoDiaSection(),
         const SizedBox(height: 32),
@@ -320,8 +485,6 @@ class _MainContent extends StatelessWidget {
     );
   }
 }
-
-
 
 class _CultivosSection extends StatelessWidget {
   const _CultivosSection({
@@ -472,7 +635,7 @@ class _AnotacoesDoDiaSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
-              'Anotações Mais Recentes',
+              'Anotações Recentes',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             TextButton(

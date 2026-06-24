@@ -107,6 +107,34 @@ class _AnotacoesDetailScreenState extends State<AnotacoesDetailScreen> {
   bool get _temCultura     => _str('nomeCultura') != null;
   bool get _temPlantioVinculado => _str('culturaPlantio') != null || _dbl('quantidadePlantada') != null;
 
+  Future<void> _confirmDelete() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Excluir Anotação'),
+        content: const Text(
+          'Tem certeza que deseja excluir esta anotação? Esta ação não pode ser desfeita.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && mounted) {
+      await _dao.softDeleteAnotacao(widget.anotacaoId);
+      if (mounted) Navigator.pop(context, true);
+    }
+  }
+
   // ── build ──────────────────────────────────────────────────────────────────
 
   @override
@@ -147,6 +175,13 @@ class _AnotacoesDetailScreenState extends State<AnotacoesDetailScreen> {
             backgroundColor: color,
             foregroundColor: Colors.white,
             elevation: 0,
+            actions: [
+              IconButton(
+                onPressed: () => _confirmDelete(),
+                tooltip: 'Excluir anotação',
+                icon: const Icon(Icons.delete_outline),
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
@@ -414,6 +449,11 @@ class _AnotacoesDetailScreenState extends State<AnotacoesDetailScreen> {
   }
 }
 
+
+
+
+
+
 // ─── widgets internos ─────────────────────────────────────────────────────────
 
 class _Section extends StatelessWidget {
@@ -481,6 +521,8 @@ class _Section extends StatelessWidget {
     );
   }
 }
+
+
 
 class _InfoTile extends StatelessWidget {
   final String label;

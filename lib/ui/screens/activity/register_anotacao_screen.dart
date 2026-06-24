@@ -63,6 +63,8 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
   final _quantidadePlantioController = TextEditingController();
   final _unidadePlantioController = TextEditingController();
   final _observacoesController = TextEditingController();
+  final _culturaSearchController = TextEditingController();
+
 
   DateTime _dataSelecionada = DateTime.now();
 
@@ -116,6 +118,7 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
     _quantidadePlantioController.dispose();
     _unidadePlantioController.dispose();
     _observacoesController.dispose();
+    _culturaSearchController.dispose();
     super.dispose();
   }
 
@@ -226,32 +229,6 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
                   onPressed: _salvarRegistro,
                 ),
                 const SizedBox(height: 24),
-                PrimaryButton(
-                  label: 'get plantios Anotação',
-                  onPressed: ()  {
-                    // _anotacaoDAO.getPlantiosNaoColhidos()
-
-                  },
-                ),
-                const SizedBox(height: 24),
-                PrimaryButton(
-                  label: 'get plantios Anotação by area',
-                  onPressed: () async =>  {
-                    _anotacaoDAO.getPlantiosNaoColhidosByArea(_areaId!)
-                  },
-                ),const SizedBox(height: 24),        PrimaryButton(
-                  label: 'teste Colheita',
-                  onPressed: () async =>  {
-                    // _anotacaoDAO.testaColheita()
-                  },
-                ),
-                const SizedBox(height: 24),
-
-
-
-
-
-
               ],
             ),
           ),
@@ -409,21 +386,76 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
   }
 
   Widget _buildCulturaField() {
-    return DropdownButtonFormField<int>(
-      initialValue: _culturaId,
-      decoration: InputDecoration(
-        labelText: 'Cultura',
-        prefixIcon: Icon(MdiIcons.sprout),
-      ),
-      items: _culturas
-          .map((c) => DropdownMenuItem(value: c.id, child: Text(c.nome)))
-          .toList(),
-      onChanged: (v) => setState(() {
-        _culturaId = v;
-        _quantidadePlantioController.clear();
-        _unidadePlantioController.clear();
-      }),
-      validator: (v) => v == null ? '* Obrigatório' : null,
+    return Autocomplete<Cultura>(
+      optionsBuilder: (TextEditingValue textEditingValue) {
+        if (textEditingValue.text.isEmpty) {
+          return _culturas;
+        }
+        return _culturas.where((c) =>
+            c.nome.toLowerCase().contains(textEditingValue.text.toLowerCase()),
+        );
+      },
+      displayStringForOption: (Cultura c) => c.nome,
+      fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+        _culturaSearchController.addListener(() {});
+        return TextFormField(
+          controller: controller,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            labelText: 'Cultura',
+            prefixIcon: Icon(MdiIcons.sprout),
+            suffixIcon: controller.text.isNotEmpty
+                ? IconButton(
+              icon: const Icon(Icons.clear, size: 18),
+              onPressed: () {
+                controller.clear();
+                setState(() {
+                  _culturaId = null;
+                  _quantidadePlantioController.clear();
+                  _unidadePlantioController.clear();
+                });
+              },
+            )
+                : null,
+          ),
+          validator: (_) {
+            if (_culturaId == null) return '* Obrigatório';
+            return null;
+          },
+        );
+      },
+      optionsViewBuilder: (context, onSelected, options) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            elevation: 4,
+            borderRadius: BorderRadius.circular(12),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 200),
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                itemCount: options.length,
+                itemBuilder: (context, index) {
+                  final cultura = options.elementAt(index);
+                  return ListTile(
+                    leading: Icon(MdiIcons.sprout, size: 18, color: AppTheme.primaryGreen),
+                    title: Text(cultura.nome),
+                    onTap: () => onSelected(cultura),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+      onSelected: (Cultura cultura) {
+        setState(() {
+          _culturaId = cultura.id;
+          _quantidadePlantioController.clear();
+          _unidadePlantioController.clear();
+        });
+      },
     );
   }
 
@@ -680,9 +712,13 @@ class _RegisterAnotacaoScreenState extends State<RegisterAnotacaoScreen> {
           DateTime.parse(c['data_criacao']),
         );
         final cultura = c['cultura'] ?? 'Sem cultura';
+        final quantidade = c['quantidade'];
+        final unidade = c['unidade_medida'] ?? '';
+        final qtdLabel = quantidade != null ? ' · $quantidade $unidade' : '';
+
         return DropdownMenuItem<int>(
           value: c['id'] as int,
-          child: Text('$cultura — $data'),
+          child: Text('$cultura — $data$qtdLabel'),
         );
       }).toList(),
       onChanged: (v) => setState(() => _colheitaId = v),

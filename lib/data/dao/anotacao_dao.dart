@@ -189,7 +189,7 @@ class AnotacaoDAO {
   Future<List<Map<String, dynamic>>> getColheitasByLocal(int localId) async {
     final db = await AppDatabase().database;
     return await db.rawQuery('''
-    SELECT c.id, a.data_criacao, cu.nome as cultura
+    SELECT c.id, a.data_criacao, c.unidade_medida, c.quantidade, cu.nome as cultura
     FROM colheita c
     JOIN anotacao a ON a.id = c.anotacao_id
     JOIN area_cultivo ac ON ac.id = a.area_cultivo_id

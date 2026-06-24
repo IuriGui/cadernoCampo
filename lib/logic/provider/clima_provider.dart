@@ -7,26 +7,38 @@ import '/constants/estados.dart';
 import '../services/localizacao_service.dart';
 import '../../data/models/clima_info.dart';
 
-class ClimaProvider extends ChangeNotifier{
-  ClimaInfo? _clima;
+class ClimaProvider extends ChangeNotifier {
+  final Map<DateTime, ClimaInfo> _climaPorDia = {};
   String _cidadeEstado = '';
   bool _isLoading = true;
+  DateTime _diaSelecionado = _normalizar(DateTime.now());
 
-
-  ClimaInfo? get clima => _clima;
   String get cidadeEstado => _cidadeEstado;
   bool get isLoading => _isLoading;
+  DateTime get diaSelecionado => _diaSelecionado;
+
+  /// Clima do dia atualmente selecionado (compatível com o getter antigo)
+  ClimaInfo? get clima => _climaPorDia[_diaSelecionado];
+
+  ClimaInfo? climaDoDia(DateTime dia) => _climaPorDia[_normalizar(dia)];
+
+  static DateTime _normalizar(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  void selecionarDia(DateTime dia) {
+    _diaSelecionado = _normalizar(dia);
+    notifyListeners();
+  }
 
   Future<void> carregarClima() async {
-    // print("Carregando clima...");
     _isLoading = true;
+    notifyListeners();
     try {
       final posicao = await LocalizacaoService.determinarPosicao();
 
       try {
         List<Placemark> placemarks = await placemarkFromCoordinates(
-            posicao.latitude,
-            posicao.longitude
+          posicao.latitude,
+          posicao.longitude,
         );
         if (placemarks.isNotEmpty) {
           final Placemark lugar = placemarks.first;
@@ -52,20 +64,24 @@ class ClimaProvider extends ChangeNotifier{
         ].join(','),
         'hourly': 'relativehumidity_2m',
         'timezone': 'America/Sao_Paulo',
-        'forecast_days': '1',
+        'past_days': '6',     // hoje - 6 dias
+        'forecast_days': '1', // só hoje, sem previsão futura
       });
 
       final response = await http.get(uri).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
-        _clima = ClimaInfo.fromJson(json);
+        final lista = ClimaInfo.fromJsonList(json);
+        _climaPorDia.clear();
+        for (final c in lista) {
+          _climaPorDia[_normalizar(c.data)] = c;
+        }
       }
     } catch (_) {
-      _clima = null;
+      _climaPorDia.clear();
     }
     _isLoading = false;
     notifyListeners();
   }
-
 }

@@ -1,4 +1,5 @@
 class ClimaInfo {
+  final DateTime data;
   final double tempMin;
   final double tempMax;
   final double precipitacaoProbabilidade;
@@ -8,6 +9,7 @@ class ClimaInfo {
   final String direcaoVento;
 
   ClimaInfo({
+    required this.data,
     required this.tempMin,
     required this.tempMax,
     required this.precipitacaoProbabilidade,
@@ -23,35 +25,45 @@ class ClimaInfo {
     return direcoes[index];
   }
 
-  factory ClimaInfo.fromJson(Map<String, dynamic> json) {
+  /// Constrói um ClimaInfo por dia presente na resposta da Open-Meteo.
+  static List<ClimaInfo> fromJsonList(Map<String, dynamic> json) {
     final daily = json['daily'] as Map<String, dynamic>;
     final hourly = json['hourly'] as Map<String, dynamic>;
 
-    final tempMax = (daily['temperature_2m_max'] as List).first as double;
-    final tempMin = (daily['temperature_2m_min'] as List).first as double;
-    final precipitacao = (daily['precipitation_sum'] as List).first as double;
-    final precipProb =
-    ((daily['precipitation_probability_max'] as List).first as num)
-        .toDouble();
-    final vento =
-    ((daily['windspeed_10m_max'] as List).first as num).toDouble();
-    final direcaoGraus =
-    ((daily['winddirection_10m_dominant'] as List).first as num).toDouble();
+    final datas = (daily['time'] as List).cast<String>();
+    final tempsMax = daily['temperature_2m_max'] as List;
+    final tempsMin = daily['temperature_2m_min'] as List;
+    final precipitacoes = daily['precipitation_sum'] as List;
+    final precipProbs = daily['precipitation_probability_max'] as List;
+    final ventos = daily['windspeed_10m_max'] as List;
+    final direcoes = daily['winddirection_10m_dominant'] as List;
+    final umidadesHorarias = hourly['relativehumidity_2m'] as List;
 
-    final umidades = (hourly['relativehumidity_2m'] as List)
-        .take(8)
-        .map((e) => (e as num).toDouble());
-    final umidadeMedia =
-        umidades.reduce((a, b) => a + b) / umidades.length;
+    return List.generate(datas.length, (i) {
+      // primeiras 8h do dia correspondente, pra estimar a umidade média do dia
+      final inicioHora = (i * 24).clamp(0, umidadesHorarias.length);
+      final fimHora = (i * 24 + 8).clamp(0, umidadesHorarias.length);
+      final umidadesDoDia = umidadesHorarias
+          .sublist(inicioHora, fimHora)
+          .map((e) => (e as num).toDouble())
+          .toList();
+      final umidadeMedia = umidadesDoDia.isEmpty
+          ? 0.0
+          : umidadesDoDia.reduce((a, b) => a + b) / umidadesDoDia.length;
 
-    return ClimaInfo(
-      tempMin: tempMin,
-      tempMax: tempMax,
-      precipitacaoProbabilidade: precipProb,
-      precipitacao: precipitacao,
-      umidade: umidadeMedia,
-      velocidadeVento: vento,
-      direcaoVento: _grausParaDirecao(direcaoGraus),
-    );
+      return ClimaInfo(
+        data: DateTime.parse(datas[i]),
+        tempMin: (tempsMin[i] as num).toDouble(),
+        tempMax: (tempsMax[i] as num).toDouble(),
+        precipitacaoProbabilidade: (precipProbs[i] as num).toDouble(),
+        precipitacao: (precipitacoes[i] as num).toDouble(),
+        umidade: umidadeMedia,
+        velocidadeVento: (ventos[i] as num).toDouble(),
+        direcaoVento: _grausParaDirecao((direcoes[i] as num).toDouble()),
+      );
+    });
   }
+
+  /// Mantido por compatibilidade: extrai só o primeiro dia.
+  factory ClimaInfo.fromJson(Map<String, dynamic> json) => fromJsonList(json).first;
 }
